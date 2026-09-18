@@ -20,6 +20,7 @@ import { AyahBlock } from "./AyahBlock"
 import { ReadingModeView } from "./ReadingModeView"
 import { ProgressTracker } from "./ProgressTracker"
 import { SurahMetaHeader } from "./SurahMetaHeader"
+import { WordTapHint } from "./WordTapHint"
 
 
 
@@ -548,6 +549,7 @@ export function QuranReader({ chapter, verses, targetAyahId, targetAyahNonce }: 
   return (
     <>
       <ProgressTracker surahId={activeSurahId ?? chapter.id} />
+      <WordTapHint />
       <article
         ref={articleRef}
         aria-label={`Surah ${chapter.name_simple}`}
