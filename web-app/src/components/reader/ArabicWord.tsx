@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useIsTouch } from "@/hooks/useIsTouch"
 import { useAudioPlayerActions } from "@/context/AudioPlayerContext"
 import { useReaderSettings } from "@/context/ReaderSettingsContext"
@@ -88,6 +89,9 @@ export function ArabicWord({
     }
   }
 
+  const [popoverOpen, setPopoverOpen] = useState(false)
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+
   if (disableTooltip) {
     return (
       <span
@@ -111,7 +115,7 @@ export function ArabicWord({
      word audio lives on a button inside it (WordMeaningContent) */
   if (isTouch) {
     return (
-      <Popover>
+      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
         <PopoverTrigger
           render={(props) => (
             <span {...props} className={triggerClass} tabIndex={0}>
@@ -119,16 +123,18 @@ export function ArabicWord({
             </span>
           )}
         />
-        <PopoverContent side="top" className="w-auto p-3">
-          <WordMeaningContent word={word} verseKey={verseKey} />
-        </PopoverContent>
+        {popoverOpen && (
+          <PopoverContent side="top" className="w-auto p-3">
+            <WordMeaningContent word={word} verseKey={verseKey} />
+          </PopoverContent>
+        )}
       </Popover>
     )
   }
 
   /* Desktop: hover shows meaning (unchanged); click/Enter speaks the word */
   return (
-    <Tooltip>
+    <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
       <TooltipTrigger
         render={(props) => (
           <span
@@ -151,9 +157,11 @@ export function ArabicWord({
           </span>
         )}
       />
-      <TooltipContent side="top">
-        <WordMeaningContent word={word} verseKey={verseKey} />
-      </TooltipContent>
+      {tooltipOpen && (
+        <TooltipContent side="top">
+          <WordMeaningContent word={word} verseKey={verseKey} />
+        </TooltipContent>
+      )}
     </Tooltip>
   )
 }

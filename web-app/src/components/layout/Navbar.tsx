@@ -1,10 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import type { LucideIcon } from "lucide-react"
-import { BookOpenText, Headphones, ImagePlus, Search, Star } from "lucide-react"
+import { BookOpenText, Headphones, ImagePlus } from "lucide-react"
 import { ArabesquePattern } from "@/components/layout/ArabesquePattern"
 import { AuthNav } from "@/components/auth/AuthNav"
 import { LogoWordmark } from "@/components/layout/Logo"
@@ -67,20 +66,9 @@ function NavTabs({ pathname }: { pathname: string }) {
 }
 
 function NavActions() {
-  const { setCommandOpen } = useUI()
   return (
     <div className="flex items-center gap-1.5 sm:gap-2">
       <NavbarResumeButton />
-      <button
-        onClick={() => setCommandOpen(true)}
-        aria-label="Search"
-        className={cn(
-          "flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground transition-colors",
-          FOCUS
-        )}
-      >
-        <Search className="size-5" strokeWidth={1.75} />
-      </button>
       <ThemeSwitcher />
       <AuthNav />
     </div>
@@ -104,27 +92,30 @@ function LogoLink({ className }: { className?: string }) {
 
 export function Navbar() {
   const pathname = usePathname()
-  const { sidebarOpen, focusMode, setCommandOpen } = useUI()
+  const { sidebarOpen, focusMode } = useUI()
   const [scrolled, setScrolled] = useState(false)
-  const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up")
+  const frame = useRef(0)
   const isSurahRoute = /^\/\d+/.test(pathname)
   // The reader uses the sidebar open state
   const sidebarEffectivelyOpen = sidebarOpen
 
   useEffect(() => {
-    let lastScrollY = window.scrollY
-    const onScroll = () => {
+    const measure = () => {
+      frame.current = 0
       setScrolled(window.scrollY > 4)
-      if (window.scrollY > lastScrollY && window.scrollY > 50) {
-        setScrollDirection("down")
-      } else if (window.scrollY < lastScrollY) {
-        setScrollDirection("up")
-      }
-      lastScrollY = window.scrollY
     }
-    onScroll()
+
+    const onScroll = () => {
+      if (frame.current) return
+      frame.current = window.requestAnimationFrame(measure)
+    }
+
+    measure()
     window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
+    return () => {
+      if (frame.current) window.cancelAnimationFrame(frame.current)
+      window.removeEventListener("scroll", onScroll)
+    }
   }, [])
 
   // Focus mode (toggled from ReaderControls) only makes sense on the reader

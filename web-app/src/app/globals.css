@@ -4,7 +4,6 @@
    Noto Naskh Arabic → Arabic UI text (surah names in lists, NOT revelation)
    JetBrains Mono → verse references, ayah numbers, numerals
    ─────────────────────────────────────────────────────────────────────────── */
-@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Public+Sans:wght@400;500;600&family=Noto+Naskh+Arabic:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap");
 
 @import "tailwindcss";
 @import "tw-animate-css";

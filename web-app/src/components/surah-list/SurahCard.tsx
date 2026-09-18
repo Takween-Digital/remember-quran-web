@@ -3,6 +3,7 @@
 import Link from "next/link"
 import type { Chapter } from "@/types/quran"
 import { useHifz } from "@/context/HifzContext"
+import { useSurahContentOptional } from "@/context/SurahContentContext"
 import { cn } from "@/lib/utils"
 
 interface SurahCardProps {
@@ -25,6 +26,7 @@ interface SurahCardProps {
 export function SurahCard({ chapter }: SurahCardProps) {
   const isMakki = chapter.revelation_place === "makkah"
   const { getMemorisedCountForSurah } = useHifz()
+  const surahContent = useSurahContentOptional()
 
   const memorisedCount = getMemorisedCountForSurah(chapter.id)
   const memorisedPct = chapter.verses_count > 0
@@ -34,6 +36,9 @@ export function SurahCard({ chapter }: SurahCardProps) {
   return (
     <Link
       href={`/${chapter.id}`}
+      prefetch={true}
+      onMouseEnter={() => surahContent?.prefetchSurah(chapter.id)}
+      onTouchStart={() => surahContent?.prefetchSurah(chapter.id)}
       dir="ltr"
       className={cn(
         "group relative flex items-center gap-3.5 rounded-[var(--radius-card)] border border-border/50 bg-card p-4 transition-all duration-(--dur-base) ease-(--ease-out) hover:-translate-y-[1px] hover:border-gold-strong/30 hover:shadow-[0_4px_12px_rgba(182,152,91,0.08)]",

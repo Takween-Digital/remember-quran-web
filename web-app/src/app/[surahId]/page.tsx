@@ -7,6 +7,16 @@ interface Props {
   params: Promise<{ surahId: string }>
 }
 
+/** Pre-generate all 114 Surah routes at build time for instant page transitions */
+export function generateStaticParams() {
+  return Array.from({ length: 114 }, (_, i) => ({
+    surahId: String(i + 1),
+  }))
+}
+
+/** Quran chapters metadata never changes; revalidate daily for edge caching */
+export const revalidate = 86400
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { surahId } = await params
   const id = Number(surahId)

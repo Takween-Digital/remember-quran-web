@@ -31,9 +31,9 @@ function SurahSearchInput({
   onChange: (value: string) => void
 }) {
   return (
-    <div className="relative w-full max-w-[15rem]">
+    <div className="relative w-full sm:w-72 md:w-80">
       <Search
-        className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+        className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
         strokeWidth={1.8}
         aria-hidden
       />
@@ -41,12 +41,12 @@ function SurahSearchInput({
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Search surahs…"
+        placeholder="Search surahs by name or number…"
         aria-label="Search surahs by name or number"
         className={cn(
-          "h-8 w-full rounded-full border border-border bg-card py-1 pl-8 pr-7 text-xs",
-          "transition-colors duration-(--dur-base) ease-(--ease-out)",
-          "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring",
+          "h-10 w-full rounded-full border border-border bg-card py-2 pl-10 pr-9 text-sm shadow-2xs",
+          "transition-all duration-(--dur-base) ease-(--ease-out)",
+          "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary",
           "[&::-webkit-search-cancel-button]:hidden",
         )}
       />
@@ -55,9 +55,9 @@ function SurahSearchInput({
           type="button"
           aria-label="Clear search"
           onClick={() => onChange("")}
-          className="absolute right-1.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute right-2.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <X className="size-3" strokeWidth={2} />
+          <X className="size-3.5" strokeWidth={2} />
         </button>
       )}
     </div>
@@ -89,22 +89,30 @@ export function SurahExplorer({ chapters }: { chapters: Chapter[] }) {
   )
 
   return (
-    <section aria-labelledby="all-surahs-heading">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gold">
-            Directory
-          </p>
-          <h2
-            id="all-surahs-heading"
-            className="mt-1 text-xl font-medium tracking-tight"
-          >
-            {filtered.length} {filtered.length === 1 ? "surah" : "surahs"}
-          </h2>
+    <section aria-labelledby="all-surahs-heading" className="space-y-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        {/* Left side: Heading & Filter tabs */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gold">
+              Directory
+            </p>
+            <h2
+              id="all-surahs-heading"
+              className="mt-1 text-xl font-medium tracking-tight text-foreground"
+            >
+              {filtered.length} {filtered.length === 1 ? "surah" : "surahs"}
+            </h2>
+          </div>
+
+          <div className="sm:border-l sm:border-border/60 sm:pl-6">
+            <SurahFilter value={filter} onChange={setFilter} />
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+
+        {/* Right side: Enlarged Search Bar */}
+        <div className="w-full sm:w-auto">
           <SurahSearchInput value={query} onChange={setQuery} />
-          <SurahFilter value={filter} onChange={setFilter} />
         </div>
       </div>
 

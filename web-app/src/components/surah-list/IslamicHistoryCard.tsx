@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { getHistoryFactsFrom } from "@/lib/islamic-history"
 import { useSafeReducedMotion } from "@/hooks/useSafeReducedMotion"
 
-const TICKER_INTERVAL_MS = 3000
+const TICKER_INTERVAL_MS = 5000
 const FACTS = getHistoryFactsFrom()
 
 export function IslamicHistoryCard() {
@@ -22,14 +23,22 @@ export function IslamicHistoryCard() {
     return () => clearInterval(id)
   }, [paused])
 
+  const handlePrev = () => {
+    setIndex((i) => (i - 1 + FACTS.length) % FACTS.length)
+  }
+
+  const handleNext = () => {
+    setIndex((i) => (i + 1) % FACTS.length)
+  }
+
   return (
     <div
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-[#0e6b57] p-6 text-white shadow-sm transition-shadow hover:shadow-md sm:p-8"
     >
-      {/* Decorative pattern could go here */}
-      <div className="absolute -right-16 -top-16 opacity-10 blur-xl">
+      {/* Decorative pattern */}
+      <div className="absolute -right-16 -top-16 opacity-10 blur-xl pointer-events-none">
         <div className="size-64 rounded-full bg-gold" />
       </div>
 
@@ -56,16 +65,46 @@ export function IslamicHistoryCard() {
         </div>
       </div>
       
-      {/* Indicator dots */}
-      <div className="relative z-10 mt-6 flex gap-1.5">
-        {FACTS.map((_, i) => (
-          <div
-            key={i}
-            className={`h-1 rounded-full transition-all duration-300 ${
-              i === index % FACTS.length ? "w-4 bg-gold" : "w-1.5 bg-white/30"
-            }`}
-          />
-        ))}
+      {/* Footer controls: indicator dots + navigation arrows */}
+      <div className="relative z-10 mt-6 flex items-center justify-between">
+        {/* Indicator dots */}
+        <div className="flex items-center gap-1.5" role="tablist" aria-label="Islamic history facts">
+          {FACTS.map((_, i) => {
+            const isActive = i === index % FACTS.length
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`Go to fact ${i + 1}`}
+                aria-current={isActive ? "true" : undefined}
+                className={`h-1.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white ${
+                  isActive ? "w-5 bg-gold" : "w-1.5 bg-white/30 hover:bg-white/50"
+                }`}
+              />
+            )
+          })}
+        </div>
+
+        {/* Navigation arrows */}
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous fact"
+            className="flex size-7 items-center justify-center rounded-full bg-white/10 text-white/80 backdrop-blur-xs transition-all duration-200 hover:bg-white/20 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
+          >
+            <ChevronLeft className="size-4" strokeWidth={2.25} />
+          </button>
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next fact"
+            className="flex size-7 items-center justify-center rounded-full bg-white/10 text-white/80 backdrop-blur-xs transition-all duration-200 hover:bg-white/20 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
+          >
+            <ChevronRight className="size-4" strokeWidth={2.25} />
+          </button>
+        </div>
       </div>
     </div>
   )
