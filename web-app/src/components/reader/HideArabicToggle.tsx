@@ -50,7 +50,7 @@ export function HideArabicToggle({
   // done during render via a tracked-key comparison rather than an effect,
   // so there's no extra render+effect round trip.
   const rangeKey = hideArabicRange
-    ? `${hideArabicRange.start}:${hideArabicRange.end}`
+    ? `${hideArabicRange.surahId}:${hideArabicRange.start}:${hideArabicRange.end}`
     : null
   const [trackedRangeKey, setTrackedRangeKey] = useState(rangeKey)
   if (rangeKey !== trackedRangeKey) {
@@ -80,8 +80,9 @@ export function HideArabicToggle({
 
   function selectRange() {
     setScopeMode("range")
-    if (!rangeReady) return
+    if (surahId == null || !rangeReady) return
     const next = normalizeHideRange(
+      surahId,
       Number(draftStart) || placeholderStart,
       Number(draftEnd) || placeholderEnd,
       maxAyah,
@@ -93,8 +94,8 @@ export function HideArabicToggle({
   }
 
   function applyRange() {
-    if (!rangeReady) return
-    const next = normalizeHideRange(draftStart, draftEnd, maxAyah)
+    if (surahId == null || !rangeReady) return
+    const next = normalizeHideRange(surahId, draftStart, draftEnd, maxAyah)
     if (!next) return
     setHideArabicRange(next)
     setDraftStart(String(next.start))

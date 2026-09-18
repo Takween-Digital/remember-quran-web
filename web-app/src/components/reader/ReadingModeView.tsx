@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react"
 import type { Verse, Word, Chapter } from "@/types/quran"
 import { useChapters } from "@/context/ChaptersContext"
+import { useReaderSettings } from "@/context/ReaderSettingsContext"
 import { useHighlightedWord } from "@/lib/playbackStore"
 import { useQcfPageFont } from "@/hooks/useQcfPageFont"
 import { ArabicWord } from "./ArabicWord"
@@ -101,8 +102,12 @@ function LineWord({
   qcfFontFamily?: string | null
 }) {
   const highlightedPosition = useHighlightedWord(verse.verse_key)
+  const { hideArabic, isVerseInHideScope, isVerseRevealed, toggleVerseReveal } =
+    useReaderSettings()
   const isFirstWordOfAyah =
     word.position === 1 || (verse.words && verse.words[0]?.id === word.id)
+  const hideActive = hideArabic && isVerseInHideScope(verse.verse_key)
+  const revealed = isVerseRevealed(verse.verse_key)
 
   if (word.char_type_name === "end") {
     // If rendered standalone (fallback)
@@ -120,23 +125,8 @@ function LineWord({
     )
   }
 
-  return (
-    <span
-      id={isFirstWordOfAyah ? `ayah-${verse.verse_key.replace(":", "-")}` : undefined}
-      data-verse-key={verse.verse_key}
-      className={cn(
-        qcfFontFamily
-          // QCF renders one glyph per whole word with no space character
-          // between them — the font's own side-bearing is the only gap
-          // unless we add one. me-[0.22em] (margin-inline-end — the visual
-          // left side in this RTL flow, i.e. the gap toward the next word)
-          // gives every word clear, even breathing room without touching
-          // the letter-spacing inside any single word.
-          ? "inline shrink-0 me-[0.22em]"
-          : "inline-flex items-center gap-0.5 sm:gap-1 shrink-0",
-        targetAyahId === verse.verse_number && "rounded-xs bg-primary/10",
-      )}
-    >
+  const wordContent = (
+    <>
       <ArabicWord
         word={word}
         verseKey={verse.verse_key}
@@ -156,6 +146,56 @@ function LineWord({
             onClick={() => onAyahClick(verse)}
           />
         </span>
+      )}
+    </>
+  )
+
+  const masked = hideActive && !revealed
+
+  return (
+    <span
+      id={isFirstWordOfAyah ? `ayah-${verse.verse_key.replace(":", "-")}` : undefined}
+      data-verse-key={verse.verse_key}
+      className={cn(
+        qcfFontFamily
+          // QCF renders one glyph per whole word with no space character
+          // between them — the font's own side-bearing is the only gap
+          // unless we add one. me-[0.22em] (margin-inline-end — the visual
+          // left side in this RTL flow, i.e. the gap toward the next word)
+          // gives every word clear, even breathing room without touching
+          // the letter-spacing inside any single word.
+          ? "inline shrink-0 me-[0.22em]"
+          : "inline-flex items-center gap-0.5 sm:gap-1 shrink-0",
+        targetAyahId === verse.verse_number && "rounded-xs bg-primary/10",
+      )}
+    >
+      {masked ? (
+        // Inert + blurred until tapped — mirrors HideableArabic's compact
+        // masked state. Words from the same verse can span several printed
+        // lines; tapping any one of them reveals the whole verse at once
+        // since they all read the same shared `isVerseRevealed` state.
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={() => toggleVerseReveal(verse.verse_key)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              toggleVerseReveal(verse.verse_key)
+            }
+          }}
+          aria-label={`Reveal Arabic for ${verse.verse_key}`}
+          className={cn(
+            "inline cursor-pointer select-none rounded-sm blur-[5px] opacity-65 saturate-50",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
+          )}
+        >
+          <span className="pointer-events-none" aria-hidden>
+            {wordContent}
+          </span>
+        </span>
+      ) : (
+        wordContent
       )}
     </span>
   )

@@ -37,32 +37,40 @@ export function parseVerseKey(input: unknown): ParsedVerseKey | null {
   return { surahId, ayahId }
 }
 
-/** Inclusive ayah range for memorisation hide scope (session-only). */
-export type HideArabicRange = { start: number; end: number }
+/**
+ * Inclusive ayah range for memorisation hide scope (session-only), pinned to
+ * the surah it was created for — infinite scroll can put more than one surah
+ * on screen at once, and ayah numbers alone collide across surahs (e.g. both
+ * Al-Fatihah and Al-Baqarah have an ayah 5).
+ */
+export type HideArabicRange = { surahId: number; start: number; end: number }
 
 /**
- * Clamp + swap start/end into a valid inclusive range for the current surah.
- * Returns null for non-integers or when maxAyah is invalid.
+ * Clamp + swap start/end into a valid inclusive range for the given surah.
+ * Returns null for non-integers or when surahId/maxAyah is invalid.
  */
 export function normalizeHideRange(
+  surahId: number,
   start: unknown,
   end: unknown,
   maxAyah: number,
 ): HideArabicRange | null {
   const s = typeof start === "number" ? start : Number(start)
   const e = typeof end === "number" ? end : Number(end)
+  if (!Number.isInteger(surahId) || surahId < 1) return null
   if (!Number.isInteger(s) || !Number.isInteger(e)) return null
   if (!Number.isInteger(maxAyah) || maxAyah < 1) return null
   const a = Math.min(Math.max(s, 1), maxAyah)
   const b = Math.min(Math.max(e, 1), maxAyah)
-  return { start: Math.min(a, b), end: Math.max(a, b) }
+  return { surahId, start: Math.min(a, b), end: Math.max(a, b) }
 }
 
 /** null range = whole surah is in hide scope. */
 export function isAyahInHideRange(
+  surahId: number,
   ayahNum: number,
   range: HideArabicRange | null,
 ): boolean {
   if (!range) return true
-  return ayahNum >= range.start && ayahNum <= range.end
+  return surahId === range.surahId && ayahNum >= range.start && ayahNum <= range.end
 }

@@ -367,9 +367,13 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
 
   const isVerseInHideScope = useCallback(
     (verseKey: string) => {
-      const ayah = Number(verseKey.split(":")[1])
-      if (!Number.isInteger(ayah) || ayah < 1) return false
-      return isAyahInHideRange(ayah, hideArabicRange)
+      const [surahRaw, ayahRaw] = verseKey.split(":")
+      const surah = Number(surahRaw)
+      const ayah = Number(ayahRaw)
+      if (!Number.isInteger(surah) || !Number.isInteger(ayah) || ayah < 1) {
+        return false
+      }
+      return isAyahInHideRange(surah, ayah, hideArabicRange)
     },
     [hideArabicRange],
   )
@@ -384,16 +388,19 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
   }, [])
 
   // With infinite scroll, more than one surah can be on screen at once. A
-  // fixed ayah Range is always scoped to the base surah (ranges are
-  // surah-relative), but "All ayahs" scope means everything currently
-  // loaded — so it must span every appended surah, not just the base one.
+  // fixed ayah Range is always scoped to the surah it was created for
+  // (hideArabicRange.surahId) — not necessarily whichever surah is currently
+  // "active" while scrolling — but "All ayahs" scope means everything
+  // currently loaded, so it must span every appended surah from the active
+  // one, not just the base one.
   const revealAllInHideScope = useCallback(
     (sid: number, maxAyah: number, latestSid?: number | null) => {
       if (hideArabicRange) {
+        const { surahId: rangeSurahId, start, end } = hideArabicRange
         setRevealedVerseKeys((prev) => {
           const next = new Set(prev)
-          for (let a = hideArabicRange.start; a <= hideArabicRange.end; a++) {
-            next.add(`${sid}:${a}`)
+          for (let a = start; a <= end; a++) {
+            next.add(`${rangeSurahId}:${a}`)
           }
           return next
         })
@@ -415,10 +422,11 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
   const hideAllInHideScope = useCallback(
     (sid: number) => {
       if (hideArabicRange) {
+        const { surahId: rangeSurahId, start, end } = hideArabicRange
         setRevealedVerseKeys((prev) => {
           const next = new Set(prev)
-          for (let a = hideArabicRange.start; a <= hideArabicRange.end; a++) {
-            next.delete(`${sid}:${a}`)
+          for (let a = start; a <= end; a++) {
+            next.delete(`${rangeSurahId}:${a}`)
           }
           return next
         })
