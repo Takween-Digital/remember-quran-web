@@ -44,13 +44,13 @@ export function SurahFilter({
             onClick={() => onChange(optionValue)}
             onPointerDown={ripple.onPointerDown}
             className={cn(
-              "ripple-host rounded-full border px-3 py-1.5 text-xs font-medium",
+              "ripple-host rounded-full border px-3.5 py-1.5 text-[13px] font-medium",
               "transition-[transform,background-color,border-color,color] duration-(--dur-base) ease-(--ease-out)",
               "hover:-translate-y-px active:translate-y-0",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               selected
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-transparent bg-transparent text-muted-foreground hover:bg-muted",
+                ? "border-primary bg-primary text-primary-foreground shadow-2xs"
+                : "border-border/60 bg-background/50 text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
             {label}
