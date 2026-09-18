@@ -7,7 +7,6 @@ import { useReaderSettings } from "@/context/ReaderSettingsContext"
 import { getWordAudioUrl } from "@/lib/audioSources"
 import { buildTajweedSpans } from "@/lib/tajweed"
 import type { Word } from "@/types/quran"
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { WordMeaningContent } from "./WordMeaningContent"
 import { cn } from "@/lib/utils"
@@ -90,7 +89,6 @@ export function ArabicWord({
   }
 
   const [popoverOpen, setPopoverOpen] = useState(false)
-  const [tooltipOpen, setTooltipOpen] = useState(false)
 
   if (disableTooltip) {
     return (
@@ -111,31 +109,19 @@ export function ArabicWord({
     )
   }
 
-  /* Touch: tap keeps opening the meaning popover exactly as before —
-     word audio lives on a button inside it (WordMeaningContent) */
-  if (isTouch) {
-    return (
-      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-        <PopoverTrigger
-          render={(props) => (
-            <span {...props} className={triggerClass} tabIndex={0}>
-              {wordContent()}
-            </span>
-          )}
-        />
-        {popoverOpen && (
-          <PopoverContent side="top" className="w-auto p-3">
-            <WordMeaningContent word={word} verseKey={verseKey} />
-          </PopoverContent>
-        )}
-      </Popover>
-    )
+  /* Tap/click opens a popup with the word's meaning plus Hear / Grammar /
+     Bookmark actions (RQ-12) — on desktop it also speaks the word
+     immediately, same as before; on touch the Hear button inside the popup
+     does that instead, so a scrolling tap doesn't trigger surprise audio. */
+  function handleActivate() {
+    if (!isTouch && actions && getWordAudioUrl(word)) actions.playWord(word)
+    setPopoverOpen(true)
   }
 
-  /* Desktop: hover shows meaning (unchanged); click/Enter speaks the word */
   return (
-    <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-      <TooltipTrigger
+    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+      <PopoverTrigger
+        nativeButton={false}
         render={(props) => (
           <span
             {...props}
@@ -143,13 +129,13 @@ export function ArabicWord({
             tabIndex={0}
             onClick={(e) => {
               props.onClick?.(e)
-              if (actions && getWordAudioUrl(word)) actions.playWord(word)
+              handleActivate()
             }}
             onKeyDown={(e) => {
               props.onKeyDown?.(e)
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault()
-                if (actions && getWordAudioUrl(word)) actions.playWord(word)
+                handleActivate()
               }
             }}
           >
@@ -157,11 +143,11 @@ export function ArabicWord({
           </span>
         )}
       />
-      {tooltipOpen && (
-        <TooltipContent side="top">
+      {popoverOpen && (
+        <PopoverContent side="top" className="w-auto p-3">
           <WordMeaningContent word={word} verseKey={verseKey} />
-        </TooltipContent>
+        </PopoverContent>
       )}
-    </Tooltip>
+    </Popover>
   )
 }
