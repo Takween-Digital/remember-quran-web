@@ -44,12 +44,19 @@ function shouldSkipForNetwork(): boolean {
 
 const loadPromises = new Map<number, Promise<boolean>>()
 
+/** A hung fetch (e.g. a corporate proxy/antivirus mangling the font
+ * response — seen in the wild on locked-down Windows networks) can leave
+ * `fontFace.load()` pending forever instead of ever rejecting. Cap how long
+ * a page's glyph font is allowed to block before callers fall back to the
+ * Unicode rendering instead of waiting indefinitely. */
+const FONT_LOAD_TIMEOUT_MS = 4000
+
 /**
  * Loads and registers the glyph font for one Mushaf page. Resolves `true`
- * once the font is ready to use, `false` if the fetch/parse failed (callers
- * should keep rendering the Unicode fallback in that case). Safe to call
- * repeatedly for the same page — subsequent calls reuse the in-flight or
- * settled promise.
+ * once the font is ready to use, `false` if the fetch/parse failed or timed
+ * out (callers should keep rendering the Unicode fallback in that case).
+ * Safe to call repeatedly for the same page — subsequent calls reuse the
+ * in-flight or settled promise.
  */
 export function loadQcfPageFont(pageNumber: number): Promise<boolean> {
   if (typeof document === "undefined" || typeof FontFace === "undefined") {
@@ -66,7 +73,7 @@ export function loadQcfPageFont(pageNumber: number): Promise<boolean> {
   }
 
   const family = qcfFontFamily(pageNumber)
-  const promise = (async () => {
+  const attempt = (async () => {
     try {
       const fontFace = new FontFace(family, `url(${QCF_FONT_BASE}/p${pageNumber}.woff2)`)
       fontFace.display = "swap"
@@ -81,6 +88,20 @@ export function loadQcfPageFont(pageNumber: number): Promise<boolean> {
     }
   })()
 
-  loadPromises.set(pageNumber, promise)
-  return promise
+  const timeout = new Promise<boolean>((resolve) => {
+    setTimeout(() => resolve(false), FONT_LOAD_TIMEOUT_MS)
+  })
+
+  const raced = Promise.race([attempt, timeout])
+  loadPromises.set(pageNumber, raced)
+
+  // If the real attempt only finishes *after* the timeout already resolved
+  // this call as `false`, correct the cache so a later remount of this page
+  // (e.g. scrolling away and back) gets the successful result immediately
+  // instead of being stuck replaying the same timeout.
+  void attempt.then((ok) => {
+    if (ok) loadPromises.set(pageNumber, Promise.resolve(true))
+  })
+
+  return raced
 }

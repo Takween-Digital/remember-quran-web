@@ -65,9 +65,14 @@ html {
   --font-mono: var(--font-jetbrains-mono), ui-monospace, "Cascadia Code", monospace;
   --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
   --font-arabic-ui: var(--font-noto-naskh), serif;
-  --font-arabic: "UthmanicHafs", "KFGQPC Uthmanic Hafs", serif;
-  --font-uthmani: "UthmanicHafs", "KFGQPC Uthmanic Hafs", serif;
-  --font-kfgqpc-v2: "KFGQPC_HAFS_V2", "UthmanicHafs", serif;
+  /* "Traditional Arabic"/"Segoe UI" cover Quranic tashkeel far better than
+     generic `serif` does on Windows (Times New Roman) while a font is
+     loading or if it fails outright — macOS's own serif substitution
+     already handles Arabic reasonably, so this only matters as a
+     Windows-specific safety net. */
+  --font-arabic: "UthmanicHafs", "KFGQPC Uthmanic Hafs", "Traditional Arabic", "Segoe UI", serif;
+  --font-uthmani: "UthmanicHafs", "KFGQPC Uthmanic Hafs", "Traditional Arabic", "Segoe UI", serif;
+  --font-kfgqpc-v2: "KFGQPC_HAFS_V2", "UthmanicHafs", "Traditional Arabic", "Segoe UI", serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -454,7 +459,7 @@ h1, h2, h3, .font-serif {
 /* Quranic text — always King Fahd Complex Uthmanic Hafs */
 .font-uthmani,
 [data-quran-text] {
-  font-family: "UthmanicHafs", "KFGQPC Uthmanic Hafs", serif !important;
+  font-family: "UthmanicHafs", "KFGQPC Uthmanic Hafs", "Traditional Arabic", "Segoe UI", serif !important;
   line-height: var(--quran-leading);
   direction: rtl;
 }
@@ -473,7 +478,7 @@ h1, h2, h3, .font-serif {
    text in light mode, one step brighter in dark. Tajweed spans override
    `color` on their own children, so this is safe as a base. */
 .quran-arabic {
-  font-family: var(--reader-arabic-font, "UthmanicHafs"), "KFGQPC Uthmanic Hafs", serif !important;
+  font-family: var(--reader-arabic-font, "UthmanicHafs"), "KFGQPC Uthmanic Hafs", "Traditional Arabic", "Segoe UI", serif !important;
   font-size: var(--arabic-font-size, 2.25rem);
   line-height: 2;
   word-spacing: 0.05em;
@@ -1056,7 +1061,7 @@ h1, h2, h3, .font-serif {
   .mushaf-flow {
     display: block;
     width: 100%;
-    font-family: "UthmanicHafs", "KFGQPC Uthmanic Hafs", serif !important;
+    font-family: "UthmanicHafs", "KFGQPC Uthmanic Hafs", "Traditional Arabic", "Segoe UI", serif !important;
     text-align: justify;
     text-align-last: right;
     text-justify: right;

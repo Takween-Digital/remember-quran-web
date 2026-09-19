@@ -201,6 +201,37 @@ function LineWord({
   )
 }
 
+/** Line widths cycle through a few plausible printed-line lengths so the
+ * skeleton reads as "text about to appear" rather than a uniform block. */
+const SKELETON_LINE_WIDTHS = ["94%", "80%", "97%", "70%", "88%", "60%"]
+
+/** Placeholder shown in place of a Mushaf page's text body while its QCF
+ * glyph font is still loading — avoids the reflow of painting the Unicode
+ * fallback first and then swapping to the (differently kerned/justified)
+ * QCF glyphs a moment later once the font resolves. */
+function MushafPageSkeleton({ centered, lineCount }: { centered: boolean; lineCount: number }) {
+  return (
+    <div
+      role="status"
+      aria-label="Loading page"
+      className={cn(
+        "w-full animate-pulse",
+        centered ? "flex flex-col items-center gap-3 py-2" : "flex flex-col gap-3 py-1",
+      )}
+    >
+      <span className="sr-only">Loading…</span>
+      {Array.from({ length: lineCount }).map((_, i) => (
+        <div
+          key={i}
+          aria-hidden="true"
+          className="h-[1em] rounded bg-muted/70"
+          style={{ width: SKELETON_LINE_WIDTHS[i % SKELETON_LINE_WIDTHS.length] }}
+        />
+      ))}
+    </div>
+  )
+}
+
 /** Juz/hizb marker breaking the flow at section boundaries */
 function SectionMarker({
   arabicLabel,
@@ -288,7 +319,10 @@ function ReadingPage({
 
   // Falls back to the Unicode qpc_uthmani_hafs/text_uthmani rendering
   // already in ArabicWord/AyahEndMarker until this page's font resolves.
-  const qcfFontFamily = useQcfPageFont(page.pageNumber, isNearViewport)
+  const { fontFamily: qcfFontFamily, isLoading: fontLoading } = useQcfPageFont(
+    page.pageNumber,
+    isNearViewport,
+  )
 
   const isNewJuz = !!prevPage && page.juzNumber !== prevPage.juzNumber
   const isNewHizb = !isNewJuz && !!prevPage && page.hizbNumber !== prevPage.hizbNumber
@@ -367,7 +401,12 @@ function ReadingPage({
                   "flex flex-col justify-between gap-[0.4em] min-h-[min(78cqw,68dvh,41.25rem)] py-0.5",
           )}
         >
-          {isCenteredOpeningPage ? (
+          {fontLoading ? (
+            <MushafPageSkeleton
+              centered={isCenteredOpeningPage}
+              lineCount={isCenteredOpeningPage ? Math.max(page.verses.length, 3) : 15}
+            />
+          ) : isCenteredOpeningPage ? (
             // Opening pages (Fatihah / Baqarah 1-5): Continuous centered calligraphic flow
             page.verses.map((verse) => (
               <div key={verse.id} className="w-full text-center">
