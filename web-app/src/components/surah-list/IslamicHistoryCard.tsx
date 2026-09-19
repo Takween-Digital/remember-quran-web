@@ -7,12 +7,17 @@ import { getHistoryFactsFrom } from "@/lib/islamic-history"
 import { useSafeReducedMotion } from "@/hooks/useSafeReducedMotion"
 
 const TICKER_INTERVAL_MS = 5000
-const FACTS = getHistoryFactsFrom()
 
 export function IslamicHistoryCard() {
+  // Computed inside the component (not at module scope) so it re-evaluates
+  // per request/mount instead of being frozen for the lifetime of the server
+  // process — a module-level call only runs once when the module first
+  // loads, which drifts a day stale after the server's been up across a UTC
+  // midnight, causing a hydration mismatch against the always-fresh client.
+  const [FACTS] = useState(() => getHistoryFactsFrom())
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
-  const fact = useMemo(() => FACTS[index % FACTS.length], [index])
+  const fact = useMemo(() => FACTS[index % FACTS.length], [FACTS, index])
   const prefersReducedMotion = useSafeReducedMotion()
 
   useEffect(() => {
