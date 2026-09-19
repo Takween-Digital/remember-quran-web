@@ -10,7 +10,6 @@ import { ReciterSettingsSelector } from "./ReciterSettingsSelector"
 import { TajweedToggle } from "./TajweedToggle"
 import { TajweedLegend } from "./TajweedLegend"
 import { HideArabicToggle } from "./HideArabicToggle"
-import { InfiniteScrollToggle } from "./InfiniteScrollToggle"
 import { TafsirBookSelector } from "@/components/study/TafsirBookSelector"
 
 function Section({
@@ -44,7 +43,6 @@ export function ReaderSettingsPanel({
       <Section title="View">
         <DisplayModeToggle />
         <HideArabicToggle onRequestClose={onRequestClose} />
-        <InfiniteScrollToggle />
       </Section>
 
       <div className="h-px bg-border/60" />

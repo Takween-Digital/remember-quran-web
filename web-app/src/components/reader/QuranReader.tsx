@@ -13,7 +13,7 @@ import {
   QURAN_FONT_FAMILY,
 } from "@/lib/readerFonts"
 import { cn } from "@/lib/utils"
-import { Play, Pause, Loader2 } from "lucide-react"
+import { Play, Pause, Loader2, ArrowRight } from "lucide-react"
 import { useAudioPlayer } from "@/context/AudioPlayerContext"
 import { BismillahHeader } from "./BismillahHeader"
 import { AyahBlock } from "./AyahBlock"
@@ -97,7 +97,6 @@ export function QuranReader({ chapter, verses, targetAyahId, targetAyahNonce }: 
     readingModeArabicFontSize,
     translationFontSize,
     arabicFontFamily,
-    infiniteScroll,
   } = useReaderSettings()
   const {
     activeSurahId,
@@ -105,10 +104,16 @@ export function QuranReader({ chapter, verses, targetAyahId, targetAyahNonce }: 
     latestSurahId,
     appendNextSurah,
     isAppending,
-    earliestSurahId,
-    prependPreviousSurah,
-    isPrepending,
+    loadSurah,
   } = useSurahContent()
+
+  const isReading = displayMode === "reading"
+  // Reading mode shows exactly the selected surah only — no auto-loading
+  // neighbouring surahs. Verse-by-verse mode keeps the auto-load-next-surah
+  // convenience (this used to be a user-facing "Infinite scroll" setting;
+  // now it's just tied to display mode instead of a toggle).
+  const infiniteScroll = !isReading
+  const nextChapter = useChapterMeta(chapter.id < 114 ? chapter.id + 1 : null)
 
   const shouldReduceMotion = useSyncExternalStore(
     subscribeReduceMotion,
@@ -289,84 +294,6 @@ export function QuranReader({ chapter, verses, targetAyahId, targetAyahNonce }: 
     return () => observer.disconnect()
   }, [infiniteScroll, appendNextSurah, latestSurahId])
 
-  // Backward infinite scroll (Reading mode only — see topSentinel's comment
-  // at its render site for why). Prepending grows the page *above* the
-  // current scroll position, so without compensation the viewport would
-  // visually jump down by the height of whatever just got inserted. Capture
-  // the scroll height right before triggering the fetch, then once the new
-  // content has actually painted, add the delta back to scrollTop so the
-  // ayah the user was reading stays exactly where it was on screen.
-  const pendingPrependRef = useRef<{ scrollHeight: number; scrollTop: number } | null>(null)
-  const topSentinelRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!infiniteScroll) return
-    const el = topSentinelRef.current
-    if (!el) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries.some((entry) => entry.isIntersecting) &&
-          !pendingPrependRef.current &&
-          !autoScrollingRef.current
-        ) {
-          pendingPrependRef.current = {
-            scrollHeight: document.documentElement.scrollHeight,
-            scrollTop: window.scrollY,
-          }
-          prependPreviousSurah()
-        }
-      },
-      { rootMargin: "1200px 0px 0px 0px" },
-    )
-
-    if (earliestSurahId !== chapter.id) {
-      // Already prepended at least once — the user is clearly mid-scroll,
-      // not on a fresh load, so there's no initial-jump race to guard
-      // against here. Observe right away for a responsive continuous scroll.
-      observer.observe(el)
-      return () => observer.disconnect()
-    }
-
-    // Nothing prepended yet: this is a fresh load, where the page starts at
-    // scrollY 0 — trivially "near the top" — until the jump-to-target-ayah
-    // effect above scrolls it to wherever the route actually points.
-    // `autoScrollingRef` covers that for a *distant* target ayah, but
-    // landing on ayah 1 barely moves the page at all, so its whole scroll
-    // (and `scrollend`) can complete inside the brief window before this
-    // observer even attaches. Deferring the `observe()` call itself past
-    // that window closes the gap outright, rather than trying to out-race it.
-    const armTimer = window.setTimeout(() => observer.observe(el), 800)
-    return () => {
-      window.clearTimeout(armTimer)
-      observer.disconnect()
-    }
-  }, [infiniteScroll, prependPreviousSurah, earliestSurahId, chapter.id])
-
-  useLayoutEffect(() => {
-    const pending = pendingPrependRef.current
-    if (!pending) return
-    pendingPrependRef.current = null
-    const delta = document.documentElement.scrollHeight - pending.scrollHeight
-    if (delta > 0) {
-      // `behavior: "auto"` means "instant, unless CSS scroll-behavior says
-      // smooth" — and the site sets exactly that globally, which would turn
-      // this compensation into a visible multi-second glide (the opposite
-      // of invisible) and race with the very scroll position it's trying to
-      // correct. "instant" bypasses CSS entirely, which is what a same-frame
-      // correction actually needs.
-      window.scrollTo({ top: pending.scrollTop + delta, behavior: "instant" })
-    }
-  }, [verses])
-
-  // A failed prepend never touches `verses`, so the effect above never runs
-  // to clear the pending marker — without this, one failed fetch would wedge
-  // the sentinel shut forever. Runs after the effect above in the same
-  // commit, so on success this is already a no-op (ref cleared there first).
-  useLayoutEffect(() => {
-    if (!isPrepending) pendingPrependRef.current = null
-  }, [isPrepending])
-
   const prevDisplayModeRef = useRef(displayMode)
   useLayoutEffect(() => {
     if (prevDisplayModeRef.current === displayMode) return
@@ -477,8 +404,6 @@ export function QuranReader({ chapter, verses, targetAyahId, targetAyahNonce }: 
     })
   }, [activePlaybackKey, shouldReduceMotion])
 
-  const isReading = displayMode === "reading"
-
   // Group verses by surah so "verse" mode can render a divider wherever
   // infinite scroll has appended a new surah below the base one. Reading
   // mode needs no equivalent — ReadingModeView already groups by mushaf
@@ -569,27 +494,6 @@ export function QuranReader({ chapter, verses, targetAyahId, targetAyahNonce }: 
           } as React.CSSProperties
         }
       >
-        {/* Backward infinite scroll — Reading mode only. Verse-by-verse mode's
-            surah dividers assume any leading group is just page-boundary
-            bleed from the adjacent surah (a couple of stray verses), not a
-            genuinely prepended surah, so wiring this in there would render
-            prepended content with no divider in front of it. Reading mode's
-            mushaf-page grouping has no such assumption and Just Works. */}
-        {isReading && infiniteScroll && earliestSurahId != null && (
-          <div className="mb-8 flex flex-col items-center gap-2 py-4">
-            {earliestSurahId > 1 ? (
-              <>
-                {isPrepending && infiniteScrollSkeleton}
-                <div ref={topSentinelRef} aria-hidden className="h-px w-full" />
-              </>
-            ) : (
-              <p className="text-xs text-muted-foreground/70">
-                You&apos;ve reached the beginning of the Qur&apos;an — Surah Al-Fatihah.
-              </p>
-            )}
-          </div>
-        )}
-
         {!isReading && <SurahMetaHeader chapter={chapter}>{playButton}</SurahMetaHeader>}
 
         {!isReading && chapter.bismillah_pre && <BismillahHeader />}
@@ -627,6 +531,27 @@ export function QuranReader({ chapter, verses, targetAyahId, targetAyahNonce }: 
                 <div ref={sentinelRef} aria-hidden className="h-px w-full" />
                 {isAppending && infiniteScrollSkeleton}
               </>
+            ) : (
+              <p className="text-xs text-muted-foreground/70">
+                You&apos;ve reached the end of the Qur&apos;an — Surah An-Nas.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Reading mode loads exactly one surah — no auto-loading the next
+            one on scroll. Offer an explicit link instead. */}
+        {isReading && (
+          <div className="mt-10 flex flex-col items-center gap-3 py-6">
+            {nextChapter ? (
+              <button
+                type="button"
+                onClick={() => loadSurah(nextChapter.id)}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                Continue to Surah {nextChapter.name_simple}
+                <ArrowRight className="size-4" strokeWidth={1.75} />
+              </button>
             ) : (
               <p className="text-xs text-muted-foreground/70">
                 You&apos;ve reached the end of the Qur&apos;an — Surah An-Nas.

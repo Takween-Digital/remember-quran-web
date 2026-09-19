@@ -55,8 +55,6 @@ export interface ReaderSettings {
   tajweedEnabled: boolean
   /** Memorisation: blur Arabic until tapped (M5) — default false */
   hideArabic: boolean
-  /** Auto-load the next surah as the reader scrolls to the bottom — default false */
-  infiniteScroll: boolean
 }
 
 interface ReaderSettingsContextValue extends ReaderSettings {
@@ -74,7 +72,6 @@ interface ReaderSettingsContextValue extends ReaderSettings {
   setTafsirSlug: (slug: string) => void
   setTajweedEnabled: (enabled: boolean) => void
   setHideArabic: (enabled: boolean) => void
-  setInfiniteScroll: (enabled: boolean) => void
   /**
    * Session-only: when hide Arabic is on, limit blur to this inclusive range.
    * null = whole surah (default).
@@ -117,7 +114,6 @@ const DEFAULT_SETTINGS: ReaderSettings = {
   tafsirSlug: DEFAULT_TAFSIR_SLUG,
   tajweedEnabled: false,
   hideArabic: false,
-  infiniteScroll: true,
 }
 
 function clampScale(n: number): FontScale {
@@ -189,10 +185,6 @@ function migrateSettings(raw: unknown): ReaderSettings {
       typeof s.hideArabic === "boolean"
         ? s.hideArabic
         : DEFAULT_SETTINGS.hideArabic,
-    infiniteScroll:
-      typeof s.infiniteScroll === "boolean"
-        ? s.infiniteScroll
-        : DEFAULT_SETTINGS.infiniteScroll,
   }
 }
 
@@ -351,11 +343,6 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
     [setSettings],
   )
 
-  const setInfiniteScroll = useCallback(
-    (infiniteScroll: boolean) => setSettings((p) => ({ ...p, infiniteScroll })),
-    [setSettings],
-  )
-
   const setHideArabicRange = useCallback((range: HideArabicRange | null) => {
     setHideArabicRangeState(range)
   }, [])
@@ -458,7 +445,6 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
         setTafsirSlug,
         setTajweedEnabled,
         setHideArabic,
-        setInfiniteScroll,
         hideArabicRange,
         setHideArabicRange,
         isVerseRevealed,
