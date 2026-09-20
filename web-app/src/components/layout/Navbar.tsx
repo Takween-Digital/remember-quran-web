@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { BookOpenText, Headphones, ImagePlus, LayoutGrid } from "lucide-react"
 import { ArabesquePattern } from "@/components/layout/ArabesquePattern"
-import { authClient } from "@/lib/auth/client"
+import { useAuth } from "@/components/auth/AuthProvider"
 import { AuthNav } from "@/components/auth/AuthNav"
 import { LogoWordmark } from "@/components/layout/Logo"
 import { NavbarResumeButton } from "@/components/layout/NavbarResumeButton"
@@ -41,8 +41,8 @@ const TABS = [
  * deep (profile menu → Account overview) — surface it as a normal top-level
  * tab, same as Quran/Listen/Create, once they're actually signed in. */
 function useDashboardTab() {
-  const { data: session } = authClient.useSession()
-  if (!session?.user) return []
+  const { user } = useAuth()
+  if (!user) return []
   return [
     {
       href: "/account",

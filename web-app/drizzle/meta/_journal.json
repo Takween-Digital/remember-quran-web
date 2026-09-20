@@ -15,6 +15,20 @@
       "when": 1789897244223,
       "tag": "0001_add_notes_highlight_color",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789941033750,
+      "tag": "0002_tan_agent_brand",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789941259157,
+      "tag": "0003_mushy_brood",
+      "breakpoints": true
     }
   ]
 }

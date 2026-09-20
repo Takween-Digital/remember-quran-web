@@ -15,6 +15,7 @@ import { HifzProvider } from "@/context/HifzContext"
 import { SoftGateDialog } from "@/components/auth/SoftGateDialog"
 import { RouteChangeEffect } from "@/components/layout/RouteChangeEffect"
 import { ServiceWorkerRegister } from "@/components/providers/ServiceWorkerRegister"
+import { AuthProvider } from "@/components/auth/AuthProvider"
 import type { Chapter } from "@/types/quran"
 
 export default function Providers({
@@ -33,30 +34,32 @@ export default function Providers({
         disableTransitionOnChange
       >
         <TooltipProvider delay={150}>
-          <ChaptersProvider chapters={chapters}>
-            <UIProvider>
-              <SurahContentProvider>
-                <ReaderSettingsProvider>
-                  <AudioPlayerProvider>
-                    <StudyPanelProvider>
-                      <SoftGateProvider>
-                        <BookmarksProvider>
-                          <NotesProvider>
-                            <HifzProvider>
-                              <RouteChangeEffect />
-                              <ServiceWorkerRegister />
-                              {children}
-                              <SoftGateDialog />
-                            </HifzProvider>
-                          </NotesProvider>
-                        </BookmarksProvider>
-                      </SoftGateProvider>
-                    </StudyPanelProvider>
-                  </AudioPlayerProvider>
-                </ReaderSettingsProvider>
-              </SurahContentProvider>
-            </UIProvider>
-          </ChaptersProvider>
+          <AuthProvider>
+            <ChaptersProvider chapters={chapters}>
+              <UIProvider>
+                <SurahContentProvider>
+                  <ReaderSettingsProvider>
+                    <AudioPlayerProvider>
+                      <StudyPanelProvider>
+                        <SoftGateProvider>
+                          <BookmarksProvider>
+                            <NotesProvider>
+                              <HifzProvider>
+                                <RouteChangeEffect />
+                                <ServiceWorkerRegister />
+                                {children}
+                                <SoftGateDialog />
+                              </HifzProvider>
+                            </NotesProvider>
+                          </BookmarksProvider>
+                        </SoftGateProvider>
+                      </StudyPanelProvider>
+                    </AudioPlayerProvider>
+                  </ReaderSettingsProvider>
+                </SurahContentProvider>
+              </UIProvider>
+            </ChaptersProvider>
+          </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
   )

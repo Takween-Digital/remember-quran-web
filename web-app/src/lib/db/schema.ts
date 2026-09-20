@@ -11,11 +11,8 @@ export const users = sqliteTable(
     name: text("name").notNull().default(""),
     displayName: text("display_name").notNull().default(""),
     email: text("email").notNull().unique(),
-    emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
     image: text("image"),
     avatarUrl: text("avatar_url"),
-    passwordHash: text("password_hash").notNull().default(""),
-    passwordChangedAt: integer("password_changed_at", { mode: "timestamp_ms" }).notNull().default(new Date(0)),
     roles: text("roles", { mode: "json" }).$type<string[]>().notNull().default(["user"]),
     moderationFlagged: integer("moderation_flagged", { mode: "boolean" }).notNull().default(false),
     moderationSuspended: integer("moderation_suspended", { mode: "boolean" }).notNull().default(false),
@@ -50,45 +47,6 @@ export const users = sqliteTable(
     uniqueIndex("users_email_idx").on(table.email),
   ]
 )
-
-/** Better Auth: sessions */
-export const session = sqliteTable("session", {
-  id: text("id").primaryKey(),
-  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
-  token: text("token").notNull().unique(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
-  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-})
-
-/** Better Auth: accounts */
-export const account = sqliteTable("account", {
-  id: text("id").primaryKey(),
-  accountId: text("account_id").notNull(),
-  providerId: text("provider_id").notNull(),
-  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  accessToken: text("access_token"),
-  refreshToken: text("refresh_token"),
-  idToken: text("id_token"),
-  accessTokenExpiresAt: integer("access_token_expires_at", { mode: "timestamp_ms" }),
-  refreshTokenExpiresAt: integer("refresh_token_expires_at", { mode: "timestamp_ms" }),
-  scope: text("scope"),
-  password: text("password"),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
-})
-
-/** Better Auth: verification tokens */
-export const verification = sqliteTable("verification", {
-  id: text("id").primaryKey(),
-  identifier: text("identifier").notNull(),
-  value: text("value").notNull(),
-  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }),
-})
 
 /**
  * Hifz / Memorised Ayahs
@@ -126,9 +84,6 @@ export const notes = sqliteTable(
     userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
     verseKey: text("verse_key").notNull(),
     text: text("text").notNull(),
-    // E-12: verse highlight colour ("yellow" | "green" | "blue" | "pink"),
-    // null = no highlight. Lives on the same row as the note — a row can now
-    // exist for a highlight alone (empty text), a note alone, or both.
     highlightColor: text("highlight_color"),
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),

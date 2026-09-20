@@ -3,7 +3,9 @@
 import Link from "next/link"
 import { useState, useEffect, type FormEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { authClient } from "@/lib/auth/client"
+import { auth } from "@/lib/firebase/client"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { useAuth } from "@/components/auth/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
@@ -17,19 +19,15 @@ const fieldLabel =
 export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { data: session, isPending: sessionPending } = authClient.useSession()
+  const { user: sessionUser, loading: sessionPending } = useAuth()
   const next = safeNextPath(searchParams.get("next"), "/account")
 
-  // If the user is already authenticated on the client, immediately send them to destination
   useEffect(() => {
-    if (!sessionPending && session?.user) {
+    if (!sessionPending && sessionUser) {
       window.location.assign(next)
     }
-  }, [sessionPending, session, next])
+  }, [sessionPending, sessionUser, next])
 
-  // Set by the failure branch below via a real top-level navigation back to
-  // this same page (see its comment for why) — read once on load, then
-  // stripped from the URL so refreshing doesn't re-show a stale error.
   const failedEmail = searchParams.get("loginFailed") ? searchParams.get("email") : null
 
   const [email, setEmail] = useState(failedEmail ?? "")
@@ -45,9 +43,7 @@ export function LoginForm() {
     url.searchParams.delete("loginFailed")
     url.searchParams.delete("email")
     router.replace(`${url.pathname}${url.search}`, { scroll: false })
-    // Only ever meant to run once, against the URL the page loaded with.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [router, searchParams])
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -61,24 +57,27 @@ export function LoginForm() {
 
     setPending(true)
     try {
-      const result = await authClient.signIn.email({
-        email: parsed.data.email,
-        password: parsed.data.password,
+      const userCredential = await signInWithEmailAndPassword(auth, parsed.data.email, parsed.data.password)
+      const idToken = await userCredential.user.getIdToken()
+      
+      const res = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
       })
 
-      if (result.error) {
-        const url = new URL(window.location.href)
-        url.searchParams.set("loginFailed", "1")
-        url.searchParams.set("email", parsed.data.email)
-        window.location.assign(url.toString())
-        return
+      if (!res.ok) {
+        throw new Error("Failed to create session")
       }
 
       window.location.assign(next)
     } catch {
-      setError("Something went wrong. Please try again.")
-      setPassword("")
-      setPending(false)
+      const url = new URL(window.location.href)
+      url.searchParams.set("loginFailed", "1")
+      url.searchParams.set("email", parsed.data.email)
+      window.location.assign(url.toString())
     }
   }
 

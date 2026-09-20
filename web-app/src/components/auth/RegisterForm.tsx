@@ -2,7 +2,9 @@
 
 import { useState, useEffect, type FormEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { authClient } from "@/lib/auth/client"
+import { auth } from "@/lib/firebase/client"
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { useAuth } from "@/components/auth/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
@@ -16,16 +18,14 @@ const fieldLabel =
 export function RegisterForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { data: session, isPending: sessionPending } = authClient.useSession()
-  // Prefer the intended page; default new accounts to their personal hub
+  const { user: sessionUser, loading: sessionPending } = useAuth()
   const next = safeNextPath(searchParams.get("next"), "/account")
 
-  // If the user is already authenticated on the client, immediately send them to destination
   useEffect(() => {
-    if (!sessionPending && session?.user) {
+    if (!sessionPending && sessionUser) {
       window.location.assign(next)
     }
-  }, [sessionPending, session, next])
+  }, [sessionPending, sessionUser, next])
 
   const [displayName, setDisplayName] = useState("")
   const [email, setEmail] = useState("")
@@ -50,56 +50,29 @@ export function RegisterForm() {
 
     setPending(true)
     try {
-      const controller = new AbortController()
-      const timeoutId = window.setTimeout(() => controller.abort(), 25_000)
-
-      let res: Response
-      try {
-        res = await fetch("/api/account/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: parsed.data.email,
-            password: parsed.data.password,
-            displayName: displayName.trim(),
-          }),
-          signal: controller.signal,
-        })
-      } finally {
-        window.clearTimeout(timeoutId)
+      const userCredential = await createUserWithEmailAndPassword(auth, parsed.data.email, parsed.data.password)
+      
+      if (displayName.trim()) {
+        await updateProfile(userCredential.user, { displayName: displayName.trim() })
       }
 
-      const data = (await res.json().catch(() => ({}))) as { error?: string }
-
-      if (!res.ok) {
-        // Re-enable the form so the user can correct the input and retry.
-        setError(data.error ?? "Could not create your account.")
-        setPassword("")
-        setPending(false)
-        return
-      }
-
-      const result = await authClient.signIn.email({
-        email: parsed.data.email,
-        password: parsed.data.password,
+      const idToken = await userCredential.user.getIdToken()
+      
+      const res = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken, displayName: displayName.trim() }),
       })
 
-      if (result.error) {
-        setError("Account created — please sign in.")
-        router.push(`/login?next=${encodeURIComponent(next)}`)
-        setPending(false)
-        return
+      if (!res.ok) {
+        throw new Error("Failed to create session")
       }
 
       window.location.assign(next)
-    } catch (err) {
-      const aborted =
-        err instanceof DOMException && err.name === "AbortError"
-      setError(
-        aborted
-          ? "Creating your account is taking too long. Please try again."
-          : "Something went wrong. Please try again.",
-      )
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.")
       setPassword("")
       setPending(false)
     }

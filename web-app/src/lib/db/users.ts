@@ -26,14 +26,11 @@ export interface Streak {
 export interface UserRecord {
   id: string
   email: string
-  passwordHash: string
   profile: { displayName: string; avatarUrl: string | null }
   roles: string[]
   moderation: { flagged: boolean; suspended: boolean }
   settings: Record<string, unknown>
   lastPosition: LastPosition | null
-  emailVerified: Date | null
-  passwordChangedAt: Date
   activeGoal: ActiveGoal | null
   streak: Streak
   viewedSurahs: number[]
@@ -51,7 +48,6 @@ function mapUserRow(row: typeof users.$inferSelect): UserRecord {
   return {
     id: row.id,
     email: row.email,
-    passwordHash: row.passwordHash,
     profile: {
       displayName: row.displayName,
       avatarUrl: row.avatarUrl,
@@ -70,8 +66,6 @@ function mapUserRow(row: typeof users.$inferSelect): UserRecord {
           updatedAt: new Date(row.lastPosition.updatedAt),
         }
       : null,
-    emailVerified: row.emailVerified ? new Date() : null,
-    passwordChangedAt: new Date(row.passwordChangedAt),
     activeGoal: row.activeGoal ?? null,
     streak: {
       currentStreak: row.streak?.currentStreak ?? 0,
@@ -105,7 +99,6 @@ export type CreateUserResult =
 export async function createUser(input: {
   id?: string
   email: string
-  passwordHash: string
   displayName: string
 }): Promise<CreateUserResult> {
   const db = getDb()
@@ -119,7 +112,7 @@ export async function createUser(input: {
   await db.insert(users).values({
     id: userId,
     email: normalizedEmail,
-    passwordHash: input.passwordHash,
+    name: input.displayName,
     displayName: input.displayName,
     avatarUrl: null,
     roles: ["user"],
@@ -127,8 +120,6 @@ export async function createUser(input: {
     moderationSuspended: false,
     settings: {},
     lastPosition: null,
-    emailVerified: false,
-    passwordChangedAt: now,
     activeGoal: null,
     streak: {
       currentStreak: 0,
@@ -165,8 +156,6 @@ export async function changeEmail(
     .update(users)
     .set({
       email: normalized,
-      emailVerified: false,
-      passwordChangedAt: now,
       updatedAt: now,
     })
     .where(eq(users.id, userId))
@@ -184,34 +173,6 @@ export async function updateDisplayName(
     .set({
       displayName,
       updatedAt: new Date(),
-    })
-    .where(eq(users.id, userId))
-}
-
-export async function updatePasswordHash(
-  userId: string,
-  passwordHash: string,
-): Promise<void> {
-  const db = getDb()
-  const now = new Date()
-  await db
-    .update(users)
-    .set({
-      passwordHash,
-      passwordChangedAt: now,
-      updatedAt: now,
-    })
-    .where(eq(users.id, userId))
-}
-
-export async function touchPasswordChangedAt(userId: string): Promise<void> {
-  const db = getDb()
-  const now = new Date()
-  await db
-    .update(users)
-    .set({
-      passwordChangedAt: now,
-      updatedAt: now,
     })
     .where(eq(users.id, userId))
 }
@@ -235,3 +196,4 @@ export async function updateLastPosition(
     })
     .where(eq(users.id, userId))
 }
+

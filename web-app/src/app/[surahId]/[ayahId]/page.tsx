@@ -1,10 +1,29 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
-import { getChapter } from "@/lib/quranApi"
+import { getChapter, getChapters } from "@/lib/quranApi"
 import { SurahBootstrap } from "@/components/reader/SurahBootstrap"
 
 interface Props {
   params: Promise<{ surahId: string; ayahId: string }>
+}
+
+export const dynamicParams = true
+export const revalidate = 86400
+
+export async function generateStaticParams() {
+  const chapters = await getChapters()
+  const params: { surahId: string; ayahId: string }[] = []
+
+  for (const chapter of chapters) {
+    for (let ayah = 1; ayah <= chapter.verses_count; ayah++) {
+      params.push({
+        surahId: String(chapter.id),
+        ayahId: String(ayah),
+      })
+    }
+  }
+
+  return params
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

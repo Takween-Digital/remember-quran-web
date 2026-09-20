@@ -1,7 +1,7 @@
-import type { Metadata } from "next"
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { redirect } from "next/navigation"
-import { auth } from "@/auth"
 import {
   ArrowUpRight,
   Bookmark,
@@ -11,40 +11,63 @@ import {
   TrendingUp,
 } from "lucide-react"
 import { ContinuePrompt } from "@/components/account/ContinuePrompt"
-import { evaluateGoalAndStreak } from "@/lib/db/goals"
-import { countBookmarks } from "@/lib/db/bookmarks"
-import { countMemorisedAyahs } from "@/lib/db/hifz"
-import { countNotes } from "@/lib/db/notes"
-import { getUserById } from "@/lib/db/users"
-import { getRequestTimeZone } from "@/lib/progress/serverTimezone"
 
-export const metadata: Metadata = {
-  title: "Account",
+type SummaryData = {
+  user: { email: string; name: string; viewedSurahs: string[] }
+  bookmarkCount: number
+  noteCount: number
+  hifzCount: number
+  goals: {
+    streak: { currentStreak: number }
+    todayCount: number
+    goal?: { target: number; type: string }
+  }
 }
 
-export const dynamic = "force-dynamic"
+export default function AccountPage() {
+  const [data, setData] = useState<SummaryData | null>(null)
+  const [loading, setLoading] = useState(true)
 
-export default async function AccountPage() {
-  const session = await auth()
-  if (!session?.user?.id) {
-    redirect("/login?next=/account")
+  useEffect(() => {
+    fetch("/api/account/summary")
+      .then((res) => {
+        if (!res.ok) {
+          if (res.status === 401) {
+            window.location.href = "/login?next=/account"
+          }
+          throw new Error("Failed to fetch")
+        }
+        return res.json()
+      })
+      .then((json) => {
+        setData(json)
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error(err)
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading || !data) {
+    return (
+      <div className="max-w-4xl animate-pulse">
+        <div className="h-6 w-24 rounded bg-muted"></div>
+        <div className="mt-4 h-10 w-64 rounded bg-muted"></div>
+        <div className="mt-4 h-4 w-96 rounded bg-muted"></div>
+        <div className="mt-12 h-32 w-full rounded-xl bg-muted"></div>
+        <div className="mt-8 grid gap-3 sm:grid-cols-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-32 rounded-xl bg-muted"></div>
+          ))}
+        </div>
+      </div>
+    )
   }
 
-  const name =
-    session.user.name?.trim() ||
-    session.user.email?.split("@")[0] ||
-    "friend"
-
-  const timeZone = await getRequestTimeZone()
-  const [bookmarkCount, noteCount, hifzCount, user, goals] =
-    await Promise.all([
-      countBookmarks(session.user.id),
-      countNotes(session.user.id),
-      countMemorisedAyahs(session.user.id),
-      getUserById(session.user.id),
-      evaluateGoalAndStreak(session.user.id, timeZone),
-    ])
-  const viewedSurahs = user?.viewedSurahs ?? []
+  const { user, bookmarkCount, noteCount, hifzCount, goals } = data
+  const name = user.name?.trim() || user.email?.split("@")[0] || "friend"
+  const viewedSurahs = user.viewedSurahs ?? []
 
   const summaries = [
     {
@@ -167,7 +190,7 @@ export default async function AccountPage() {
       </section>
 
       <p className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground">
-        Signed in as {session.user.email}
+        Signed in as {user.email}
       </p>
     </div>
   )

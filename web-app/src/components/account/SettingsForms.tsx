@@ -89,7 +89,7 @@ export function SettingsForms({
       setProfilePending(false)
       return
     }
-    await update({ name: displayName.trim() })
+    await update()
     router.refresh()
     setProfileStatus({ success: "Profile updated." })
     setProfilePending(false)
@@ -109,7 +109,7 @@ export function SettingsForms({
       setEmailPending(false)
       return
     }
-    await signOut({ callbackUrl: "/login?next=/account/settings" })
+    await signOut()
   }
 
   async function changePassword(event: FormEvent) {
@@ -129,7 +129,7 @@ export function SettingsForms({
       setPasswordPending(false)
       return
     }
-    await signOut({ callbackUrl: "/login?next=/account/settings" })
+    await signOut()
   }
 
   return (
