@@ -1,13 +1,13 @@
-import { auth } from "@/auth"
+import { APIError } from "better-auth"
+import { auth } from "@/lib/auth"
 import { privateJson } from "@/lib/auth/api-response"
 import { validatePassword } from "@/lib/auth/credentials"
-import { getUserById, updatePasswordHash } from "@/lib/db/users"
-import { hashPassword, verifyPassword } from "@/lib/auth/password"
-
+import { sendPasswordChangedEmail } from "@/lib/email/hostinger"
+import { runInBackground } from "@/lib/runInBackground"
 
 export async function PATCH(request: Request) {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const sessionResult = await auth.api.getSession({ headers: request.headers })
+  if (!sessionResult?.user?.id) {
     return privateJson({ error: "Unauthorized." }, 401)
   }
 
@@ -38,24 +38,39 @@ export async function PATCH(request: Request) {
     return privateJson({ error: "New passwords do not match." }, 400)
   }
 
-  const user = await getUserById(session.user.id)
-  if (!user) return privateJson({ error: "Account not found." }, 404)
-
-  const correctPassword = await verifyPassword(user.passwordHash, body.currentPassword)
-  if (!correctPassword) {
-    return privateJson({ error: "Current password is incorrect." }, 400)
-  }
-
-  const unchanged = await verifyPassword(user.passwordHash, newPassword.password)
-  if (unchanged) {
+  if (body.currentPassword === newPassword.password) {
     return privateJson(
       { error: "Choose a password different from your current one." },
       400,
     )
   }
 
-  const newHash = await hashPassword(newPassword.password)
-  await updatePasswordHash(user.id, newHash)
+  try {
+    // Goes through better-auth's own change-password so the credential
+    // `account` row it actually verifies against (not the legacy
+    // `users.passwordHash` column this route used to check, which is empty
+    // for every account created via the current sign-up flow) gets updated.
+    await auth.api.changePassword({
+      headers: request.headers,
+      body: {
+        currentPassword: body.currentPassword,
+        newPassword: newPassword.password,
+        revokeOtherSessions: true,
+      },
+    })
+  } catch (error) {
+    if (error instanceof APIError) {
+      const status = error.statusCode >= 400 && error.statusCode < 600 ? error.statusCode : 400
+      return privateJson(
+        { error: error.body?.message ?? "Current password is incorrect." },
+        status,
+      )
+    }
+    console.error("Password change failed", error)
+    return privateJson({ error: "Could not change your password." }, 500)
+  }
+
+  await runInBackground(sendPasswordChangedEmail(sessionResult.user.email))
 
   return privateJson({ ok: true, reauthenticate: true })
 }

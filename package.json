@@ -8,7 +8,8 @@
     "dev": "npm run dev --workspace=web-app",
     "build": "npm run build --workspace=web-app",
     "start": "npm run start --workspace=web-app",
-    "lint": "npm run lint --workspace=web-app"
+    "lint": "npm run lint --workspace=web-app",
+    "postinstall": "node scripts/fix-ecies-ciphers-nesting.cjs"
   },
   "overrides": {
     "uuid": "11.1.1"

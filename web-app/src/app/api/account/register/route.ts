@@ -3,6 +3,8 @@ import { APIError } from "better-auth"
 import { validateCredentials } from "@/lib/auth/credentials"
 import { getUserByEmail } from "@/lib/db/users"
 import { auth } from "@/lib/auth"
+import { sendWelcomeEmail } from "@/lib/email/hostinger"
+import { runInBackground } from "@/lib/runInBackground"
 
 export const maxDuration = 30
 
@@ -74,6 +76,13 @@ export async function POST(request: Request) {
         password: parsed.data.password,
       },
     })
+
+    // Best-effort — a welcome email failing to send shouldn't fail an
+    // otherwise-successful registration. Backgrounded via waitUntil, not a
+    // bare fire-and-forget promise: Workers can terminate the execution
+    // context the instant the response below is returned, which would
+    // otherwise cut the SMTP connection off mid-handshake.
+    await runInBackground(sendWelcomeEmail(result.user.email, displayName || null))
 
     return json(
       {
