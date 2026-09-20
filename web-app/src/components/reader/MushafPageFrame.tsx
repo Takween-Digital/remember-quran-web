@@ -122,11 +122,12 @@ export function MushafPageFrame({
           "bg-reader-paper text-reader-ink",
           "border border-reader-paper-edge rounded-sm shadow-[var(--reader-paper-shadow)]",
           "p-1 sm:p-2.5 md:p-3.5",
+          "aspect-[1/1.5] flex flex-col"
         )}
       >
         {/* Authentic Madani Double Gold Hairline Border Frame */}
-        <div className="relative rounded-xs border-2 border-reader-paper-gilt p-0.5 sm:p-1 md:p-1.5">
-          <div className="relative rounded-xs border border-reader-paper-gilt/60 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5">
+        <div className="relative rounded-xs border-2 border-reader-paper-gilt p-0.5 sm:p-1 md:p-1.5 h-full flex flex-col">
+          <div className="relative rounded-xs border border-reader-paper-gilt/60 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 flex-1 flex flex-col">
             {/* Top Page Header: Classical Manuscript Header Bar (Surah and Juz) */}
             <header className="mb-2 sm:mb-3 flex items-center justify-between border-b-2 border-reader-paper-gilt/60 pb-1 px-1.5 select-none text-center">
               <div className="flex items-center gap-1.5">
@@ -150,7 +151,7 @@ export function MushafPageFrame({
             </header>
 
             {/* Main Quranic Text Body (15-line flow) */}
-            <main className="relative z-10 min-h-[360px] py-1">
+            <main className="relative z-10 flex-1 flex flex-col justify-center py-1">
               {children}
             </main>
 
