@@ -136,7 +136,7 @@ const DEFAULT_SETTINGS: ReaderSettings = {
   tajweedEnabled: false,
   hideArabic: false,
   autoFollowRecitation: true,
-  readingLayout: "scroll",
+  readingLayout: "paged",
   readerTheme: "default",
   splitViewTranslation: false,
 }
