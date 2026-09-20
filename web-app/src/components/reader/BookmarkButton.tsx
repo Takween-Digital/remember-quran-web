@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react"
 import { Bookmark, Loader2, Plus, Star } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
 import {
   Popover,
   PopoverContent,

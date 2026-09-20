@@ -2,9 +2,10 @@
 
 import { useState, useEffect, type FormEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { signIn, useSession } from "next-auth/react"
+import { authClient } from "@/lib/auth/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { validateCredentials } from "@/lib/auth/credentials"
 import { safeNextPath } from "@/lib/auth/safe-next"
 import { cn } from "@/lib/utils"
@@ -15,16 +16,16 @@ const fieldLabel =
 export function RegisterForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { data: session, status } = useSession()
+  const { data: session, isPending: sessionPending } = authClient.useSession()
   // Prefer the intended page; default new accounts to their personal hub
   const next = safeNextPath(searchParams.get("next"), "/account")
 
   // If the user is already authenticated on the client, immediately send them to destination
   useEffect(() => {
-    if (status === "authenticated" && session?.user) {
+    if (!sessionPending && session?.user) {
       window.location.assign(next)
     }
-  }, [status, session, next])
+  }, [sessionPending, session, next])
 
   const [displayName, setDisplayName] = useState("")
   const [email, setEmail] = useState("")
@@ -78,21 +79,18 @@ export function RegisterForm() {
         return
       }
 
-      const result = await signIn("credentials", {
+      const result = await authClient.signIn.email({
         email: parsed.data.email,
         password: parsed.data.password,
-        redirect: false,
-        callbackUrl: next,
       })
 
-      if (!result || result.error) {
+      if (result.error) {
         setError("Account created — please sign in.")
         router.push(`/login?next=${encodeURIComponent(next)}`)
         setPending(false)
         return
       }
 
-      // Hard navigation ensures fresh cookie headers are sent to the server/proxy
       window.location.assign(next)
     } catch (err) {
       const aborted =
@@ -148,10 +146,9 @@ export function RegisterForm() {
         <label htmlFor="register-password" className={fieldLabel}>
           Password
         </label>
-        <Input
+        <PasswordInput
           id="register-password"
           name="password"
-          type="password"
           autoComplete="new-password"
           required
           minLength={8}

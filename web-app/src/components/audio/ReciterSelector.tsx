@@ -8,7 +8,7 @@ import { RECITERS, getReciter } from "@/lib/audioSources"
 import { cn } from "@/lib/utils"
 
 const barBtn = cn(
-  "flex size-8 items-center justify-center rounded-md",
+  "flex size-10 items-center justify-center rounded-md",
   "text-muted-foreground transition-colors duration-[120ms]",
   "hover:bg-accent hover:text-foreground",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
@@ -52,7 +52,7 @@ export function ReciterSelector() {
             aria-label={`Reciter: ${current.name}`}
             className={barBtn}
           >
-            <MicVocal className="size-4" strokeWidth={1.75} />
+            <MicVocal className="size-5" strokeWidth={1.75} />
           </button>
         )}
       />

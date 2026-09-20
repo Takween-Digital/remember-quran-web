@@ -11,6 +11,7 @@ import {
 } from "react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { useSurahContent } from "@/context/SurahContentContext"
+import { useUI } from "@/context/UIContext"
 import {
   DEFAULT_TRANSLATIONS,
   isRegisteredTranslationId,
@@ -38,6 +39,14 @@ import {
 /** verse = translation/verse-by-verse view; reading = continuous Arabic (mushaf-like); card = verse-card grid */
 export type DisplayMode = "verse" | "reading"
 
+/** Reading mode layout: scroll = continuous vertical flow (default); paged = one Mushaf page at a time, turned via swipe/arrow keys */
+export type ReadingLayout = "scroll" | "paged"
+
+/** Reading-surface palette (E-07) — overrides --reader-paper/--reader-ink/etc.
+ * regardless of the site's own light/dark/modern theme. "default" defers to
+ * whatever the active site theme already sets (Nur light, dark, or modern). */
+export type ReaderTheme = "default" | "sepia" | "parchment" | "amoled"
+
 
 /** @deprecated Use FontScale — kept for migration from older localStorage */
 export type FontSize = "small" | "medium" | "large" | "xlarge"
@@ -55,6 +64,14 @@ export interface ReaderSettings {
   tajweedEnabled: boolean
   /** Memorisation: blur Arabic until tapped (M5) — default false */
   hideArabic: boolean
+  /** Reading mode: highlight + auto-scroll the printed line as it's recited — default true */
+  autoFollowRecitation: boolean
+  /** Reading mode layout — default "scroll" */
+  readingLayout: ReadingLayout
+  /** Reading-surface palette — default "default" */
+  readerTheme: ReaderTheme
+  /** Reading mode (Scroll layout only): side-by-side translation column — default false */
+  splitViewTranslation: boolean
 }
 
 interface ReaderSettingsContextValue extends ReaderSettings {
@@ -72,6 +89,10 @@ interface ReaderSettingsContextValue extends ReaderSettings {
   setTafsirSlug: (slug: string) => void
   setTajweedEnabled: (enabled: boolean) => void
   setHideArabic: (enabled: boolean) => void
+  setAutoFollowRecitation: (enabled: boolean) => void
+  setReadingLayout: (layout: ReadingLayout) => void
+  setReaderTheme: (theme: ReaderTheme) => void
+  setSplitViewTranslation: (enabled: boolean) => void
   /**
    * Session-only: when hide Arabic is on, limit blur to this inclusive range.
    * null = whole surah (default).
@@ -114,6 +135,10 @@ const DEFAULT_SETTINGS: ReaderSettings = {
   tafsirSlug: DEFAULT_TAFSIR_SLUG,
   tajweedEnabled: false,
   hideArabic: false,
+  autoFollowRecitation: true,
+  readingLayout: "scroll",
+  readerTheme: "default",
+  splitViewTranslation: false,
 }
 
 function clampScale(n: number): FontScale {
@@ -185,6 +210,25 @@ function migrateSettings(raw: unknown): ReaderSettings {
       typeof s.hideArabic === "boolean"
         ? s.hideArabic
         : DEFAULT_SETTINGS.hideArabic,
+    autoFollowRecitation:
+      typeof s.autoFollowRecitation === "boolean"
+        ? s.autoFollowRecitation
+        : DEFAULT_SETTINGS.autoFollowRecitation,
+    readingLayout:
+      s.readingLayout === "scroll" || s.readingLayout === "paged"
+        ? s.readingLayout
+        : DEFAULT_SETTINGS.readingLayout,
+    readerTheme:
+      s.readerTheme === "default" ||
+      s.readerTheme === "sepia" ||
+      s.readerTheme === "parchment" ||
+      s.readerTheme === "amoled"
+        ? s.readerTheme
+        : DEFAULT_SETTINGS.readerTheme,
+    splitViewTranslation:
+      typeof s.splitViewTranslation === "boolean"
+        ? s.splitViewTranslation
+        : DEFAULT_SETTINGS.splitViewTranslation,
   }
 }
 
@@ -194,6 +238,7 @@ const ReaderSettingsContext = createContext<ReaderSettingsContextValue | null>(
 
 export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
   const { surahId } = useSurahContent()
+  const { setFocusMode, setSidebarOpen } = useUI()
   const [raw, setRaw] = useLocalStorage<unknown>(
     "rq-reader-settings",
     DEFAULT_SETTINGS,
@@ -216,6 +261,16 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
     }
     prevSurahIdRef.current = surahId
   }, [surahId])
+
+  // E-01: Sync focus mode with persisted display mode on mount
+  const didSyncFocusRef = useRef(false)
+  useEffect(() => {
+    if (didSyncFocusRef.current) return
+    didSyncFocusRef.current = true
+    if (settings.displayMode === "reading") {
+      setFocusMode(true)
+    }
+  }, [settings.displayMode, setFocusMode])
 
   const setSettings = useCallback(
     (updater: (prev: ReaderSettings) => ReaderSettings) => {
@@ -281,8 +336,18 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
   )
 
   const setDisplayMode = useCallback(
-    (displayMode: DisplayMode) => setSettings((p) => ({ ...p, displayMode })),
-    [setSettings],
+    (displayMode: DisplayMode) => {
+      setSettings((p) => ({ ...p, displayMode }))
+      // E-01: Auto-immerse — reading mode gets full canvas
+      if (displayMode === "reading") {
+        setFocusMode(true)
+        setSidebarOpen(false)
+      } else {
+        setFocusMode(false)
+        setSidebarOpen(true)
+      }
+    },
+    [setSettings, setFocusMode, setSidebarOpen],
   )
 
   const setActiveTranslations = useCallback(
@@ -332,6 +397,27 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
   const setTajweedEnabled = useCallback(
     (tajweedEnabled: boolean) =>
       setSettings((p) => ({ ...p, tajweedEnabled })),
+    [setSettings],
+  )
+
+  const setAutoFollowRecitation = useCallback(
+    (autoFollowRecitation: boolean) =>
+      setSettings((p) => ({ ...p, autoFollowRecitation })),
+    [setSettings],
+  )
+
+  const setReadingLayout = useCallback(
+    (readingLayout: ReadingLayout) => setSettings((p) => ({ ...p, readingLayout })),
+    [setSettings],
+  )
+
+  const setReaderTheme = useCallback(
+    (readerTheme: ReaderTheme) => setSettings((p) => ({ ...p, readerTheme })),
+    [setSettings],
+  )
+
+  const setSplitViewTranslation = useCallback(
+    (splitViewTranslation: boolean) => setSettings((p) => ({ ...p, splitViewTranslation })),
     [setSettings],
   )
 
@@ -445,6 +531,10 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
         setTafsirSlug,
         setTajweedEnabled,
         setHideArabic,
+        setAutoFollowRecitation,
+        setReadingLayout,
+        setReaderTheme,
+        setSplitViewTranslation,
         hideArabicRange,
         setHideArabicRange,
         isVerseRevealed,

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useState, type FormEvent } from "react"
 import { CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { validatePassword } from "@/lib/auth/credentials"
 
 export function ResetPasswordForm({ oobCode }: { oobCode: string | null }) {
@@ -85,9 +85,8 @@ export function ResetPasswordForm({ oobCode }: { oobCode: string | null }) {
         >
           New password
         </label>
-        <Input
+        <PasswordInput
           id="reset-new-password"
-          type="password"
           autoComplete="new-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
@@ -104,9 +103,8 @@ export function ResetPasswordForm({ oobCode }: { oobCode: string | null }) {
         >
           Confirm new password
         </label>
-        <Input
+        <PasswordInput
           id="reset-confirm-password"
-          type="password"
           autoComplete="new-password"
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}

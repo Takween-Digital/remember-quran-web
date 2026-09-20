@@ -411,6 +411,49 @@ html {
   --elev-lg: 0 4px 8px rgb(0 0 0 / 0.35), 0 28px 60px -20px rgb(0 0 0 / 0.8);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   READING-SURFACE THEMES (E-07)
+   Independent of the site's own light/dark/modern theme — set via
+   data-reader-theme on QuranReader's <article>, so these simply redeclare
+   the --reader-* custom properties on a descendant, which always wins over
+   whatever .dark/.modern/:root set on <html> regardless of stylesheet order
+   (closest declaration in the DOM tree wins for inherited custom
+   properties). "default" sets no attribute at all — it just defers to
+   whichever site theme is already active.
+   ═══════════════════════════════════════════════════════════════════════════ */
+[data-reader-theme="sepia"] {
+  --reader-paper: #f4ead5;
+  --reader-paper-edge: #e0d0ab;
+  --reader-paper-shadow: 0 1px 2px rgba(93, 71, 20, 0.07), 0 24px 48px -26px rgba(93, 71, 20, 0.4);
+  --reader-ink: #3b2f1e;
+  --reader-paper-gilt: #a68b4e;
+  --reader-paper-gilt-strong: #8a7038;
+  --reader-paper-ink-soft: #5c4a30;
+  --reader-paper-shade: #ecdfc4;
+}
+
+[data-reader-theme="parchment"] {
+  --reader-paper: #e8dcc8;
+  --reader-paper-edge: #d4c4a0;
+  --reader-paper-shadow: 0 1px 2px rgba(60, 45, 20, 0.1), 0 24px 48px -26px rgba(60, 45, 20, 0.45);
+  --reader-ink: #2c2417;
+  --reader-paper-gilt: #8b7340;
+  --reader-paper-gilt-strong: #6f5a2e;
+  --reader-paper-ink-soft: #46381f;
+  --reader-paper-shade: #ddcfb4;
+}
+
+[data-reader-theme="amoled"] {
+  --reader-paper: #000000;
+  --reader-paper-edge: #1a1a1a;
+  --reader-paper-shadow: 0 2px 4px rgb(0 0 0 / 0.5), 0 12px 28px -14px rgb(0 0 0 / 0.85);
+  --reader-ink: #d4d0c8;
+  --reader-paper-gilt: #8b7a3e;
+  --reader-paper-gilt-strong: #a68f4a;
+  --reader-paper-ink-soft: #948d7d;
+  --reader-paper-shade: #0a0a0a;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -659,6 +702,79 @@ h1, h2, h3, .font-serif {
 
 @utility animate-fade-in {
   animation: fade-in var(--dur-base) var(--ease-out) both;
+}
+
+/* ── Reading-mode page-turn ──
+   Applied to each printed Mushaf page's wrapper (ReadingModeView). A page
+   fades/slides as it scrolls through the viewport, driven purely by scroll
+   position — no JS. Gated behind @supports (browsers without view-timeline
+   just render pages static, a fine fallback) and its own reduced-motion
+   guard: the sitewide reduced-motion override (see @media
+   prefers-reduced-motion below) forces animation-duration near zero, which
+   assumes a clock-driven animation — this one's "duration" is scroll
+   distance instead, so it isn't reliably neutralized that way, hence
+   handling it explicitly here. */
+@keyframes mushaf-page-turn {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+  }
+  20%,
+  80% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.98);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .mushaf-page-turn {
+      animation: mushaf-page-turn linear both;
+      animation-timeline: view(block);
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+/* ── Paged Mushaf flip (E-06) ──
+   Entrance-only approximation of a page turn: the incoming page swings in
+   from behind the edge it "came from" (right for next, left for prev) and
+   settles flat. Ordinary clock-driven CSS animation, so the sitewide
+   prefers-reduced-motion override above (which forces animation-duration
+   near zero) already neutralizes it correctly — no extra guard needed here,
+   unlike mushaf-page-turn's scroll-driven case. */
+@keyframes mushaf-flip-next {
+  from {
+    opacity: 0.4;
+    transform: rotateY(-75deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0deg);
+  }
+}
+
+@keyframes mushaf-flip-prev {
+  from {
+    opacity: 0.4;
+    transform: rotateY(75deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0deg);
+  }
+}
+
+.mushaf-flip-next {
+  animation: mushaf-flip-next 420ms var(--ease-out) both;
+}
+
+.mushaf-flip-prev {
+  animation: mushaf-flip-prev 420ms var(--ease-out) both;
 }
 
 /* Standard site chrome — navbar, footer, audio bar, and page shells share one width. */
@@ -1107,5 +1223,38 @@ h1, h2, h3, .font-serif {
 
   .aqf-bsml {
     font-family: 'aqf_bsml', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* ── E-03: Reading Mode Page-Turn Animation (Scroll-Driven) ──
+     Subtle fade and scale/slide as the page frame enters or leaves the scroll
+     viewport. Native CSS animation-timeline: view() avoids heavy JS observers. */
+  @supports (animation-timeline: view()) {
+    @keyframes page-enter {
+      from {
+        opacity: 0;
+        transform: translateY(2rem) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes page-exit {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      to {
+        opacity: 0.3;
+        transform: translateY(-2rem) scale(0.98);
+      }
+    }
+
+    .mushaf-page-turn {
+      animation: page-enter linear both, page-exit linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 15%, exit 85% exit 100%;
+    }
   }
 }

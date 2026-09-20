@@ -11,11 +11,11 @@ import {
   TrendingUp,
 } from "lucide-react"
 import { ContinuePrompt } from "@/components/account/ContinuePrompt"
-import { evaluateGoalAndStreak } from "@/lib/firestore/goals"
-import { countBookmarks } from "@/lib/firestore/bookmarks"
-import { countMemorisedAyahs } from "@/lib/firestore/hifz"
-import { countNotes } from "@/lib/firestore/notes"
-import { getUserById } from "@/lib/firestore/users"
+import { evaluateGoalAndStreak } from "@/lib/db/goals"
+import { countBookmarks } from "@/lib/db/bookmarks"
+import { countMemorisedAyahs } from "@/lib/db/hifz"
+import { countNotes } from "@/lib/db/notes"
+import { getUserById } from "@/lib/db/users"
 import { getRequestTimeZone } from "@/lib/progress/serverTimezone"
 
 export const metadata: Metadata = {

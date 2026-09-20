@@ -23,6 +23,7 @@ import { ReciterSelector } from "./ReciterSelector"
 import { RepeatControls } from "./RepeatControls"
 import { SpeedControl } from "./SpeedControl"
 import { SleepTimerControl } from "./SleepTimerControl"
+import { VolumeControl } from "./VolumeControl"
 
 /** Drag the sheet down by more than this to dismiss, Apple-Music-style. */
 const DISMISS_THRESHOLD_PX = 120
@@ -204,6 +205,7 @@ export function FullScreenPlayer({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex items-center gap-2 pb-2">
+          <VolumeControl />
           <SpeedControl />
           {player.mode !== "radio" && <RepeatControls />}
           <SleepTimerControl />

@@ -1,22 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import {
   BookOpen,
   Play,
   ScrollText,
   Bookmark,
-  StickyNote,
+  Highlighter,
   Sparkles,
   Copy,
   Share2,
   Check,
   ImageIcon,
   X,
+  Mic,
+  Square,
+  Trash2,
+  Headphones,
 } from "lucide-react"
 import type { Verse } from "@/types/quran"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
 import { useAudioPlayer } from "@/context/AudioPlayerContext"
 import { useStudyPanel } from "@/context/StudyPanelContext"
 import { useBookmarks } from "@/context/BookmarksContext"
@@ -24,8 +28,10 @@ import { useHifz } from "@/context/HifzContext"
 import { useNotes } from "@/context/NotesContext"
 import { useSoftGate } from "@/context/SoftGateContext"
 import { NoteEditor } from "@/components/account/NoteEditor"
+import { HIGHLIGHT_SWATCH_CLASS } from "@/lib/notes/highlights"
 import { hasAsbab } from "@/lib/asbabIndex"
 import { cn } from "@/lib/utils"
+import { useRecorder } from "@/hooks/useRecorder"
 
 interface ReadingAyahToolbarProps {
   verse: Verse | null
@@ -43,13 +49,35 @@ export function ReadingAyahToolbar({ verse, onClose }: ReadingAyahToolbarProps) 
   const { openTafsir, openAsbab } = useStudyPanel()
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks()
   const { isMemorised, toggle: toggleHifz } = useHifz()
-  const { hasNote } = useNotes()
+  const { hasNote, getHighlightColor } = useNotes()
+  
+  // Safe to call unconditionally; if verse is null we just early return below anyway.
+  // We use verse?.verse_key but hooks must be called unconditionally.
+  const { isRecording, recordingBlob, startRecording, stopRecording, clearRecording, error: recorderError } = useRecorder(verse?.verse_key ?? "")
+  const [isPlayingSelf, setIsPlayingSelf] = useState(false)
+  const selfAudioRef = useRef<HTMLAudioElement | null>(null)
+
+  useEffect(() => {
+    if (recordingBlob) {
+      const url = URL.createObjectURL(recordingBlob)
+      const audio = new Audio(url)
+      audio.onended = () => setIsPlayingSelf(false)
+      selfAudioRef.current = audio
+      return () => {
+        URL.revokeObjectURL(url)
+        audio.pause()
+      }
+    } else {
+      selfAudioRef.current = null
+    }
+  }, [recordingBlob])
 
   if (!verse) return null
 
   const chapterId = Number(verse.verse_key.split(":")[0])
   const bookmarked = isBookmarked(verse.verse_key)
   const memorised = isMemorised(verse.verse_key)
+  const highlightColor = getHighlightColor(verse.verse_key)
 
   async function copyAyah() {
     if (!verse) return
@@ -117,8 +145,62 @@ export function ReadingAyahToolbar({ verse, onClose }: ReadingAyahToolbarProps) 
           className="flex h-8 items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
         >
           <Play className="size-3.5" fill="currentColor" />
-          <span>Play</span>
+          <span>Sheikh</span>
         </button>
+
+        {/* Record Self */}
+        {!isRecording && !recordingBlob && (
+          <button
+            type="button"
+            onClick={startRecording}
+            className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-red-500/15 hover:text-red-500"
+            title={recorderError ? recorderError.message : "Record your recitation"}
+          >
+            <Mic className="size-3.5" />
+            <span>Record</span>
+          </button>
+        )}
+        
+        {isRecording && (
+          <button
+            type="button"
+            onClick={stopRecording}
+            className="flex h-8 items-center gap-1.5 rounded-lg bg-red-500/15 px-2.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-500/25"
+          >
+            <Square className="size-3.5" fill="currentColor" />
+            <span className="animate-pulse">Recording...</span>
+          </button>
+        )}
+
+        {recordingBlob && !isRecording && (
+          <div className="flex items-center gap-1 rounded-lg bg-primary/5 p-0.5">
+            <button
+              type="button"
+              onClick={() => {
+                if (isPlayingSelf) {
+                  selfAudioRef.current?.pause()
+                  setIsPlayingSelf(false)
+                } else {
+                  player.stop() // Stop Sheikh if playing
+                  selfAudioRef.current?.play()
+                  setIsPlayingSelf(true)
+                }
+              }}
+              className="flex h-7 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-primary transition-colors hover:bg-primary/15"
+            >
+              {isPlayingSelf ? <Square className="size-3.5" fill="currentColor" /> : <Headphones className="size-3.5" />}
+              <span>You</span>
+            </button>
+            <button
+              type="button"
+              onClick={clearRecording}
+              className="flex h-7 items-center justify-center rounded-md px-2 text-muted-foreground transition-colors hover:bg-destructive/15 hover:text-destructive"
+              aria-label="Delete recording"
+            >
+              <Trash2 className="size-3.5" />
+            </button>
+          </div>
+        )}
 
         {/* Tafsir */}
         <button
@@ -178,7 +260,7 @@ export function ReadingAyahToolbar({ verse, onClose }: ReadingAyahToolbarProps) 
           <span>{memorised ? "Memorised" : "Hifz"}</span>
         </button>
 
-        {/* Note */}
+        {/* Highlight & Note (E-12) — one sheet covers both */}
         <button
           type="button"
           onClick={() => {
@@ -190,19 +272,28 @@ export function ReadingAyahToolbar({ verse, onClose }: ReadingAyahToolbarProps) 
           }}
           className={cn(
             "flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium transition-colors",
-            hasNote(verse.verse_key)
+            highlightColor || hasNote(verse.verse_key)
               ? "bg-primary/10 text-primary"
               : "text-muted-foreground hover:bg-accent hover:text-foreground",
           )}
         >
-          <StickyNote className="size-3.5" fill={hasNote(verse.verse_key) ? "currentColor" : "none"} />
-          <span>{hasNote(verse.verse_key) ? "Note" : "Note"}</span>
+          {highlightColor ? (
+            <span
+              aria-hidden="true"
+              className={cn("size-3 rounded-full", HIGHLIGHT_SWATCH_CLASS[highlightColor])}
+            />
+          ) : (
+            <Highlighter className="size-3.5" fill={hasNote(verse.verse_key) ? "currentColor" : "none"} />
+          )}
+          <span>{highlightColor ? "Highlighted" : hasNote(verse.verse_key) ? "Note" : "Highlight"}</span>
         </button>
 
         {/* Copy */}
         <button
           type="button"
           onClick={copyAyah}
+          title="Copy ayah text"
+          aria-label="Copy ayah text"
           className={cn(
             "flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
             copied && "text-primary",
@@ -215,6 +306,8 @@ export function ReadingAyahToolbar({ verse, onClose }: ReadingAyahToolbarProps) 
         <button
           type="button"
           onClick={shareAyah}
+          title="Share ayah link"
+          aria-label="Share ayah link"
           className={cn(
             "flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
             shared && "text-primary",
@@ -226,6 +319,8 @@ export function ReadingAyahToolbar({ verse, onClose }: ReadingAyahToolbarProps) 
         {/* Card */}
         <Link
           href={`/media-maker?verse=${encodeURIComponent(verse.verse_key)}`}
+          title="Create a shareable image card"
+          aria-label="Create a shareable image card"
           className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <ImageIcon className="size-3.5" />

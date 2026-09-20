@@ -1,5 +1,6 @@
-import { FieldValue, Timestamp } from "firebase-admin/firestore"
-import { getDb } from "./admin"
+import { eq } from "drizzle-orm"
+import { getDb } from "./client"
+import { users } from "./schema"
 import { sumAyahsForDay, getYearActivityHeatmap } from "./progress"
 import {
   countInGoalUnits,
@@ -8,13 +9,6 @@ import {
 } from "@/lib/goals/constants"
 import { localDayStart, shiftLocalDay } from "@/lib/progress/date"
 
-// Reduces `a` to its local-day-start under the *current* timeZone before
-// comparing — the only sane behaviour if a user's timezone ever changes
-// (e.g. travel), and also means a `lastMetDate` written under the old
-// UTC-only scheme gets reinterpreted once under the new one. That one-time
-// reinterpretation can shift a legacy streak's day boundary by at most one
-// day on the first evaluation after this fix ships; it self-corrects from
-// then on since every subsequent write uses the same tz consistently.
 function sameLocalDay(timeZone: string, a: Date | null | undefined, b: Date): boolean {
   if (!a) return false
   return localDayStart(timeZone, a).getTime() === b.getTime()
@@ -36,9 +30,7 @@ export interface GoalSnapshot {
     longestStreak: number
     lastMetDate: string | null
   }
-  /** Last 7 local days ending today */
   week: Array<{ date: string; met: boolean }>
-  /** Full 52-week activity map: dayKey (YYYY-MM-DD) -> ayah count */
   activityYear: Record<string, number>
 }
 
@@ -46,58 +38,57 @@ export async function setActiveGoal(
   userId: string,
   goal: { type: GoalType; target: number; targetDate?: string | null },
 ): Promise<void> {
-  await getDb().collection("users").doc(userId).update({
-    activeGoal: goal,
-    updatedAt: FieldValue.serverTimestamp(),
-  })
+  const db = getDb()
+  await db
+    .update(users)
+    .set({
+      activeGoal: goal,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId))
 }
 
 export async function clearActiveGoal(userId: string): Promise<void> {
-  await getDb().collection("users").doc(userId).update({
-    activeGoal: null,
-    updatedAt: FieldValue.serverTimestamp(),
-  })
+  const db = getDb()
+  await db
+    .update(users)
+    .set({
+      activeGoal: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId))
 }
 
-/**
- * Recompute streak against the active goal using today's progress events.
- * Safe to call often (idempotent for same day).
- */
 export async function evaluateGoalAndStreak(
   userId: string,
   timeZone: string,
 ): Promise<GoalSnapshot> {
   const db = getDb()
-  const userRef = db.collection("users").doc(userId)
   const now = new Date()
   const today = localDayStart(timeZone, now)
   const yesterday = shiftLocalDay(timeZone, now, -1)
-
   const yearStart = shiftLocalDay(timeZone, now, -364)
 
-  const [userSnap, todayAyahs, activityYear] = await Promise.all([
-    userRef.get(),
+  const [userRows, todayAyahs, activityYear] = await Promise.all([
+    db.select().from(users).where(eq(users.id, userId)).limit(1),
     sumAyahsForDay(userId, today),
     getYearActivityHeatmap(userId, timeZone, yearStart),
   ])
-  const data = userSnap.data() ?? {}
-  const rawGoal = (data.activeGoal ?? null) as {
+
+  const userRow = userRows[0]
+  const rawGoal = userRow?.activeGoal as {
     type: GoalType
     target: number
     targetDate?: string | null
     dailyTarget?: number
     daysRemaining?: number
   } | null
-  const streakData = data.streak ?? {}
+  const streakData = userRow?.streak ?? { currentStreak: 0, longestStreak: 0, lastMetDate: null }
 
   let currentStreak: number = streakData.currentStreak ?? 0
   let longestStreak: number = streakData.longestStreak ?? 0
-  let lastMetDate: Date | null =
-    streakData.lastMetDate instanceof Timestamp
-      ? localDayStart(timeZone, streakData.lastMetDate.toDate())
-      : null
+  let lastMetDate: Date | null = streakData.lastMetDate ? localDayStart(timeZone, new Date(streakData.lastMetDate)) : null
 
-  // Calculate goal target
   let effectiveGoal = rawGoal
   let dynamicTarget = rawGoal?.target ?? 0
 
@@ -154,14 +145,17 @@ export async function evaluateGoalAndStreak(
   }
 
   if (streakChanged) {
-    await userRef.update({
-      streak: {
-        currentStreak,
-        longestStreak,
-        lastMetDate: lastMetDate ? Timestamp.fromDate(lastMetDate) : null,
-      },
-      updatedAt: FieldValue.serverTimestamp(),
-    })
+    await db
+      .update(users)
+      .set({
+        streak: {
+          currentStreak,
+          longestStreak,
+          lastMetDate: lastMetDate ? lastMetDate.toISOString() : null,
+        },
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
   }
 
   const priorDays = Array.from({ length: 6 }, (_, i) => shiftLocalDay(timeZone, now, -(6 - i)))

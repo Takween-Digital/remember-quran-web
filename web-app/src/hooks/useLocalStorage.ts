@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useSyncExternalStore } from "react"
+import { useCallback, useMemo, useRef, useSyncExternalStore } from "react"
 
 type Listener = () => void
 const listeners = new Map<string, Set<Listener>>()
@@ -50,14 +50,22 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
+  // Read via a ref, not a dependency — callers routinely pass an inline
+  // object/array literal (e.g. `{}`) as `initialValue`, which would
+  // otherwise get a new identity on every render and make `storedValue`
+  // (and anything downstream keyed off it) look "changed" every render
+  // even though localStorage itself hasn't.
+  const initialValueRef = useRef(initialValue)
+  initialValueRef.current = initialValue
+
   const storedValue = useMemo<T>(() => {
-    if (raw === null) return initialValue
+    if (raw === null) return initialValueRef.current
     try {
       return JSON.parse(raw) as T
     } catch {
-      return initialValue
+      return initialValueRef.current
     }
-  }, [raw, initialValue])
+  }, [raw])
 
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {

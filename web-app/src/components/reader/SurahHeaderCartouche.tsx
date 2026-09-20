@@ -31,7 +31,7 @@ export function SurahHeaderCartouche({ chapter, className }: SurahHeaderCartouch
       style={{ fontSize: "16px" }}
     >
       {/* Outer Illuminated Frame with Gold Foil Styling */}
-      <div className="relative w-full rounded-xs border-2 border-reader-paper-gilt-strong bg-reader-paper shadow-xs flex items-stretch overflow-hidden">
+      <div className="relative w-full rounded-xs border-2 border-reader-paper-gilt-strong bg-reader-paper shadow-xs flex items-stretch overflow-hidden @container">
 
         {/* Right Arabesque Wing (RTL start) */}
         <div className="shrink-0 w-[20%] sm:w-[24%] md:w-[28%] border-l-2 border-reader-paper-gilt-strong flex items-center justify-center p-1 sm:p-2 relative bg-gradient-to-l from-reader-paper to-reader-paper-shade">
@@ -67,7 +67,14 @@ export function SurahHeaderCartouche({ chapter, className }: SurahHeaderCartouch
               ۞
             </span>
             <h2
-              className="font-uthmani font-medium text-reader-ink tracking-wide leading-snug text-center py-0.5 text-base xs:text-lg sm:text-2xl md:text-3xl"
+              // Sized off the cartouche's own rendered width (cqw), not
+              // viewport breakpoints — a fixed breakpoint step (e.g.
+              // `md:text-3xl`) fits short names like "الناس" fine but wraps
+              // longer ones like "الإخلاص"/"الممتحنة" onto a second line,
+              // so surah headers on the same page end up mismatched heights.
+              // `whitespace-nowrap` + a fluid clamp keeps every title one
+              // line at a size proportional to how much room it actually has.
+              className="font-uthmani font-medium text-reader-ink tracking-wide leading-snug text-center py-0.5 whitespace-nowrap text-[clamp(0.8rem,6cqw,1.875rem)]"
             >
               سُورَةُ {surahNameClean}
             </h2>

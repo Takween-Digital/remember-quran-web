@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpenText, Headphones, ImagePlus } from "lucide-react"
+import { BookOpenText, Headphones, ImagePlus, LayoutGrid } from "lucide-react"
 import { ArabesquePattern } from "@/components/layout/ArabesquePattern"
+import { authClient } from "@/lib/auth/client"
 import { AuthNav } from "@/components/auth/AuthNav"
 import { LogoWordmark } from "@/components/layout/Logo"
 import { NavbarResumeButton } from "@/components/layout/NavbarResumeButton"
@@ -36,10 +37,28 @@ const TABS = [
   },
 ]
 
+/** RQ-23: a signed-in user's only route to their account was three clicks
+ * deep (profile menu → Account overview) — surface it as a normal top-level
+ * tab, same as Quran/Listen/Create, once they're actually signed in. */
+function useDashboardTab() {
+  const { data: session } = authClient.useSession()
+  if (!session?.user) return []
+  return [
+    {
+      href: "/account",
+      label: "Dashboard",
+      icon: LayoutGrid,
+      match: (p: string) => p.startsWith("/account"),
+    },
+  ]
+}
+
 function NavTabs({ pathname }: { pathname: string }) {
+  const dashboardTab = useDashboardTab()
+  const tabs = [...TABS, ...dashboardTab]
   return (
     <nav className="hidden md:flex h-full items-center gap-1 sm:gap-2">
-      {TABS.map(({ href, label, icon: Icon, match }) => {
+      {tabs.map(({ href, label, icon: Icon, match }) => {
         const active = match(pathname)
         return (
           <Link

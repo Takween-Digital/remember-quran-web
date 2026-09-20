@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { ProgressView } from "@/components/account/ProgressView"
 import { getChapters } from "@/lib/quranApi"
-import { getUserById } from "@/lib/firestore/users"
+import { getUserById } from "@/lib/db/users"
 import { TOTAL_SURAHS } from "@/lib/progress/date"
 import { parseVerseKey } from "@/lib/quran/verse-key"
 

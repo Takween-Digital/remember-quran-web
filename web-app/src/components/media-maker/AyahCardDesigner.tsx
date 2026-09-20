@@ -1,7 +1,17 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Check, Clipboard, Download, ImageIcon, Share2, Video, Loader2 } from "lucide-react"
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Clipboard,
+  Download,
+  ImageIcon,
+  Share2,
+  Video,
+  Loader2,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   ToggleGroup,
@@ -15,7 +25,7 @@ import {
   isMediaPresetId,
   truncateText,
 } from "@/lib/media/card-presets"
-import { parseVerseKey } from "@/lib/quran/verse-key"
+import { getAyahCount, parseVerseKey } from "@/lib/quran/verse-key"
 import { getChapterAudio } from "@/lib/audioApi"
 import { DEFAULT_RECITER_ID, getReciter } from "@/lib/audioSources"
 import { sanitizeTimings } from "@/lib/wordSync"
@@ -59,6 +69,27 @@ function flattenWords(card: AyahCardData | null): FlatWord[] {
   return card.words.flatMap((v) =>
     v.words.map((w) => ({ ...w, verseNumber: v.verseNumber })),
   )
+}
+
+/** RQ-20: the verse key one ayah before/after `verseKey`, wrapping across
+ * surah (and Quran) boundaries — surah 1 ayah 1's "previous" is 114's last
+ * ayah, and vice versa for "next", so the arrows never just dead-end. */
+function stepVerse(verseKey: string, direction: 1 | -1): string {
+  const parsed = parseVerseKey(verseKey)
+  if (!parsed) return verseKey
+  let { surahId, ayahId } = parsed
+  ayahId += direction
+  if (ayahId < 1) {
+    surahId = surahId <= 1 ? 114 : surahId - 1
+    ayahId = getAyahCount(surahId) ?? 1
+  } else {
+    const count = getAyahCount(surahId) ?? ayahId
+    if (ayahId > count) {
+      surahId = surahId >= 114 ? 1 : surahId + 1
+      ayahId = 1
+    }
+  }
+  return `${surahId}:${ayahId}`
 }
 
 function arabicSizeClass(length: number) {
@@ -254,6 +285,10 @@ export function AyahCardDesigner({
     setError(null)
     setAppliedVerse(key)
     setEndAyahOffset(0)
+  }
+
+  function goToAdjacentAyah(direction: 1 | -1) {
+    selectVerse(stepVerse(appliedVerse, direction))
   }
 
   async function renderPng() {
@@ -551,20 +586,18 @@ export function AyahCardDesigner({
   return (
     <div className="flex flex-col gap-8">
       {/* Passage Selector */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
-        <div className="flex-1 w-full">
-          <AyahPicker value={appliedVerse} onChange={selectVerse} />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground whitespace-nowrap">Passage span:</span>
-          <div className="flex rounded-md border border-border bg-card p-0.5 text-xs">
+      <div className="flex flex-col gap-4">
+        <AyahPicker value={appliedVerse} onChange={selectVerse} />
+        <div className="flex flex-col gap-2">
+          <span className="text-xs text-muted-foreground">Passage span</span>
+          <div className="flex w-full rounded-md border border-border bg-card p-1 text-sm">
             {[0, 1, 2].map((offset) => (
               <button
                 key={offset}
                 type="button"
                 onClick={() => setEndAyahOffset(offset)}
                 className={cn(
-                  "px-2.5 py-1 rounded-sm font-medium transition-colors",
+                  "flex-1 rounded-sm px-3 py-2 font-medium whitespace-nowrap transition-colors",
                   endAyahOffset === offset
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground",
@@ -608,7 +641,23 @@ export function AyahCardDesigner({
         </ToggleGroup>
       </fieldset>
 
-      <div className="overflow-hidden rounded-[28px] border border-border bg-muted/30 shadow-sm">
+      {/* RQ-20: previous/next ayah — sit beside the card, not on top of it,
+       * so they never cover any of the card's own content. */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        <button
+          type="button"
+          onClick={() => goToAdjacentAyah(-1)}
+          disabled={loading}
+          title="Previous ayah"
+          aria-label="Previous ayah"
+          className="flex size-10 shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-40 sm:size-12"
+        >
+          <span className="flex size-10 items-center justify-center rounded-full border-2 border-primary/40 bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110 hover:border-primary sm:size-12">
+            <ChevronLeft className="size-5 sm:size-6" strokeWidth={2.75} />
+          </span>
+        </button>
+
+        <div className="min-w-0 flex-1 overflow-hidden rounded-[28px] border border-border bg-muted/30 shadow-sm">
         {loading || !card ? (
           <div className="flex aspect-40/21 items-center justify-center text-sm text-muted-foreground">
             {loading ? "Preparing your ayah card…" : "Preview unavailable"}
@@ -667,6 +716,20 @@ export function AyahCardDesigner({
             </div>
           </div>
         )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => goToAdjacentAyah(1)}
+          disabled={loading}
+          title="Next ayah"
+          aria-label="Next ayah"
+          className="flex size-10 shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-40 sm:size-12"
+        >
+          <span className="flex size-10 items-center justify-center rounded-full border-2 border-primary/40 bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110 hover:border-primary sm:size-12">
+            <ChevronRight className="size-5 sm:size-6" strokeWidth={2.75} />
+          </span>
+        </button>
       </div>
 
       {/* Off-screen render target for video export: full-bleed background (no

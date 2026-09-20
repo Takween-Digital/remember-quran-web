@@ -1,6 +1,5 @@
 "use client"
 
-import { SessionProvider } from "next-auth/react"
 import { ThemeProvider } from "next-themes"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ChaptersProvider } from "@/context/ChaptersContext"
@@ -26,8 +25,7 @@ export default function Providers({
   chapters: Chapter[]
 }) {
   return (
-    <SessionProvider>
-      <ThemeProvider
+    <ThemeProvider
         attribute="class"
         defaultTheme="spotify"
         themes={['light', 'dark', 'apple', 'spotify', 'airtable', 'modern']}
@@ -61,6 +59,5 @@ export default function Providers({
           </ChaptersProvider>
         </TooltipProvider>
       </ThemeProvider>
-    </SessionProvider>
   )
 }

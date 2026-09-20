@@ -1,11 +1,9 @@
 import { auth } from "@/auth"
 import { privateJson } from "@/lib/auth/api-response"
 import { validateEmail } from "@/lib/auth/credentials"
-import { resolveFirebaseUid, verifyPassword } from "@/lib/auth/firebase-credentials"
-import { getAdminAuth } from "@/lib/firestore/admin"
-import { getUserById, changeEmail } from "@/lib/firestore/users"
+import { getUserById, changeEmail } from "@/lib/db/users"
+import { verifyPassword } from "@/lib/auth/password"
 
-export const runtime = "nodejs"
 
 export async function PATCH(request: Request) {
   const session = await auth()
@@ -30,7 +28,7 @@ export async function PATCH(request: Request) {
   const user = await getUserById(session.user.id)
   if (!user) return privateJson({ error: "Account not found." }, 404)
 
-  const correctPassword = await verifyPassword(user, body.currentPassword)
+  const correctPassword = await verifyPassword(user.passwordHash, body.currentPassword)
   if (!correctPassword) {
     return privateJson({ error: "Current password is incorrect." }, 400)
   }
@@ -39,44 +37,12 @@ export async function PATCH(request: Request) {
     return privateJson({ ok: true, email: user.email })
   }
 
-  // Firebase Auth is updated first when this user has a linked account —
-  // it's the source of truth `authorize()` checks against, so Firestore and
-  // Firebase disagreeing on the email would silently break their next
-  // login. If the Firestore transaction below fails, the Firebase email is
-  // rolled back in the catch block. resolveFirebaseUid (not the raw field)
-  // matters here specifically: a mobile-created account has a real Firebase
-  // Auth identity but no `firebaseUid` field, so skipping this on the raw
-  // check would silently leave the mobile app's actual sign-in email
-  // unchanged while Firestore reports the new one.
-  const firebaseUid = resolveFirebaseUid(user)
-  if (firebaseUid) {
-    try {
-      await getAdminAuth().updateUser(firebaseUid, { email: email.email })
-    } catch (error) {
-      if (isFirebaseCode(error, "auth/email-already-exists")) {
-        return privateJson(
-          { error: "An account with this email already exists." },
-          409,
-        )
-      }
-      console.error("Firebase Auth email update failed", error)
-      return privateJson({ error: "Could not change email. Please try again." }, 500)
-    }
-  }
-
-  try {
-    const result = await changeEmail(session.user.id, email.email)
-    if (!result.ok) {
-      await rollbackFirebaseEmail(firebaseUid, user.email)
-      return privateJson(
-        { error: "An account with this email already exists." },
-        409,
-      )
-    }
-  } catch (error) {
-    console.error("Change email failed", error)
-    await rollbackFirebaseEmail(firebaseUid, user.email)
-    return privateJson({ error: "Could not change email. Please try again." }, 500)
+  const result = await changeEmail(session.user.id, email.email)
+  if (!result.ok) {
+    return privateJson(
+      { error: "An account with this email already exists." },
+      409,
+    )
   }
 
   return privateJson({
@@ -84,33 +50,4 @@ export async function PATCH(request: Request) {
     email: email.email,
     reauthenticate: true,
   })
-}
-
-function isFirebaseCode(error: unknown, code: string): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code: unknown }).code === code
-  )
-}
-
-/**
- * Compensating rollback: Firebase's email was already updated but the
- * Firestore transaction failed — isolated from the caller's catch block so
- * a failure here can't swallow the original error.
- */
-async function rollbackFirebaseEmail(
-  firebaseUid: string | null,
-  oldEmail: string,
-): Promise<void> {
-  if (!firebaseUid) return
-  try {
-    await getAdminAuth().updateUser(firebaseUid, { email: oldEmail })
-  } catch (cleanupError) {
-    console.error(
-      "CRITICAL: Firebase Auth email out of sync with Firestore, needs manual cleanup",
-      { firebaseUid, oldEmail, cleanupError },
-    )
-  }
 }

@@ -1,14 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type MouseEvent as ReactMouseEvent, type KeyboardEvent as ReactKeyboardEvent } from "react"
 import { useIsTouch } from "@/hooks/useIsTouch"
 import { useAudioPlayerActions } from "@/context/AudioPlayerContext"
 import { useReaderSettings } from "@/context/ReaderSettingsContext"
 import { getWordAudioUrl } from "@/lib/audioSources"
-import { buildTajweedSpans } from "@/lib/tajweed"
+import { buildTajweedSpans, TAJWEED_RULES } from "@/lib/tajweed"
 import type { Word } from "@/types/quran"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { WordMeaningContent } from "./WordMeaningContent"
+import { TajweedRuleTooltip } from "./TajweedRuleTooltip"
 import { cn } from "@/lib/utils"
 
 interface ArabicWordProps {
@@ -60,7 +61,7 @@ export function ArabicWord({
       return buildTajweedSpans(plainText, word.text_uthmani_tajweed).map(
         ({ text, rule }, i) =>
           rule ? (
-            <span key={i} className={`tj-span tj-${rule}`}>
+            <span key={i} className={`tj-span tj-${rule}`} data-tj-rule={rule}>
               {text}
             </span>
           ) : (
@@ -109,12 +110,48 @@ export function ArabicWord({
     )
   }
 
+  // E-10: which tajweed rule (if any) the most recent activation landed on —
+  // null shows the normal word-meaning popup instead. Mouse/touch can tell
+  // exactly which coloured span was hit; keyboard activation has no such
+  // position, so Enter/Space always falls back to the word meaning.
+  const [tajweedRuleKey, setTajweedRuleKey] = useState<string | null>(null)
+
+  function tajweedRuleAt(target: EventTarget | null): string | null {
+    if (!tajweedEnabled || !word.text_uthmani_tajweed) return null
+    const el = target instanceof HTMLElement ? target.closest<HTMLElement>("[data-tj-rule]") : null
+    const rule = el?.dataset.tjRule
+    return rule && TAJWEED_RULES[rule] ? rule : null
+  }
+
+  if (disableTooltip) {
+    return (
+      <span
+        role="button"
+        tabIndex={0}
+        onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault()
+            handleClick()
+          }
+        }}
+        className={triggerClass}
+      >
+        {wordContent()}
+      </span>
+    )
+  }
+
   /* Tap/click opens a popup with the word's meaning plus Hear / Grammar /
      Bookmark actions (RQ-12) — on desktop it also speaks the word
      immediately, same as before; on touch the Hear button inside the popup
-     does that instead, so a scrolling tap doesn't trigger surprise audio. */
-  function handleActivate() {
-    if (!isTouch && actions && getWordAudioUrl(word)) actions.playWord(word)
+     does that instead, so a scrolling tap doesn't trigger surprise audio.
+     Tapping a tajweed-coloured letter run instead shows that rule's name +
+     description (E-10) — audio playback is skipped there since the tap is
+     about identifying the rule, not hearing the whole word. */
+  function handleActivate(rule: string | null) {
+    setTajweedRuleKey(rule)
+    if (!rule && !isTouch && actions && getWordAudioUrl(word)) actions.playWord(word)
     setPopoverOpen(true)
   }
 
@@ -127,15 +164,15 @@ export function ArabicWord({
             {...props}
             className={triggerClass}
             tabIndex={0}
-            onClick={(e) => {
+            onClick={(e: ReactMouseEvent<HTMLSpanElement>) => {
               props.onClick?.(e)
-              handleActivate()
+              handleActivate(tajweedRuleAt(e.target))
             }}
-            onKeyDown={(e) => {
+            onKeyDown={(e: ReactKeyboardEvent<HTMLSpanElement>) => {
               props.onKeyDown?.(e)
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault()
-                handleActivate()
+                handleActivate(null)
               }
             }}
           >
@@ -145,7 +182,11 @@ export function ArabicWord({
       />
       {popoverOpen && (
         <PopoverContent side="top" className="w-auto p-3">
-          <WordMeaningContent word={word} verseKey={verseKey} />
+          {tajweedRuleKey ? (
+            <TajweedRuleTooltip ruleKey={tajweedRuleKey} />
+          ) : (
+            <WordMeaningContent word={word} verseKey={verseKey} />
+          )}
         </PopoverContent>
       )}
     </Popover>

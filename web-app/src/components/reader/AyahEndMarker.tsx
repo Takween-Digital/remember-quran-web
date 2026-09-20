@@ -23,6 +23,7 @@ export function AyahEndMarker({ digits, ariaLabel, className, onClick }: AyahEnd
       onClick={onClick}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
+      title={onClick ? "Tap for bookmark, note, tafsir & more" : undefined}
       onKeyDown={
         onClick
           ? (e) => {

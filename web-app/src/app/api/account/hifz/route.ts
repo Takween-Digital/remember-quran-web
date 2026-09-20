@@ -7,10 +7,9 @@ import {
   markMemorised,
   unmarkMemorised,
   recordReviewSRS,
-} from "@/lib/firestore/hifz"
+} from "@/lib/db/hifz"
 import { calculateNextSRS, type SRSGrade } from "@/lib/hifz/srs"
 
-export const runtime = "nodejs"
 
 async function readBody(request: Request): Promise<Record<string, unknown> | null> {
   try {

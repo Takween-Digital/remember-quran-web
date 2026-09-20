@@ -1,11 +1,10 @@
 import { getSessionUserId } from "@/lib/auth/session"
 import { privateJson } from "@/lib/auth/api-response"
-import { recordProgressEvent } from "@/lib/firestore/progress"
-import { evaluateGoalAndStreak } from "@/lib/firestore/goals"
+import { recordProgressEvent } from "@/lib/db/progress"
+import { evaluateGoalAndStreak } from "@/lib/db/goals"
 import { getAyahCount } from "@/lib/quran/verse-key"
 import { getRequestTimeZone } from "@/lib/progress/serverTimezone"
 
-export const runtime = "nodejs"
 
 async function readBody(request: Request): Promise<Record<string, unknown> | null> {
   try {

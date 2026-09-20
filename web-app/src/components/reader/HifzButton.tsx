@@ -1,7 +1,7 @@
 "use client"
 
 import { Brain } from "lucide-react"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
 import { useHifz } from "@/context/HifzContext"
 import { useSoftGate } from "@/context/SoftGateContext"
 import { cn } from "@/lib/utils"

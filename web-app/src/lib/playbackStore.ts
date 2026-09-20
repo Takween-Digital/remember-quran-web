@@ -17,10 +17,14 @@ export interface PlaybackPosition {
   timeMs: number
 }
 
-const IDLE: PlaybackPosition = { verseKey: null, wordPosition: null, timeMs: 0 }
+export const IDLE: PlaybackPosition = { verseKey: null, wordPosition: null, timeMs: 0 }
 
 let position: PlaybackPosition = IDLE
 const listeners = new Set<() => void>()
+
+export function getPlaybackPosition() {
+  return position
+}
 
 export function setPosition(next: PlaybackPosition): void {
   const prev = position
@@ -38,7 +42,7 @@ export function clearPosition(): void {
   setPosition(IDLE)
 }
 
-function subscribe(callback: () => void): () => void {
+export function subscribe(callback: () => void): () => void {
   listeners.add(callback)
   return () => listeners.delete(callback)
 }

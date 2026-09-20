@@ -7,7 +7,7 @@ import { PLAYBACK_SPEEDS } from "@/types/audio"
 import { cn } from "@/lib/utils"
 
 const barBtn = cn(
-  "flex h-8 items-center justify-center rounded-md px-1.5",
+  "flex h-10 items-center justify-center rounded-md px-1.5",
   "text-muted-foreground transition-colors duration-[120ms]",
   "hover:bg-accent hover:text-foreground",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
@@ -25,7 +25,7 @@ export function SpeedControl() {
             type="button"
             title="Playback speed"
             aria-label={`Playback speed ${speed}x`}
-            className={cn(barBtn, "min-w-10 text-xs font-medium tabular-nums")}
+            className={cn(barBtn, "min-w-11 text-sm font-medium tabular-nums")}
           >
             {speed}×
           </button>

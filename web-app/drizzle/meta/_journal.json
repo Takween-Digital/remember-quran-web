@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789840727005,
+      "tag": "0000_cheerful_pet_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789897244223,
+      "tag": "0001_add_notes_highlight_color",
+      "breakpoints": true
+    }
+  ]
+}

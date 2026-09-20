@@ -2,10 +2,11 @@
 
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
+import { signOut, useSession } from "@/lib/auth/react-compat"
 import { CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 
 const labelClass =
   "mb-1.5 block text-xs font-medium tracking-wide text-muted-foreground"
@@ -189,9 +190,8 @@ export function SettingsForms({
             <label htmlFor="email-current-password" className={labelClass}>
               Current password
             </label>
-            <Input
+            <PasswordInput
               id="email-current-password"
-              type="password"
               value={emailPassword}
               onChange={(event) => setEmailPassword(event.target.value)}
               autoComplete="current-password"
@@ -219,9 +219,8 @@ export function SettingsForms({
             <label htmlFor="current-password" className={labelClass}>
               Current password
             </label>
-            <Input
+            <PasswordInput
               id="current-password"
-              type="password"
               value={currentPassword}
               onChange={(event) => setCurrentPassword(event.target.value)}
               autoComplete="current-password"
@@ -234,9 +233,8 @@ export function SettingsForms({
             <label htmlFor="new-password" className={labelClass}>
               New password
             </label>
-            <Input
+            <PasswordInput
               id="new-password"
-              type="password"
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
               autoComplete="new-password"
@@ -250,9 +248,8 @@ export function SettingsForms({
             <label htmlFor="confirm-password" className={labelClass}>
               Confirm new password
             </label>
-            <Input
+            <PasswordInput
               id="confirm-password"
-              type="password"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               autoComplete="new-password"

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
+import { authClient } from "@/lib/auth/client"
 import {
   ChevronDown,
   LayoutGrid,
@@ -31,10 +31,10 @@ const navLink =
 
 export function AuthNav() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { data: session, isPending } = authClient.useSession()
   const pathname = usePathname()
 
-  if (status === "loading") {
+  if (isPending) {
     return (
       <div
         aria-hidden
@@ -58,7 +58,7 @@ export function AuthNav() {
     "Account"
 
   async function handleSignOut() {
-    await signOut({ redirect: false })
+    await authClient.signOut()
     await navigateAfterAuth(router, "/")
   }
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { getChapters } from "@/lib/quranApi"
-import { listMemorisedAyahs } from "@/lib/firestore/hifz"
+import { listMemorisedAyahs } from "@/lib/db/hifz"
 import { HifzReviewSession } from "@/components/account/HifzReviewSession"
 import type { HifzAyahDto } from "@/components/account/HifzView"
 

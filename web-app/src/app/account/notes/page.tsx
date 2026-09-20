@@ -6,7 +6,7 @@ import {
   type AccountNoteDto,
 } from "@/components/account/NotesView"
 import { getChapters } from "@/lib/quranApi"
-import { listNotes } from "@/lib/firestore/notes"
+import { listNotes } from "@/lib/db/notes"
 
 export const metadata: Metadata = {
   title: "Notes",

@@ -3,9 +3,10 @@
 import Link from "next/link"
 import { useState, useEffect, type FormEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { signIn, useSession } from "next-auth/react"
+import { authClient } from "@/lib/auth/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { validateCredentials } from "@/lib/auth/credentials"
 import { safeNextPath } from "@/lib/auth/safe-next"
 import { cn } from "@/lib/utils"
@@ -16,15 +17,15 @@ const fieldLabel =
 export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { data: session, status } = useSession()
+  const { data: session, isPending: sessionPending } = authClient.useSession()
   const next = safeNextPath(searchParams.get("next"), "/account")
 
   // If the user is already authenticated on the client, immediately send them to destination
   useEffect(() => {
-    if (status === "authenticated" && session?.user) {
+    if (!sessionPending && session?.user) {
       window.location.assign(next)
     }
-  }, [status, session, next])
+  }, [sessionPending, session, next])
 
   // Set by the failure branch below via a real top-level navigation back to
   // this same page (see its comment for why) — read once on load, then
@@ -60,24 +61,12 @@ export function LoginForm() {
 
     setPending(true)
     try {
-      const result = await signIn("credentials", {
+      const result = await authClient.signIn.email({
         email: parsed.data.email,
         password: parsed.data.password,
-        redirect: false,
-        callbackUrl: next,
       })
 
-      if (!result || result.error) {
-        // A real top-level navigation, not a React state update: NextAuth's
-        // own callback fetch always resolves 200 here regardless of whether
-        // the credentials were valid — `redirect: false` only changes what
-        // *we* do with that response, not the request Chrome's password
-        // manager already saw. Redisplaying the error in place leaves Chrome
-        // with only a "form submitted, got a 200" signal, which reads as a
-        // successful login and triggers the Save Password prompt even on a
-        // wrong password. Landing back on this same URL with the form still
-        // present (via a genuine navigation, not client-side state) is the
-        // signal it actually needs to recognize the attempt failed.
+      if (result.error) {
         const url = new URL(window.location.href)
         url.searchParams.set("loginFailed", "1")
         url.searchParams.set("email", parsed.data.email)
@@ -85,8 +74,6 @@ export function LoginForm() {
         return
       }
 
-      // Hard navigation ensures fresh cookie headers are sent to the server/proxy
-      // avoiding middleware caching issues and redirect loops.
       window.location.assign(next)
     } catch {
       setError("Something went wrong. Please try again.")
@@ -130,10 +117,9 @@ export function LoginForm() {
             Forgot password?
           </Link>
         </div>
-        <Input
+        <PasswordInput
           id="login-password"
           name="password"
-          type="password"
           autoComplete="current-password"
           required
           value={password}

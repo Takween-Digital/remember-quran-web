@@ -1,10 +1,9 @@
 import { auth } from "@/auth"
 import { privateJson } from "@/lib/auth/api-response"
 import { validatePassword } from "@/lib/auth/credentials"
-import { setPassword, verifyPassword } from "@/lib/auth/firebase-credentials"
-import { getUserById } from "@/lib/firestore/users"
+import { getUserById, updatePasswordHash } from "@/lib/db/users"
+import { hashPassword, verifyPassword } from "@/lib/auth/password"
 
-export const runtime = "nodejs"
 
 export async function PATCH(request: Request) {
   const session = await auth()
@@ -42,12 +41,12 @@ export async function PATCH(request: Request) {
   const user = await getUserById(session.user.id)
   if (!user) return privateJson({ error: "Account not found." }, 404)
 
-  const correctPassword = await verifyPassword(user, body.currentPassword)
+  const correctPassword = await verifyPassword(user.passwordHash, body.currentPassword)
   if (!correctPassword) {
     return privateJson({ error: "Current password is incorrect." }, 400)
   }
 
-  const unchanged = await verifyPassword(user, newPassword.password)
+  const unchanged = await verifyPassword(user.passwordHash, newPassword.password)
   if (unchanged) {
     return privateJson(
       { error: "Choose a password different from your current one." },
@@ -55,7 +54,8 @@ export async function PATCH(request: Request) {
     )
   }
 
-  await setPassword(user, newPassword.password)
+  const newHash = await hashPassword(newPassword.password)
+  await updatePasswordHash(user.id, newHash)
 
   return privateJson({ ok: true, reauthenticate: true })
 }

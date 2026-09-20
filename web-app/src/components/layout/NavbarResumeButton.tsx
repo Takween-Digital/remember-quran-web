@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
 import { BookOpen, ArrowRight } from "lucide-react"
 import { useChapterMeta } from "@/context/ChaptersContext"
 import type { LastPositionDto } from "@/components/account/ContinuePrompt"

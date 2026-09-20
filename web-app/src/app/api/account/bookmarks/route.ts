@@ -2,9 +2,8 @@ import type { NextRequest } from "next/server"
 import { getSessionUserId } from "@/lib/auth/session"
 import { privateJson } from "@/lib/auth/api-response"
 import { parseVerseKey } from "@/lib/quran/verse-key"
-import { listBookmarks, createBookmark, moveBookmark, deleteBookmark } from "@/lib/firestore/bookmarks"
+import { listBookmarks, createBookmark, moveBookmark, deleteBookmark } from "@/lib/db/bookmarks"
 
-export const runtime = "nodejs"
 
 function parseId(input: unknown): string | null {
   return typeof input === "string" && input.trim().length > 0 ? input.trim() : null

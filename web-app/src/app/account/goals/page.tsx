@@ -5,7 +5,7 @@ import {
   GoalsView,
   type GoalsSnapshot,
 } from "@/components/account/GoalsView"
-import { evaluateGoalAndStreak } from "@/lib/firestore/goals"
+import { evaluateGoalAndStreak } from "@/lib/db/goals"
 import { getRequestTimeZone } from "@/lib/progress/serverTimezone"
 
 export const metadata: Metadata = {

@@ -8,6 +8,7 @@ import { useChapters } from "@/context/ChaptersContext"
 import { usePlaybackVerseKey } from "@/lib/playbackStore"
 import { ReciterCombobox } from "@/components/audio/ReciterCombobox"
 import { SurahCombobox } from "@/components/quran/SurahCombobox"
+import { AyahCombobox } from "@/components/quran/AyahCombobox"
 import { cn } from "@/lib/utils"
 
 function NowPlaying({ chapterName }: { chapterName: string | null }) {
@@ -36,6 +37,10 @@ export function RadioPanel() {
   const chapters = useChapters()
   const player = useAudioPlayer()
   const [startChapterId, setStartChapterId] = useState<number>(1)
+  // RQ-18: which ayah within startChapterId to begin from, not always 1.
+  const [startAyahId, setStartAyahId] = useState<number>(1)
+
+  const startChapter = chapters.find((c) => c.id === startChapterId)
 
   const isRadio = player.mode === "radio" && player.status !== "idle"
   const isPlaying = isRadio && player.status === "playing"
@@ -45,14 +50,23 @@ export function RadioPanel() {
     if (isRadio && (player.status === "playing" || player.status === "paused")) {
       player.togglePlayPause()
     } else {
-      player.startRadio(startChapterId)
+      player.startRadio(startChapterId, startAyahId)
     }
   }
 
   function handleSurahChange(id: number) {
     setStartChapterId(id)
+    // A previously-picked ayah number almost certainly doesn't exist in the
+    // newly-chosen surah — start from its top until the user picks again.
+    setStartAyahId(1)
     // Mid-play selection switches the radio immediately (RQ-09)
-    if (isRadio) player.startRadio(id)
+    if (isRadio) player.startRadio(id, 1)
+  }
+
+  function handleAyahChange(ayah: number) {
+    setStartAyahId(ayah)
+    // Same reasoning as handleSurahChange — jump immediately if already live.
+    if (isRadio) player.startRadio(startChapterId, ayah)
   }
 
   return (
@@ -110,13 +124,30 @@ export function RadioPanel() {
         {isRadio && player.chapterId !== null && (
           <button
             type="button"
-            onClick={() => setStartChapterId(player.chapterId ?? 1)}
+            onClick={() => {
+              setStartChapterId(player.chapterId ?? 1)
+              setStartAyahId(1)
+            }}
             className="rounded-sm text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Use current surah ({player.chapterName ?? player.chapterId})
           </button>
         )}
       </section>
+
+      {/* RQ-18: which ayah of `startChapterId` to begin from */}
+      {startChapter && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Starting ayah
+          </h2>
+          <AyahCombobox
+            versesCount={startChapter.verses_count}
+            value={startAyahId}
+            onChange={handleAyahChange}
+          />
+        </section>
+      )}
 
       <section className="flex flex-col gap-2">
         <h2 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">

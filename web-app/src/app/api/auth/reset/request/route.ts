@@ -1,30 +1,16 @@
+import { auth } from "@/lib/auth"
 import { privateJson } from "@/lib/auth/api-response"
 import { validateEmail } from "@/lib/auth/credentials"
-import { sendPasswordResetEmail } from "@/lib/auth/firebase-credentials"
-import { getUserByEmail } from "@/lib/firestore/users"
+import { getUserByEmail } from "@/lib/db/users"
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit"
 
-export const runtime = "nodejs"
 
 const EMAIL_COOLDOWN_MS = 60 * 1000
 const GENERIC_MESSAGE =
   "If an account exists for that email, a reset link has been sent."
 
-// The per-user cooldown below only kicks in once an account is found — it
-// does nothing to stop someone spraying this endpoint with many different
-// emails (enumeration / mail-bombing an inbox). This IP limit covers that:
-// checked before any account lookup, so it applies regardless of whether
-// the target email exists.
 const RESET_IP_WINDOW_MS = 15 * 60 * 1000
 const RESET_IP_LIMIT = 5
-
-// A valid reset request incurs a Firestore read and an Identity Toolkit
-// call before responding, while the "invalid email" / "cooldown" early
-// returns are very fast. A malicious actor could use response timing to
-// enumerate which emails exist. Even though every branch's response body is
-// identical, that timing gap is itself an enumeration side-channel — pad
-// every enumeration-sensitive branch out to the same floor so response time
-// stops leaking whether the email exists.
 const MIN_RESPONSE_MS = 500
 
 async function enforceMinDelay(startedAt: number) {
@@ -60,7 +46,6 @@ export async function POST(request: Request) {
 
   const parsed = validateEmail(body.email)
   if (!parsed.success) {
-    // Same outward result avoids turning this route into an account lookup.
     await enforceMinDelay(startedAt)
     return privateJson({ ok: true, message: GENERIC_MESSAGE })
   }
@@ -81,22 +66,16 @@ export async function POST(request: Request) {
     return privateJson({ ok: true, message: GENERIC_MESSAGE })
   }
 
-  const result = await sendPasswordResetEmail(user.email)
-  if (!result.ok) {
-    // Two distinct failure modes land here — keep them distinguishable in
-    // logs even though the HTTP response must stay identical either way to
-    // preserve enumeration-safety:
-    //  - "no-firebase-account": a real web account with no linked Firebase
-    //    Auth identity yet (not migrated, or deliberately left unlinked due
-    //    to a mobile-app email collision — see the migration script). A
-    //    known, bounded population needing manual reconciliation.
-    //  - "delivery-failed": the account is fine, but Resend itself failed
-    //    (e.g. RESEND_API_KEY missing/invalid in this environment) — every
-    //    reset request will silently fail to deliver until that's fixed.
-    console.warn("password-reset: email not delivered", {
-      userId: user.id,
-      reason: result.reason,
+  try {
+    // Send password reset email via Better Auth
+    await auth.api.requestPasswordReset({
+      body: {
+        email: user.email,
+        redirectTo: "/reset",
+      },
     })
+  } catch (err) {
+    console.warn("password-reset: error requesting reset", err)
   }
 
   await enforceMinDelay(startedAt)

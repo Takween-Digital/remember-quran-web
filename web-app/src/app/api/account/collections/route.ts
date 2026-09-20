@@ -6,9 +6,8 @@ import {
   createCollection,
   renameCollection,
   deleteCollection,
-} from "@/lib/firestore/bookmarkCollections"
+} from "@/lib/db/bookmarkCollections"
 
-export const runtime = "nodejs"
 
 const NAME_MAX_LENGTH = 80
 

@@ -1,10 +1,9 @@
 import { getSessionUserId } from "@/lib/auth/session"
 import { privateJson } from "@/lib/auth/api-response"
 import { isGoalType, validateGoalTarget } from "@/lib/goals/constants"
-import { setActiveGoal, clearActiveGoal, evaluateGoalAndStreak } from "@/lib/firestore/goals"
+import { setActiveGoal, clearActiveGoal, evaluateGoalAndStreak } from "@/lib/db/goals"
 import { getRequestTimeZone } from "@/lib/progress/serverTimezone"
 
-export const runtime = "nodejs"
 
 async function readBody(request: Request): Promise<Record<string, unknown> | null> {
   try {

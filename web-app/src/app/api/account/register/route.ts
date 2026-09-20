@@ -1,10 +1,9 @@
-import { hash } from "bcryptjs"
 import { NextResponse } from "next/server"
+import { APIError } from "better-auth"
 import { validateCredentials } from "@/lib/auth/credentials"
-import { getAdminAuth } from "@/lib/firestore/admin"
-import { createUser } from "@/lib/firestore/users"
+import { getUserByEmail } from "@/lib/db/users"
+import { auth } from "@/lib/auth"
 
-export const runtime = "nodejs"
 export const maxDuration = 30
 
 const MAX_REQUEST_BYTES = 16_384
@@ -56,48 +55,25 @@ export async function POST(request: Request) {
     )
   }
 
-  // Firebase Auth is the authoritative uniqueness check — done first so an
-  // email that already has a Firebase account (e.g. created by the mobile
-  // app) correctly 409s here instead of silently creating a second,
-  // Firestore-only identity for the same address.
-  let firebaseUid: string
-  try {
-    const firebaseUser = await getAdminAuth().createUser({
-      email: parsed.data.email,
-      password: parsed.data.password,
-    })
-    firebaseUid = firebaseUser.uid
-  } catch (error) {
-    if (isFirebaseCode(error, "auth/email-already-exists")) {
-      return json({ error: "An account with this email already exists." }, 409)
-    }
-    console.error("Firebase Auth account creation failed", error)
-    return json(
-      { error: "Could not create your account. Please try again." },
-      500,
-    )
+  const existing = await getUserByEmail(parsed.data.email)
+  if (existing) {
+    return json({ error: "An account with this email already exists." }, 409)
   }
 
   try {
-    // Still hashed and stored even though Firebase Auth owns verification
-    // going forward — it's the rollback safety net (see passwordHash's
-    // doc comment on UserRecord) and the fallback path if this account is
-    // ever unlinked from Firebase.
-    const passwordHash = await hash(parsed.data.password, 12)
-
-    // Email reservation, user doc, and default "Favourites" collection are
-    // created atomically in one Firestore transaction — see createUser().
-    const result = await createUser({
-      email: parsed.data.email,
-      passwordHash,
-      firebaseUid,
-      displayName,
+    // Goes through better-auth's own sign-up rather than inserting into the
+    // `users`/`account` tables by hand — it's the only thing that writes a
+    // credential `account` row in the hash format better-auth's own
+    // sign-in later verifies against. A hand-rolled insert here previously
+    // left new accounts unable to ever sign back in (a `passwordHash`
+    // column with no matching `account` row for better-auth to check).
+    const result = await auth.api.signUpEmail({
+      body: {
+        name: displayName || parsed.data.email.split("@")[0],
+        email: parsed.data.email,
+        password: parsed.data.password,
+      },
     })
-
-    if (!result.ok) {
-      await deleteOrphanedFirebaseUser(firebaseUid, parsed.data.email)
-      return json({ error: "An account with this email already exists." }, 409)
-    }
 
     return json(
       {
@@ -110,41 +86,17 @@ export async function POST(request: Request) {
       201,
     )
   } catch (error) {
+    if (error instanceof APIError) {
+      const status = error.statusCode >= 400 && error.statusCode < 600 ? error.statusCode : 400
+      return json(
+        { error: error.body?.message ?? "Could not create your account." },
+        status,
+      )
+    }
     console.error("Registration failed", error)
-    await deleteOrphanedFirebaseUser(firebaseUid, parsed.data.email)
     return json(
       { error: "Could not create your account. Please try again." },
       500,
-    )
-  }
-}
-
-function isFirebaseCode(error: unknown, code: string): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code: unknown }).code === code
-  )
-}
-
-/**
- * Compensating rollback: the Firebase Auth account was created successfully
- * but the Firestore side failed, leaving an orphan with no Firestore doc.
- * Isolated from the caller's catch block so a failure here can't swallow
- * the original error — logged loudly since an undeleted orphan permanently
- * blocks that email from registering again until cleaned up by hand.
- */
-async function deleteOrphanedFirebaseUser(
-  uid: string,
-  email: string,
-): Promise<void> {
-  try {
-    await getAdminAuth().deleteUser(uid)
-  } catch (cleanupError) {
-    console.error(
-      "CRITICAL: orphaned Firebase Auth account, needs manual cleanup",
-      { uid, email, cleanupError },
     )
   }
 }

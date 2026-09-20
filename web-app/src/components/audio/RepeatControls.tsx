@@ -10,7 +10,7 @@ import { REPEAT_PAUSE_OPTIONS_MS } from "@/types/audio"
 import { cn } from "@/lib/utils"
 
 const barBtn = cn(
-  "flex size-8 items-center justify-center rounded-md",
+  "flex size-10 items-center justify-center rounded-md",
   "text-muted-foreground transition-colors duration-[120ms]",
   "hover:bg-accent hover:text-foreground",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
@@ -115,7 +115,7 @@ export function RepeatControls() {
             aria-pressed={isActive}
             className={cn(barBtn, isActive && "text-primary")}
           >
-            <Repeat className="size-4" strokeWidth={1.75} />
+            <Repeat className="size-5" strokeWidth={1.75} />
           </button>
         )}
       />

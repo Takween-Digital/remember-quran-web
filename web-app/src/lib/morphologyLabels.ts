@@ -1,5 +1,7 @@
 /** Human-readable labels for Quranic Arabic Corpus POS tags and feature codes */
 
+import type { MorphologyEntry } from "@/types/study"
+
 export const POS_LABELS: Record<string, string> = {
   N: "Noun",
   PN: "Proper Noun",
@@ -140,4 +142,32 @@ export function humanizeFeatures(features: string[]): string[] {
       // its specific role) — fall back to POS_LABELS before giving up.
       return FEATURE_LABELS[f] ?? POS_LABELS[f] ?? f
     })
+}
+
+/** "Verb Form IV" etc. — null for non-verbs or when the corpus has no VF tag. */
+export function deriveVerbForm(entry: MorphologyEntry): string | null {
+  if (entry.pos !== "V") return null
+  const vf = entry.features.find((f) => f.startsWith("VF:"))
+  if (!vf) return null
+  const label = VF_LABELS[vf.slice(3)]
+  return label ? `Verb ${label}` : null
+}
+
+const NOMINAL_POS = new Set([
+  "N", "PN", "ADJ", "ACT_PCPL", "PASS_PCPL", "VN", "PRO", "PRON", "DEM", "REL",
+])
+
+/**
+ * Case-based teaching heuristic, not a syntactic parse — this dataset is
+ * per-word morphology only (no dependency treebank), so "subject" / "object"
+ * here means "a noun in the case that usually plays that role", the standard
+ * simplification used when introducing iʿrāb to learners. Framed as a hint,
+ * not an assertion, for exactly that reason.
+ */
+export function deriveRoleHint(entry: MorphologyEntry): string | null {
+  if (!NOMINAL_POS.has(entry.pos)) return null
+  if (entry.features.includes("NOM")) return "Nominative — often the subject (فاعل)"
+  if (entry.features.includes("ACC")) return "Accusative — often the object (مفعول به)"
+  if (entry.features.includes("GEN")) return "Genitive — possessive or after a preposition (مجرور)"
+  return null
 }

@@ -100,7 +100,7 @@ export function SeekBar({
 export function ElapsedTime({ durationMs }: { durationMs: number | null }) {
   const elapsed = useElapsedSeconds()
   return (
-    <span className="text-xs tabular-nums text-muted-foreground">
+    <span className="text-sm tabular-nums text-muted-foreground">
       {formatTime(elapsed)}
       {durationMs ? (
         <span className="hidden sm:inline">{` / ${formatTime(durationMs / 1000)}`}</span>

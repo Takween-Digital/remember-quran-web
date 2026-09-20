@@ -3,7 +3,6 @@ import { getChapter, getVerseByKey, TRANSLATION_IDS } from "@/lib/quranApi"
 import { plainTranslation } from "@/lib/media/card-presets"
 import { parseVerseKey } from "@/lib/quran/verse-key"
 
-export const runtime = "nodejs"
 
 export async function GET(request: NextRequest) {
   const verseParam = request.nextUrl.searchParams.get("verse") ?? ""

@@ -4,22 +4,6 @@ import type { ReactNode } from "react"
 import { toArabicDigits } from "./AyahText"
 import { cn } from "@/lib/utils"
 
-interface MarginBadge {
-  id: string
-  title: string
-  number: number
-  sublabel?: string
-  type: "juz" | "hizb" | "rub"
-}
-
-interface MushafPageFrameProps {
-  pageNumber: number
-  juzNumber?: number
-  surahNameArabic?: string
-  children: ReactNode
-  marginBadges?: MarginBadge[]
-  className?: string
-}
 
 /**
  * Authentic Printed Mushaf Page Frame (إطار المصحف الشريف)
@@ -61,6 +45,22 @@ const JUZ_NAMES_ARABIC: Record<number, string> = {
   30: "الثلاثون",
 }
 
+export interface MushafPageFrameProps {
+  pageNumber: number
+  juzNumber?: number
+  surahNameArabic?: string | null
+  children: ReactNode
+  marginBadges?: {
+    id: string
+    title: string
+    number: number
+    sublabel: string
+    type: "juz" | "hizb" | "sajdah"
+  }[]
+  className?: string
+  completionBadge?: ReactNode
+}
+
 export function MushafPageFrame({
   pageNumber,
   juzNumber,
@@ -68,6 +68,7 @@ export function MushafPageFrame({
   children,
   marginBadges = [],
   className,
+  completionBadge,
 }: MushafPageFrameProps) {
   const juzOrdinal = juzNumber ? JUZ_NAMES_ARABIC[juzNumber] || toArabicDigits(juzNumber) : ""
   const cleanSurahName = surahNameArabic ? surahNameArabic.replace(/^سورة\s+/i, "") : ""
@@ -156,14 +157,18 @@ export function MushafPageFrame({
             {/* Bottom Page Footer: Ornate Madani Octagonal / Rosette Page Medallion */}
             <footer
               aria-label={`Page ${pageNumber}`}
-              className="mt-3 sm:mt-4 pt-2 border-t border-reader-paper-gilt/40 flex items-center justify-center select-none"
+              className="mt-3 sm:mt-4 pt-2 border-t border-reader-paper-gilt/40 flex items-center justify-between select-none"
             >
-              <div className="relative inline-flex items-center justify-center px-3.5 py-1 rounded-full border border-reader-paper-gilt bg-reader-paper shadow-xs">
+              <div className="flex-1" />
+              <div className="relative inline-flex flex-shrink-0 items-center justify-center px-3.5 py-1 rounded-full border border-reader-paper-gilt bg-reader-paper shadow-xs">
                 <span className="absolute -left-1 text-[10px] text-reader-paper-gilt-strong">‹</span>
                 <span className="font-uthmani text-sm font-medium text-reader-paper-ink-soft leading-none px-1">
                   {toArabicDigits(pageNumber)}
                 </span>
                 <span className="absolute -right-1 text-[10px] text-reader-paper-gilt-strong">›</span>
+              </div>
+              <div className="flex-1 flex justify-end">
+                {completionBadge}
               </div>
             </footer>
           </div>
