@@ -26,6 +26,7 @@ import { useSession } from "@/lib/auth/react-compat"
 import { SurahProgressProvider, useSurahProgressContext } from "@/context/SurahProgressContext"
 import { useReadingPosition } from "@/hooks/useReadingPosition"
 import { HIGHLIGHT_BG_CLASS } from "@/lib/notes/highlights"
+import { TOTAL_QURAN_PAGES } from "@/lib/goals/constants"
 import { useQcfPageFont } from "@/hooks/useQcfPageFont"
 import { ArabicWord } from "./ArabicWord"
 import { AyahEndMarker } from "./AyahEndMarker"
@@ -451,6 +452,7 @@ function ReadingPage({
   targetAyahId,
   onWordClick,
   onAyahClick,
+  enableScrollTurn = true,
 }: {
   page: MushafPage
   prevPage: MushafPage | null
@@ -459,6 +461,15 @@ function ReadingPage({
   targetAyahId?: number
   onWordClick: (word: Word, verseKey?: string) => void
   onAyahClick: (verse: Verse) => void
+  /** Scroll-linked fade/scale as the page crosses the viewport — for the
+   * continuous-scroll and split-view layouts, where pages genuinely scroll
+   * past. Paged mode swaps a single settled page via its own 3D flip
+   * animation instead; leaving this on there let the view-timeline
+   * animation fire mid-transition whenever the surrounding document wasn't
+   * scrolled to the exact settled position, rendering the page at a
+   * partial opacity/scale/translateY — a "ghost" second card outline
+   * behind the real one. */
+  enableScrollTurn?: boolean
 }) {
   // A surah can span dozens of Mushaf pages — only fetch this page's font
   // once it's actually near the viewport, not the moment it mounts, so
@@ -577,7 +588,7 @@ function ReadingPage({
   const pageHeaderChapter = chaptersById.get(pageLeadSurahId) ?? chapter
 
   return (
-    <div ref={containerRef} className="mushaf-page-turn">
+    <div ref={containerRef} className={enableScrollTurn ? "mushaf-page-turn" : undefined}>
       <MushafPageFrame
         pageNumber={page.pageNumber}
         juzNumber={page.juzNumber}
@@ -960,10 +971,10 @@ function PagedMushafDeck({
           disabled={!canGoPrev}
           title="Previous page"
           aria-label="Previous page"
-          className="flex size-10 shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-0 sm:size-14"
+          className="flex size-10 shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-0 sm:size-12 group z-10"
         >
-          <span className="flex size-10 items-center justify-center rounded-full border-2 border-primary/40 bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110 hover:border-primary sm:size-14">
-            <ChevronLeft className="size-6 sm:size-8" strokeWidth={2.75} />
+          <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-md backdrop-blur-md sm:size-12">
+            <ChevronLeft className="size-5 sm:size-6 transition-transform group-hover:-translate-x-0.5" strokeWidth={2.5} />
           </span>
         </button>
 
@@ -982,7 +993,14 @@ function PagedMushafDeck({
               backfaceVisibility: "hidden",
             }}
           >
-            <div className={cn("grid gap-8 items-center", spread.left ? "grid-cols-2" : "grid-cols-1 mx-auto max-w-[min(100%,48rem)]")}>
+            {/* items-start, not items-center: a mid-page surah transition (a
+             * surah-end + a new surah's header/Bismillah + its opening ayahs
+             * all on one Mushaf page) makes that page's rendered content
+             * taller than its spread-mate. Centering each page independently
+             * then left the taller one hanging lower than the other, like a
+             * torn-out page — top-aligning keeps both pages sitting on the
+             * same "shelf", as they would in a real bound Mushaf. */}
+            <div className={cn("grid gap-8 items-start", spread.left ? "grid-cols-2" : "grid-cols-1 mx-auto max-w-[min(100%,48rem)]")}>
               {spread.left && (
                 // @container: MushafPageFrame sizes itself off `100cqw`, which
                 // otherwise resolves against the far [surahId]/layout.tsx
@@ -1000,6 +1018,7 @@ function PagedMushafDeck({
                     targetAyahId={targetAyahId}
                     onWordClick={onWordClick}
                     onAyahClick={onAyahClick}
+                    enableScrollTurn={false}
                   />
                 </div>
               )}
@@ -1016,6 +1035,7 @@ function PagedMushafDeck({
                   targetAyahId={targetAyahId}
                   onWordClick={onWordClick}
                   onAyahClick={onAyahClick}
+                  enableScrollTurn={false}
                 />
               </div>
             </div>
@@ -1028,10 +1048,10 @@ function PagedMushafDeck({
           disabled={!canGoNext}
           title="Next page"
           aria-label="Next page"
-          className="flex size-10 shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-0 sm:size-14"
+          className="flex size-10 shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-0 sm:size-12 group z-10"
         >
-          <span className="flex size-10 items-center justify-center rounded-full border-2 border-primary/40 bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110 hover:border-primary sm:size-14">
-            <ChevronRight className="size-6 sm:size-8" strokeWidth={2.75} />
+          <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-md backdrop-blur-md sm:size-12">
+            <ChevronRight className="size-5 sm:size-6 transition-transform group-hover:translate-x-0.5" strokeWidth={2.5} />
           </span>
         </button>
       </div>
@@ -1573,7 +1593,7 @@ export function ReadingModeView({
               spread={pageSpreads[pagedIndex]}
               spreadIndex={pagedIndex}
               totalSpreads={pageSpreads.length}
-              totalPages={pages.length}
+              totalPages={TOTAL_QURAN_PAGES}
               chapter={chapter}
               chaptersById={chaptersById}
               targetAyahId={targetAyahId}
