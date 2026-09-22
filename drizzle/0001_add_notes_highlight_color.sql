@@ -1,1 +1,0 @@
-ALTER TABLE `notes` ADD `highlight_color` text;
