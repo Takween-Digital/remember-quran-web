@@ -1,0 +1,342 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import '../../../shared/widgets/app_state_views.dart';
+import '../controllers/reader_controller.dart';
+import '../controllers/reader_settings_controller.dart';
+import 'widgets/ayah_block.dart';
+import 'widgets/mushaf_page_view.dart';
+import 'widgets/reader_settings_sheet.dart';
+import 'widgets/quick_jump_sheet.dart';
+import 'widgets/juz_navigation_sheet.dart';
+import '../../home/controllers/home_controller.dart';
+import '../../../core/utils/responsive_layout.dart';
+import '../../audio/views/mini_player.dart';
+import '../../study/views/widgets/tafsir_sheet.dart';
+import '../../study/views/widgets/asbab_sheet.dart';
+
+class SurahReaderView extends GetView<ReaderController> {
+  const SurahReaderView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await controller.flushPendingProgress();
+        if (context.mounted) Navigator.of(context).pop(result);
+      },
+      // Reading Background (Sepia/Grey) is independent of the app's own
+      // System/Light/Dark ThemeMode, so it's applied here as a local Theme
+      // override scoped to just this reader screen rather than a fourth
+      // ThemeMode value — "standard" returns null and this falls through to
+      // the ambient theme unchanged.
+      child: Obx(() {
+        final settings = Get.find<ReaderSettingsController>();
+        final overrideTheme = settings.readingBackground.value.apply(Theme.of(context));
+        final scaffold = _buildScaffold(context);
+        return overrideTheme == null ? scaffold : Theme(data: overrideTheme, child: scaffold);
+      }),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Obx(() {
+          final name = controller.chapter.value?.nameSimple;
+          if (name != null) return Text(name);
+          return Text(controller.hasError.value ? 'Reader' : 'Loading…');
+        }),
+        centerTitle: true,
+        actions: [
+          Obx(() {
+            final currentId = controller.chapter.value?.id;
+            final isBusy = controller.isLoading.value;
+            return IconButton(
+              icon: const Icon(Icons.navigate_before),
+              tooltip: 'Previous surah',
+              onPressed: (isBusy || currentId == null)
+                  ? null
+                  : () => controller.loadChapter(
+                      currentId > 1 ? currentId - 1 : 114,
+                    ),
+            );
+          }),
+          Obx(() {
+            final currentId = controller.chapter.value?.id;
+            final isBusy = controller.isLoading.value;
+            return IconButton(
+              icon: const Icon(Icons.navigate_next),
+              tooltip: 'Next surah',
+              onPressed: (isBusy || currentId == null)
+                  ? null
+                  : () => controller.loadChapter(
+                      currentId < 114 ? currentId + 1 : 1,
+                    ),
+            );
+          }),
+          IconButton(
+            icon: const Icon(Icons.menu_book_rounded),
+            tooltip: 'Juz & Hizb Navigation',
+            onPressed: () => JuzNavigationSheet.show(
+              context,
+              currentChapterId: controller.chapter.value?.id,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'Quick Jump',
+            onPressed: () => QuickJumpSheet.show(
+              context,
+              currentChapterId: controller.chapter.value?.id,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () => ReaderSettingsSheet.show(context),
+          ),
+        ],
+      ),
+      body: _AutoOpenSheetWrapper(
+        child: ResponsiveLayout(
+          mobile: _buildReaderContent(context),
+          desktop: Row(
+            children: [
+              SizedBox(width: 300, child: _buildSurahSidebar(context)),
+              const VerticalDivider(width: 1, thickness: 1),
+              Expanded(child: _buildReaderContent(context)),
+            ],
+          ),
+        ),
+      ),
+      // The reader is a separate full-screen route from AppScaffold's tab
+      // shell, which is the only other place MiniPlayer was mounted — so
+      // playback appeared to have no persistent mini player at all the
+      // moment a user actually opened a surah to read. MiniPlayer already
+      // renders nothing (SizedBox.shrink()) when there's no active audio,
+      // so mounting it here unconditionally is safe.
+      bottomNavigationBar: const MiniPlayer(),
+    );
+  }
+
+  Widget _buildSurahSidebar(BuildContext context) {
+    // Attempt to get home controller for chapters, fallback if not available
+    if (!Get.isRegistered<HomeController>()) {
+      Get.put(HomeController(repository: Get.find()));
+    }
+    final homeController = Get.find<HomeController>();
+
+    return Obx(() {
+      if (homeController.chapters.isEmpty) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return ListView.builder(
+        itemCount: homeController.chapters.length,
+        itemBuilder: (context, index) {
+          final chapter = homeController.chapters[index];
+          return ListTile(
+            title: Text(chapter.nameSimple),
+            subtitle: Text('${chapter.versesCount} Verses'),
+            leading: CircleAvatar(
+              radius: 14,
+              child: Text(
+                '${chapter.id}',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+            selected: controller.chapter.value?.id == chapter.id,
+            onTap: () {
+              // Instead of popping, we just change the current chapter in the reader
+              controller.loadChapter(chapter.id);
+            },
+          );
+        },
+      );
+    });
+  }
+
+  Widget _buildReaderContent(BuildContext context) {
+    return Obx(() {
+      if (controller.hasError.value && controller.verses.isEmpty) {
+        return AppErrorView(
+          message:
+              "We couldn't load this surah. Check your connection and try again.",
+          onRetry: controller.retryLoadChapter,
+        );
+      }
+
+      if (controller.isLoading.value && controller.verses.isEmpty) {
+        return const AppLoadingView(message: 'Preparing this surah…');
+      }
+
+      if (controller.verses.isEmpty) {
+        return const AppEmptyView(
+          title: 'No verses found',
+          message: "This surah didn't return any verses.",
+        );
+      }
+
+      // Capped and centered like a book page — this builder runs both
+      // standalone (mobile, and tablet since there's no dedicated `tablet:`
+      // branch above so it falls back to this) and embedded in the desktop
+      // Row next to the sidebar, so the cap has to live here rather than
+      // only around the desktop branch.
+      return Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            children: [
+              Obx(() {
+                final message = controller.resumeBannerMessage.value;
+                if (message == null) return const SizedBox.shrink();
+                final theme = Theme.of(context);
+                return Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 4.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14.0,
+                    vertical: 10.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer
+                        .withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(10.0),
+                    border: Border.all(
+                      color: theme.colorScheme.primary
+                          .withValues(alpha: 0.25),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.bookmark_outline,
+                        size: 20,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          message,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        tooltip: 'Dismiss',
+                        onPressed: controller.dismissResumeBanner,
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              Expanded(
+                child: Obx(() {
+                  final displayMode =
+                      Get.isRegistered<ReaderSettingsController>()
+                          ? Get.find<ReaderSettingsController>()
+                              .displayMode
+                              .value
+                          : DisplayMode.verseByVerse;
+
+                  if (displayMode == DisplayMode.mushaf) {
+                    return const MushafPageView();
+                  }
+
+                  return ScrollablePositionedList.builder(
+                    itemCount: controller.verses.length,
+                    itemScrollController: controller.itemScrollController,
+                    itemPositionsListener: controller.itemPositionsListener,
+                    padding: context.responsivePadding,
+                    itemBuilder: (context, index) {
+                      final verse = controller.verses[index];
+                      return AyahBlock(
+                        verse: verse,
+                        words: controller.verseWords[verse.id] ?? [],
+                        translations:
+                            controller.verseTranslations[verse.id] ?? [],
+                      );
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+}
+
+/// Listens for pending sheet open requests (from Study feature navigation)
+/// and opens the appropriate sheet after the reader loads.
+class _AutoOpenSheetWrapper extends StatefulWidget {
+  final Widget child;
+
+  const _AutoOpenSheetWrapper({required this.child});
+
+  @override
+  State<_AutoOpenSheetWrapper> createState() => _AutoOpenSheetWrapperState();
+}
+
+class _AutoOpenSheetWrapperState extends State<_AutoOpenSheetWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndOpenSheet();
+    });
+  }
+
+  void _checkAndOpenSheet() {
+    final controller = Get.find<ReaderController>();
+    final sheetType = controller.pendingSheetToOpen.value;
+    if (sheetType == null) return;
+
+    final chapter = controller.chapter.value;
+    if (chapter == null || controller.verses.isEmpty) {
+      // Wait for verses to load, then retry
+      ever(controller.verses, (_) {
+        final retrySheet = controller.pendingSheetToOpen.value;
+        if (retrySheet != null) {
+          _openSheet(retrySheet);
+        }
+      });
+      return;
+    }
+
+    _openSheet(sheetType);
+  }
+
+  void _openSheet(String sheetType) {
+    final controller = Get.find<ReaderController>();
+    final chapter = controller.chapter.value;
+    if (chapter == null) return;
+
+    final ayahIdStr = Get.parameters['ayahId'];
+    final ayahId = ayahIdStr != null ? int.tryParse(ayahIdStr) ?? 1 : 1;
+
+    // Clear the pending sheet so it doesn't re-trigger
+    controller.pendingSheetToOpen.value = null;
+
+    if (!mounted) return;
+
+    if (sheetType == 'tafsir') {
+      TafsirSheet.show(context, chapter.id, ayahId);
+    } else if (sheetType == 'asbab') {
+      AsbabSheet.show(context, chapter.id, ayahId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
