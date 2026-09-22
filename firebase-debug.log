@@ -1,0 +1,29 @@
+[debug] [2026-09-19T18:46:47.843Z] ----------------------------------------------------------------------
+[debug] [2026-09-19T18:46:47.845Z] Command:       /usr/local/bin/node /usr/local/bin/firebase projects:list
+[debug] [2026-09-19T18:46:47.846Z] CLI Version:   14.12.1
+[debug] [2026-09-19T18:46:47.846Z] Platform:      darwin
+[debug] [2026-09-19T18:46:47.846Z] Node Version:  v22.17.0
+[debug] [2026-09-19T18:46:47.846Z] Time:          Sat Sep 19 2026 23:46:47 GMT+0500 (Pakistan Standard Time)
+[debug] [2026-09-19T18:46:47.846Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-09-19T18:46:47.847Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-09-19T18:46:47.999Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-09-19T18:46:48.000Z] > authorizing via signed-in user (muhammadnumantakween@gmail.com)
+[debug] [2026-09-19T18:46:48.001Z] Checked if tokens are valid: false, expires at: 1788437105614
+[debug] [2026-09-19T18:46:48.001Z] Checked if tokens are valid: false, expires at: 1788437105614
+[debug] [2026-09-19T18:46:48.001Z] > refreshing access token with scopes: []
+[debug] [2026-09-19T18:46:48.002Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-09-19T18:46:48.002Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-09-19T18:46:48.699Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-09-19T18:46:48.700Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-09-19T18:46:48.716Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-09-19T18:46:48.887Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-09-19T18:46:48.888Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-09-19T18:46:59.031Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=1000, {"headers":{},"method":"GET","signal":{}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000 failed, reason: Client network socket disconnected before secure TLS connection was established
+[debug] [2026-09-19T18:46:59.032Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+[debug] [2026-09-19T18:47:04.047Z] Error: Timed out.
+    at Timeout._onTimeout (/usr/local/lib/node_modules/firebase-tools/lib/utils.js:273:49)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[error] 
+[error] Error: An unexpected error has occurred.
