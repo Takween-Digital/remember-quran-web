@@ -1,7 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs"
 import { join } from "node:path"
 import { DatabaseSync, type StatementSync } from "node:sqlite"
-import type { D1Database } from "./client"
 
 /**
  * Real local persistence for `next dev` (no Cloudflare bindings available
@@ -76,6 +75,7 @@ export function createLocalD1(): D1Database {
   db.exec("PRAGMA foreign_keys = ON")
   applyMigrationsIfNeeded(db)
 
+  // Structurally minimal — only the members drizzle-orm's D1 driver actually calls.
   return {
     prepare: (sql: string) => ({
       bind: (...params: unknown[]) => bindStatement(db, sql, params),
@@ -93,5 +93,5 @@ export function createLocalD1(): D1Database {
       return {}
     },
     dump: async () => new ArrayBuffer(0),
-  }
+  } as unknown as D1Database
 }

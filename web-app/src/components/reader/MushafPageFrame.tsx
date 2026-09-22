@@ -122,7 +122,20 @@ export function MushafPageFrame({
           "bg-reader-paper text-reader-ink",
           "border border-reader-paper-edge rounded-sm shadow-[var(--reader-paper-shadow)]",
           "p-1 sm:p-2.5 md:p-3.5",
-          "aspect-[1/1.5] flex flex-col"
+          // A hard `aspect-[1/1.5]` locks this box to a fixed height derived
+          // purely from width — fine for an ordinary 15-line page, but a
+          // page that also carries a mid-page surah header (title cartouche
+          // + Bismillah, see the `surahStart` block below) has more content
+          // than that height allows. Flex children don't force a
+          // definite-height ancestor to grow, so the extra content just
+          // painted past the card's own border in a Paged spread — its
+          // background, border and shadow stopped at the "normal" height
+          // while the ayahs kept going, and the pagination caption below
+          // the spread (sized off this box's layout height, not its
+          // overflowed paint) ended up overlapping that spillover.
+          // `min-h` keeps the same size for normal pages but lets the box
+          // itself grow to actually contain the extra content instead.
+          "min-h-[min(150cqw,54.375rem)] flex flex-col"
         )}
       >
         {/* Authentic Madani Double Gold Hairline Border Frame */}

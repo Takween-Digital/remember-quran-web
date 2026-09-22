@@ -5,6 +5,7 @@ import { serverConfig } from "@/lib/firebase/server";
 import { getDb } from "@/lib/db/client";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { cookieSignatureKeys } from "@/lib/auth/cookie-secret";
 
 export async function POST(request: NextRequest) {
   const reqBody = (await request.json().catch(() => ({}))) as { idToken?: string, displayName?: string };
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     const response = await setAuthCookies(headers, {
       cookieName: "AuthToken",
-      cookieSignatureKeys: [process.env.COOKIE_SECRET_CURRENT || "secret"],
+      cookieSignatureKeys: cookieSignatureKeys(),
       cookieSerializeOptions: {
         path: "/",
         httpOnly: true,

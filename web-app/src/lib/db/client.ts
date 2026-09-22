@@ -3,13 +3,6 @@ import * as schema from "./schema"
 
 export type AppDatabase = DrizzleD1Database<typeof schema>
 
-export interface D1Database {
-  prepare(query: string): any
-  dump(): Promise<ArrayBuffer>
-  batch<T = unknown>(statements: any[]): Promise<any[]>
-  exec<T = unknown>(query: string): Promise<any>
-}
-
 declare global {
   // eslint-disable-next-line no-var
   var __app_db: AppDatabase | undefined
@@ -62,7 +55,8 @@ export function getDb(d1Instance?: D1Database): AppDatabase {
     // ignore — fall through to the no-op mock below
   }
 
-  const mockD1: D1Database = {
+  // Structurally minimal — only the members drizzle-orm's D1 driver actually calls.
+  const mockD1 = {
     prepare: () => ({
       bind: () => ({ all: async () => ({ results: [] }), first: async () => null, run: async () => ({}) }),
       all: async () => ({ results: [] }),
@@ -72,7 +66,7 @@ export function getDb(d1Instance?: D1Database): AppDatabase {
     dump: async () => new ArrayBuffer(0),
     batch: async () => [],
     exec: async () => ({}),
-  }
+  } as unknown as D1Database
 
   return drizzle(mockD1, { schema })
 }

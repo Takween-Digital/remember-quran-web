@@ -46,8 +46,8 @@ function useLiveAyah(
 
     let cancelled = false
     fetch(`/api/surah/${chapterId}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: { verses?: Verse[] } | null) => {
+      .then((res) => (res.ok ? (res.json() as Promise<{ verses?: Verse[] }>) : null))
+      .then((data) => {
         if (cancelled || !data?.verses) return
         setVersesByChapter((prev) => ({ ...prev, [chapterId]: data.verses! }))
       })

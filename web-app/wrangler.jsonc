@@ -21,6 +21,27 @@
       "id": "7be8fb49d877416eb6a27a2675ff8450"
     }
   ],
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "rememberquran-isr-cache"
+    }
+  ],
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "rememberquran"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true
+    },
+    "traces": {
+      "enabled": true
+    }
+  },
   "routes": [
     { "pattern": "rememberquran.com", "custom_domain": true },
     { "pattern": "www.rememberquran.com", "custom_domain": true }

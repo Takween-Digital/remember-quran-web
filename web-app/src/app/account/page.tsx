@@ -37,7 +37,7 @@ export default function AccountPage() {
           }
           throw new Error("Failed to fetch")
         }
-        return res.json()
+        return res.json() as Promise<SummaryData>
       })
       .then((json) => {
         setData(json)

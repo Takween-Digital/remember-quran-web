@@ -28,9 +28,9 @@ export function useSurahProgress(surahId: number) {
     fetch(`/api/account/progress/surah?surahId=${surahId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch surah progress")
-        return res.json()
+        return res.json() as Promise<{ ranges?: AyahRange[] }>
       })
-      .then((data: { ranges?: AyahRange[] }) => {
+      .then((data) => {
         if (!mounted) return
         const readSet = new Set<string>()
         if (data.ranges) {

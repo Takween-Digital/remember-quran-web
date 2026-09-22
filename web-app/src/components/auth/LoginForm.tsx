@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
 import { validateCredentials } from "@/lib/auth/credentials"
 import { safeNextPath } from "@/lib/auth/safe-next"
+import { ensureServerSession } from "@/lib/auth/establish-session"
 import { cn } from "@/lib/utils"
 
 const fieldLabel =
@@ -23,8 +24,21 @@ export function LoginForm() {
   const next = safeNextPath(searchParams.get("next"), "/account")
 
   useEffect(() => {
-    if (!sessionPending && sessionUser) {
-      window.location.assign(next)
+    if (sessionPending || !sessionUser) return
+    let cancelled = false
+    ensureServerSession(sessionUser).then((ok) => {
+      if (cancelled) return
+      if (ok) {
+        window.location.assign(next)
+      } else {
+        // Client thinks we're signed in but the server couldn't mint a
+        // session cookie for it (stale/invalid client auth state) — sign
+        // out instead of looping back here forever.
+        auth.signOut()
+      }
+    })
+    return () => {
+      cancelled = true
     }
   }, [sessionPending, sessionUser, next])
 

@@ -44,8 +44,8 @@ export function HifzReviewSession({ initialDueAyahs }: HifzReviewSessionProps) {
       const [surahId, ayahId] = verseKey.split(":")
       const res = await fetch(`/api/surah/${surahId}`)
       if (!res.ok) throw new Error("Failed to load surah")
-      const data = await res.json()
-      const found = (data.verses as Verse[]).find((v) => v.verse_key === verseKey)
+      const data = (await res.json()) as { verses: Verse[] }
+      const found = data.verses.find((v) => v.verse_key === verseKey)
       if (found) {
         setCurrentVerse(found)
       }
