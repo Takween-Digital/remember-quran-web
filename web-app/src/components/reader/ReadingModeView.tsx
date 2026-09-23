@@ -476,7 +476,9 @@ function ReadingPage({
   // scrolling through a long surah (or one pulled in by infinite scroll)
   // doesn't kick off font requests for every page at once.
   const containerRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
   const [isNearViewport, setIsNearViewport] = useState(false)
+  const [contentHeight, setContentHeight] = useState<number | null>(null)
 
   useEffect(() => {
     const el = containerRef.current
@@ -494,6 +496,20 @@ function ReadingPage({
     observer.observe(el)
     return () => observer.disconnect()
   }, [isNearViewport])
+
+  useEffect(() => {
+    const el = contentRef.current
+    if (!el) return
+
+    const updateHeight = () => {
+      setContentHeight(el.scrollHeight)
+    }
+
+    updateHeight()
+    const resizeObserver = new ResizeObserver(updateHeight)
+    resizeObserver.observe(el)
+    return () => resizeObserver.disconnect()
+  }, [page?.pageNumber])
 
   // Falls back to the Unicode qpc_uthmani_hafs/text_uthmani rendering
   // already in ArabicWord/AyahEndMarker until this page's font resolves.
@@ -612,6 +628,7 @@ function ReadingPage({
 
         {/* 15-Line Madani Standard Grid or Centered Opening Page */}
         <div
+          ref={contentRef}
           dir="rtl"
           lang="ar"
           className={cn(
@@ -622,11 +639,12 @@ function ReadingPage({
               : // Both normal pages and pages with Surah starts use the identical layout engine:
                 // gap is a hard floor — tashkeel marks need real clearance from the line above/below.
                 // justify-between spreads the lines perfectly to fill the min-h without breaking the container.
-                "flex flex-col justify-between gap-[0.4em] pt-0.5 pb-2 sm:pb-2.5 h-full",
+                "flex flex-col justify-between gap-[0.4em] pt-0.5 pb-2 sm:pb-2.5",
             // The font size MUST be mathematically identical on every page to preserve the grid.
             // A Surah Header + Bismillah physically replaces exactly 3 or 4 lines of text.
             "text-[clamp(16px,4.5cqh,40px)]",
           )}
+          style={contentHeight ? { minHeight: `${contentHeight}px` } : {}}
         >
           {fontLoading ? (
             <MushafPageSkeleton
