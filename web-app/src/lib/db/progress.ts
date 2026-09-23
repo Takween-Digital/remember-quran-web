@@ -1,4 +1,4 @@
-import { eq, and, gte, not, sql } from "drizzle-orm"
+import { eq, and, gte, lte, not, sql } from "drizzle-orm"
 import { getDb } from "./client"
 import { progress, users } from "./schema"
 import { localDayStart, localDayKey } from "@/lib/progress/date"
