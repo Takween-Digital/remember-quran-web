@@ -6,7 +6,13 @@ import { QuickAccess } from "./QuickAccess"
 import { SurahExplorer } from "./SurahExplorer"
 
 export async function SurahListPage() {
-  const chapters = await getChapters()
+  let chapters
+  try {
+    chapters = await getChapters()
+  } catch (error) {
+    console.error("Failed to fetch chapters:", error)
+    chapters = null
+  }
 
   return (
     <div className="flex flex-col">
@@ -20,7 +26,7 @@ export async function SurahListPage() {
           <div className="lg:col-span-3">
             <AyahOfTheDayCard />
           </div>
-          
+
           {/* Right column taking 2/5 width, stacking vertically */}
           <div className="flex flex-col gap-2.5 lg:col-span-2">
             <div className="flex-1">
@@ -32,7 +38,7 @@ export async function SurahListPage() {
           </div>
         </div>
 
-        <SurahExplorer chapters={chapters} />
+        {chapters && <SurahExplorer chapters={chapters} />}
       </div>
     </div>
   )

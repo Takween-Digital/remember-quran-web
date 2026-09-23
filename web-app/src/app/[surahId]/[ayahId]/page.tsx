@@ -11,19 +11,24 @@ export const dynamicParams = true
 export const revalidate = 86400
 
 export async function generateStaticParams() {
-  const chapters = await getChapters()
-  const params: { surahId: string; ayahId: string }[] = []
+  try {
+    const chapters = await getChapters()
+    const params: { surahId: string; ayahId: string }[] = []
 
-  for (const chapter of chapters) {
-    for (let ayah = 1; ayah <= chapter.verses_count; ayah++) {
-      params.push({
-        surahId: String(chapter.id),
-        ayahId: String(ayah),
-      })
+    for (const chapter of chapters) {
+      for (let ayah = 1; ayah <= chapter.verses_count; ayah++) {
+        params.push({
+          surahId: String(chapter.id),
+          ayahId: String(ayah),
+        })
+      }
     }
-  }
 
-  return params
+    return params
+  } catch (error) {
+    console.warn("Failed to generate static params, using on-demand rendering:", error)
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
