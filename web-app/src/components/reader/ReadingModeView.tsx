@@ -478,7 +478,6 @@ function ReadingPage({
   const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const [isNearViewport, setIsNearViewport] = useState(false)
-  const [contentHeight, setContentHeight] = useState<number | null>(null)
 
   useEffect(() => {
     const el = containerRef.current
@@ -497,19 +496,7 @@ function ReadingPage({
     return () => observer.disconnect()
   }, [isNearViewport])
 
-  useEffect(() => {
-    const el = contentRef.current
-    if (!el) return
 
-    const updateHeight = () => {
-      setContentHeight(el.scrollHeight)
-    }
-
-    updateHeight()
-    const resizeObserver = new ResizeObserver(updateHeight)
-    resizeObserver.observe(el)
-    return () => resizeObserver.disconnect()
-  }, [page?.pageNumber])
 
   // Falls back to the Unicode qpc_uthmani_hafs/text_uthmani rendering
   // already in ArabicWord/AyahEndMarker until this page's font resolves.
@@ -632,7 +619,7 @@ function ReadingPage({
           dir="rtl"
           lang="ar"
           className={cn(
-            "quran-arabic font-uthmani select-text w-full reading-mode-text",
+            "quran-arabic font-uthmani select-text w-full reading-mode-text h-full flex-1",
             "text-reader-ink",
             isCenteredOpeningPage
               ? "flex flex-col items-center justify-center space-y-2 py-1 text-center leading-[2.0]"
@@ -644,7 +631,6 @@ function ReadingPage({
             // A Surah Header + Bismillah physically replaces exactly 3 or 4 lines of text.
             "text-[clamp(16px,4.5cqh,40px)]",
           )}
-          style={contentHeight ? { minHeight: `${contentHeight}px` } : {}}
         >
           {fontLoading ? (
             <MushafPageSkeleton
