@@ -1,0 +1,27 @@
+{
+  "name": "rememberquran",
+  "type": "javascript",
+  "main": ".open-next/server",
+  "vars": {
+    "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "remember-quran",
+    "NEXT_PUBLIC_FIREBASE_API_KEY": "AIzaSyALNl-0F78hwgAYU9nVwtfHJc1t_kDzvA4",
+    "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "remember-quran.firebaseapp.com",
+    "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "remember-quran.firebasestorage.app",
+    "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "334348031725",
+    "NEXT_PUBLIC_FIREBASE_APP_ID": "1:334348031725:web:223461a1df32b4a70c5ee4",
+    "FIREBASE_PROJECT_ID": "remember-quran",
+    "FIREBASE_CLIENT_EMAIL": "firebase-adminsdk-fbsvc@remember-quran.iam.gserviceaccount.com",
+    "NEXT_PUBLIC_APP_URL": "https://rememberquran.com",
+    "NODE_ENV": "production"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "AUDIO_CACHE_KV",
+      "id": "7be8fb49d877416eb6a27a2675ff8450"
+    }
+  ],
+  "routes": [
+    { "pattern": "rememberquran.com", "custom_domain": true },
+    { "pattern": "www.rememberquran.com", "custom_domain": true }
+  ]
+}
