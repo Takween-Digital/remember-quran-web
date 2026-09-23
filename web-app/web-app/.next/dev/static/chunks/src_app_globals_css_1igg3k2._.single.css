@@ -2336,16 +2336,8 @@
     gap: .2cqw;
   }
 
-  .gap-\[0\.4em\] {
-    gap: .4em;
-  }
-
   .gap-\[0\.7cqw\] {
     gap: .7cqw;
-  }
-
-  .gap-\[0\.55em\] {
-    gap: .55em;
   }
 
   .gap-\[2\.2cqw\] {
@@ -2480,10 +2472,6 @@
 
   .overflow-hidden {
     overflow: hidden;
-  }
-
-  .overflow-visible {
-    overflow: visible;
   }
 
   .overflow-x-auto {
@@ -4269,10 +4257,6 @@
 
   .text-\[clamp\(6rem\,22vw\,14rem\)\] {
     font-size: clamp(6rem, 22vw, 14rem);
-  }
-
-  .text-\[clamp\(16px\,4\.5cqh\,40px\)\] {
-    font-size: clamp(16px, 4.5cqh, 40px);
   }
 
   .text-\[clamp\(16px\,6\.2cqw\,40px\)\] {

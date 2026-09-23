@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm"
 import { getDb } from "./client"
 import { users } from "./schema"
-import { sumAyahsForDay, getYearActivityHeatmap } from "./progress"
+import { sumAyahsForDay, getYearActivityHeatmap, sumAyahsForDateRange } from "./progress"
 import {
   countInGoalUnits,
   calculateKhatmDailyTarget,
@@ -159,8 +159,16 @@ export async function evaluateGoalAndStreak(
   }
 
   const priorDays = Array.from({ length: 6 }, (_, i) => shiftLocalDay(timeZone, now, -(6 - i)))
-  const priorAyahs = await Promise.all(priorDays.map((day) => sumAyahsForDay(userId, day)))
-  const weekAyahs = [...priorAyahs, todayAyahs]
+  const weekStart = priorDays[0]!
+  const weekEnd = today
+  const weekData = await sumAyahsForDateRange(userId, weekStart, weekEnd)
+
+  const weekAyahs = priorDays.map((day) => {
+    const key = day.toISOString().split("T")[0]
+    return weekData[key] ?? 0
+  })
+  weekAyahs.push(todayAyahs)
+
   const week = weekAyahs.map((ayahs, i) => {
     const day = i < 6 ? priorDays[i]! : today
     const count = effectiveGoal ? countInGoalUnits(ayahs, effectiveGoal.type) : 0

@@ -19,6 +19,10 @@
     {
       "binding": "RATE_LIMIT_KV",
       "id": "7be8fb49d877416eb6a27a2675ff8450"
+    },
+    {
+      "binding": "AUDIO_CACHE_KV",
+      "id": "7be8fb49d877416eb6a27a2675ff8450"
     }
   ],
   "routes": [

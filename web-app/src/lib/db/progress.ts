@@ -1,4 +1,4 @@
-import { eq, and, gte } from "drizzle-orm"
+import { eq, and, gte, not, sql } from "drizzle-orm"
 import { getDb } from "./client"
 import { progress, users } from "./schema"
 import { localDayStart, localDayKey } from "@/lib/progress/date"
@@ -69,18 +69,22 @@ export async function recordProgressEvent(
       createdAt: now,
     })
 
-    // Update viewedSurahs on user row if needed
-    const userRow = await db.select().from(users).where(eq(users.id, userId)).limit(1)
-    if (userRow[0]) {
-      const viewed = new Set(userRow[0].viewedSurahs ?? [])
-      if (!viewed.has(surah)) {
-        viewed.add(surah)
-        await db
-          .update(users)
-          .set({ viewedSurahs: Array.from(viewed), updatedAt: now })
-          .where(eq(users.id, userId))
-      }
-    }
+    await db
+      .update(users)
+      .set({
+        viewedSurahs: sql`json_array_append(
+          COALESCE(viewedSurahs, json_array()),
+          '$',
+          ${surah}
+        )`,
+        updatedAt: now,
+      })
+      .where(
+        and(
+          eq(users.id, userId),
+          not(sql`json_contains(COALESCE(viewedSurahs, json_array()), json(${surah}))`)
+        )
+      )
 
     return { surah, ranges, date }
   }
@@ -107,6 +111,26 @@ export async function sumAyahsForDay(userId: string, day: Date): Promise<number>
     total += sumRanges((row.ranges ?? []) as AyahRange[])
   }
   return total
+}
+
+export async function sumAyahsForDateRange(
+  userId: string,
+  startDate: Date,
+  endDate: Date,
+): Promise<Record<string, number>> {
+  const db = getDb()
+  const rows = await db
+    .select()
+    .from(progress)
+    .where(and(eq(progress.userId, userId), gte(progress.date, startDate), lte(progress.date, endDate)))
+
+  const map: Record<string, number> = {}
+  for (const row of rows) {
+    const key = row.date.toISOString().split("T")[0]
+    const ayahs = sumRanges((row.ranges ?? []) as AyahRange[])
+    map[key] = (map[key] ?? 0) + ayahs
+  }
+  return map
 }
 
 export async function getYearActivityHeatmap(

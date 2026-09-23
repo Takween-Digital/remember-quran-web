@@ -107,8 +107,15 @@ export async function createBookmark(
   })
 
   await adjustBookmarkCount(userId, targetCollectionId, 1)
-  const created = await getBookmark(userId, verseKey)
-  return { ok: true, created: true, bookmark: created! }
+  return {
+    ok: true,
+    created: true,
+    bookmark: {
+      verseKey,
+      collectionId: targetCollectionId,
+      createdAt: now,
+    },
+  }
 }
 
 export type MoveBookmarkResult =
@@ -144,8 +151,13 @@ export async function moveBookmark(
     adjustBookmarkCount(userId, targetCollectionId, 1),
   ])
 
-  const updated = await getBookmark(userId, verseKey)
-  return { ok: true, bookmark: updated! }
+  return {
+    ok: true,
+    bookmark: {
+      ...current,
+      collectionId: targetCollectionId,
+    },
+  }
 }
 
 export async function deleteBookmark(

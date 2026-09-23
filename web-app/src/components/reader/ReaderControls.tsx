@@ -204,7 +204,7 @@ export function ReaderControls() {
                 title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
                 aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
                 onClick={toggleFullscreen}
-                className={cn(iconBtn, "hidden sm:flex")}
+                className={iconBtn}
               >
                 {isFullscreen ? (
                   <Minimize className="size-4" strokeWidth={1.75} />
