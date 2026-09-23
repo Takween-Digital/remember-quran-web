@@ -369,33 +369,27 @@ function MushafLine({
   )
 }
 
-/** Line widths cycle through a few plausible printed-line lengths so the
- * skeleton reads as "text about to appear" rather than a uniform block. */
-const SKELETON_LINE_WIDTHS = ["94%", "80%", "97%", "70%", "88%", "60%"]
-
 /** Placeholder shown in place of a Mushaf page's text body while its QCF
- * glyph font is still loading — avoids the reflow of painting the Unicode
- * fallback first and then swapping to the (differently kerned/justified)
- * QCF glyphs a moment later once the font resolves. */
+ * glyph font is still loading. */
 function MushafPageSkeleton({ centered, lineCount }: { centered: boolean; lineCount: number }) {
   return (
     <div
       role="status"
       aria-label="Loading page"
-      className={cn(
-        "w-full animate-pulse",
-        centered ? "flex flex-col items-center gap-3 py-2" : "flex flex-col gap-3 py-1",
-      )}
+      className="flex flex-col flex-1 items-center justify-center h-full w-full gap-4"
     >
+      <svg 
+        className="w-12 h-12 text-reader-paper-gilt animate-[spin_4s_linear_infinite]" 
+        viewBox="0 0 24 24" 
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M12 2L14.8 7.2L20.5 6L19 11.5L23.5 15.5L18 17.5L16.5 23L12 19L7.5 23L6 17.5L0.5 15.5L5 11.5L3.5 6L9.2 7.2L12 2ZM12 5.5L10 8.5L6.5 7.5L7.5 11L4.5 14L8 15L9 18.5L12 16L15 18.5L16 15L19.5 14L16.5 11L17.5 7.5L14 8.5L12 5.5Z" />
+      </svg>
+      <span className="font-uthmani text-reader-paper-gilt/80 animate-pulse text-lg tracking-wide">
+        جاري التحميل...
+      </span>
       <span className="sr-only">Loading…</span>
-      {Array.from({ length: lineCount }).map((_, i) => (
-        <div
-          key={i}
-          aria-hidden="true"
-          className="h-[1em] rounded bg-muted/70"
-          style={{ width: SKELETON_LINE_WIDTHS[i % SKELETON_LINE_WIDTHS.length] }}
-        />
-      ))}
     </div>
   )
 }
