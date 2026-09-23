@@ -47,6 +47,8 @@ export function SurahCombobox({
         placeholder="Search surah name or number…"
         className={cn("w-full", className)}
         showClear={false}
+        // Prevent virtual keyboard on mobile to stop it from covering the options (RQ-36)
+        inputMode="none"
       />
       <ComboboxContent>
         <ComboboxEmpty>No surah found.</ComboboxEmpty>

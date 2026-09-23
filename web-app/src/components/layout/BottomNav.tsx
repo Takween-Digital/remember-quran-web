@@ -28,7 +28,7 @@ const TABS: {
   },
   {
     href: "/radio",
-    label: "Radio",
+    label: "Listen",
     icon: Radio,
     match: (p) => p === "/radio",
   },

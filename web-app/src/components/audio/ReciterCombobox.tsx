@@ -70,6 +70,8 @@ export function ReciterCombobox({
         placeholder="Search reciter…"
         className={cn("w-full", className)}
         showClear={false}
+        // Prevent virtual keyboard on mobile to stop it from covering the options (RQ-36)
+        inputMode="none"
       />
       <ComboboxContent className="min-w-[min(100vw-2rem,20rem)]">
         <ComboboxEmpty>No reciter found.</ComboboxEmpty>

@@ -51,6 +51,8 @@ export function AyahCombobox({
         placeholder="Search ayah number…"
         className={cn("w-full", className)}
         showClear={false}
+        // Prevent virtual keyboard on mobile to stop it from covering the options (RQ-36)
+        inputMode="none"
       />
       <ComboboxContent>
         <ComboboxEmpty>No ayah found.</ComboboxEmpty>
