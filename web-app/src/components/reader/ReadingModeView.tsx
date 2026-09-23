@@ -623,7 +623,9 @@ function ReadingPage({
                 "flex flex-col justify-between gap-[0.4em] pt-0.5 pb-2 sm:pb-2.5",
             // The font size MUST be mathematically identical on every page to preserve the grid.
             // A Surah Header + Bismillah physically replaces exactly 3 or 4 lines of text.
-            "text-[clamp(16px,4.5cqh,40px)]",
+            // Using cqw (inline/width) instead of cqh to avoid cyclic height dependency in Chrome/WebKit:
+            // the outer frame is aspect-[1/1.5] so width is always proportional to height — safe anchor.
+            "text-[clamp(16px,6.2cqw,40px)]",
           )}
         >
           {fontLoading ? (

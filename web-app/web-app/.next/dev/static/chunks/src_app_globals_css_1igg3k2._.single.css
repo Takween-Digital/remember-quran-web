@@ -525,12 +525,8 @@
     container: page / inline-size;
   }
 
-  .\@container {
+  .\@container, .\[container-type\:inline-size\] {
     container-type: inline-size;
-  }
-
-  .\[container-type\:size\] {
-    container-type: size;
   }
 
   .pointer-events-auto {
@@ -1379,10 +1375,6 @@
 
   .h-52 {
     height: calc(var(--spacing) * 52);
-  }
-
-  .h-\[1em\] {
-    height: 1em;
   }
 
   .h-\[3px\] {
@@ -4277,6 +4269,10 @@
 
   .text-\[clamp\(16px\,4\.5cqh\,40px\)\] {
     font-size: clamp(16px, 4.5cqh, 40px);
+  }
+
+  .text-\[clamp\(16px\,6\.2cqw\,40px\)\] {
+    font-size: clamp(16px, 6.2cqw, 40px);
   }
 
   .text-\[length\:var\(--quran-display\)\] {

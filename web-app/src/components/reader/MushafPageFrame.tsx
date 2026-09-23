@@ -153,7 +153,7 @@ export function MushafPageFrame({
             </header>
 
             {/* Main Quranic Text Body (15-line flow) */}
-            <main className="relative z-10 flex-1 flex flex-col justify-start py-1 @container/page [container-type:size] min-h-0">
+            <main className="relative z-10 flex-1 flex flex-col justify-start py-1 @container/page [container-type:inline-size] min-h-0">
               {children}
             </main>
 

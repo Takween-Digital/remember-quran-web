@@ -3514,7 +3514,7 @@ function MushafPageFrame({ pageNumber, juzNumber, surahNameArabic, children, mar
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
-                                className: "relative z-10 flex-1 flex flex-col justify-start py-1 @container/page [container-type:size] min-h-0",
+                                className: "relative z-10 flex-1 flex flex-col justify-start py-1 @container/page [container-type:inline-size] min-h-0",
                                 children: children
                             }, void 0, false, {
                                 fileName: "[project]/src/components/reader/MushafPageFrame.tsx",
@@ -7045,13 +7045,15 @@ _c4 = SectionMarker;
                     // justify-between spreads the lines perfectly to fill the min-h without breaking the container.
                     "flex flex-col justify-between gap-[0.4em] pt-0.5 pb-2 sm:pb-2.5", // The font size MUST be mathematically identical on every page to preserve the grid.
                     // A Surah Header + Bismillah physically replaces exactly 3 or 4 lines of text.
-                    "text-[clamp(16px,4.5cqh,40px)]"),
+                    // Using cqw (inline/width) instead of cqh to avoid cyclic height dependency in Chrome/WebKit:
+                    // the outer frame is aspect-[1/1.5] so width is always proportional to height — safe anchor.
+                    "text-[clamp(16px,6.2cqw,40px)]"),
                     children: fontLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(MushafPageSkeleton, {
                         centered: isCenteredOpeningPage,
                         lineCount: isCenteredOpeningPage ? Math.max(page.verses.length, 3) : 15
                     }, void 0, false, {
                         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                        lineNumber: 630,
+                        lineNumber: 632,
                         columnNumber: 13
                     }, this) : isCenteredOpeningPage ? // Opening pages (Fatihah / Baqarah 1-5): Continuous centered calligraphic flow
                     page.verses.map((verse)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7065,12 +7067,12 @@ _c4 = SectionMarker;
                                 qcfFontFamily: qcfFontFamily
                             }, void 0, false, {
                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                lineNumber: 638,
+                                lineNumber: 640,
                                 columnNumber: 17
                             }, this)
                         }, verse.id, false, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 637,
+                            lineNumber: 639,
                             columnNumber: 15
                         }, this)) : // Standard 15-Line Madani Page: Exact line-by-line justified rendering
                     page.lines.map(({ lineNumber, words }, index)=>{
@@ -7111,18 +7113,18 @@ _c4 = SectionMarker;
                                             chapter: startingChapter
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                            lineNumber: 689,
+                                            lineNumber: 691,
                                             columnNumber: 23
                                         }, this),
                                         startingChapter.bismillah_pre && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$reader$2f$BismillahHeader$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BismillahHeader"], {}, void 0, false, {
                                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                            lineNumber: 690,
+                                            lineNumber: 692,
                                             columnNumber: 57
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                    lineNumber: 688,
+                                    lineNumber: 690,
                                     columnNumber: 21
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(MushafLine, {
@@ -7140,13 +7142,13 @@ _c4 = SectionMarker;
                                     onScaleMeasured: handleScaleMeasured
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                    lineNumber: 693,
+                                    lineNumber: 695,
                                     columnNumber: 19
                                 }, this)
                             ]
                         }, lineNumber, true, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 686,
+                            lineNumber: 688,
                             columnNumber: 17
                         }, this);
                     })
@@ -7197,7 +7199,7 @@ _c5 = ReadingPage;
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                    lineNumber: 745,
+                    lineNumber: 747,
                     columnNumber: 9
                 }, this),
                 juzNumber != null && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -7207,7 +7209,7 @@ _c5 = ReadingPage;
                             children: "·"
                         }, void 0, false, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 748,
+                            lineNumber: 750,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7217,13 +7219,13 @@ _c5 = ReadingPage;
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 749,
+                            lineNumber: 751,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                    lineNumber: 747,
+                    lineNumber: 749,
                     columnNumber: 11
                 }, this),
                 hizbNumber != null && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -7233,7 +7235,7 @@ _c5 = ReadingPage;
                             children: "·"
                         }, void 0, false, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 754,
+                            lineNumber: 756,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7243,24 +7245,24 @@ _c5 = ReadingPage;
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 755,
+                            lineNumber: 757,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                    lineNumber: 753,
+                    lineNumber: 755,
                     columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-            lineNumber: 741,
+            lineNumber: 743,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-        lineNumber: 734,
+        lineNumber: 736,
         columnNumber: 5
     }, this);
 }
@@ -7296,13 +7298,13 @@ _c6 = PageProgressPill;
                 className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("min-h-[2px] w-1.5 flex-1 rounded-full transition-colors duration-150", active ? "bg-gold" : "bg-muted-foreground/25 hover:bg-muted-foreground/50")
             }, page.pageNumber, false, {
                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                lineNumber: 792,
+                lineNumber: 794,
                 columnNumber: 11
             }, this);
         })
     }, void 0, false, {
         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-        lineNumber: 784,
+        lineNumber: 786,
         columnNumber: 5
     }, this);
 }
@@ -7337,38 +7339,38 @@ _c7 = MushafMinimap;
                             children: verse.verse_key
                         }, void 0, false, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 857,
+                            lineNumber: 859,
                             columnNumber: 15
                         }, this),
                         translations.length > 0 ? translations.map((t)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$reader$2f$TranslationBlock$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TranslationBlock"], {
                                 translation: t
                             }, t.resource_id, false, {
                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                lineNumber: 861,
+                                lineNumber: 863,
                                 columnNumber: 41
                             }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                             className: "text-xs text-muted-foreground/60",
                             children: "No translation selected"
                         }, void 0, false, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 863,
+                            lineNumber: 865,
                             columnNumber: 17
                         }, this)
                     ]
                 }, verse.id, true, {
                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                    lineNumber: 847,
+                    lineNumber: 849,
                     columnNumber: 13
                 }, this);
             })
         }, void 0, false, {
             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-            lineNumber: 840,
+            lineNumber: 842,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-        lineNumber: 835,
+        lineNumber: 837,
         columnNumber: 5
     }, this);
 }
@@ -7435,17 +7437,17 @@ const SWIPE_THRESHOLD_PX = 60;
                                 strokeWidth: 2.5
                             }, void 0, false, {
                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                lineNumber: 968,
+                                lineNumber: 970,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 967,
+                            lineNumber: 969,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                        lineNumber: 959,
+                        lineNumber: 961,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7476,7 +7478,7 @@ const SWIPE_THRESHOLD_PX = 60;
                                                 className: "pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-black/10 to-transparent z-10"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                                lineNumber: 1003,
+                                                lineNumber: 1005,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ReadingPage, {
@@ -7490,13 +7492,13 @@ const SWIPE_THRESHOLD_PX = 60;
                                                 enableScrollTurn: false
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                                lineNumber: 1004,
+                                                lineNumber: 1006,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                        lineNumber: 1001,
+                                        lineNumber: 1003,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7506,7 +7508,7 @@ const SWIPE_THRESHOLD_PX = 60;
                                                 className: "pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-black/10 to-transparent z-10"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                                lineNumber: 1019,
+                                                lineNumber: 1021,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ReadingPage, {
@@ -7520,29 +7522,29 @@ const SWIPE_THRESHOLD_PX = 60;
                                                 enableScrollTurn: false
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                                lineNumber: 1021,
+                                                lineNumber: 1023,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                        lineNumber: 1016,
+                                        lineNumber: 1018,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                lineNumber: 994,
+                                lineNumber: 996,
                                 columnNumber: 13
                             }, this)
                         }, spread.right.pageNumber, false, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 973,
+                            lineNumber: 975,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                        lineNumber: 972,
+                        lineNumber: 974,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -7559,23 +7561,23 @@ const SWIPE_THRESHOLD_PX = 60;
                                 strokeWidth: 2.5
                             }, void 0, false, {
                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                lineNumber: 1045,
+                                lineNumber: 1047,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 1044,
+                            lineNumber: 1046,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                        lineNumber: 1036,
+                        lineNumber: 1038,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                lineNumber: 958,
+                lineNumber: 960,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7587,14 +7589,14 @@ const SWIPE_THRESHOLD_PX = 60;
                         children: spread.left ? `${spread.right.pageNumber}–${spread.left.pageNumber}` : spread.right.pageNumber
                     }, void 0, false, {
                         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                        lineNumber: 1051,
+                        lineNumber: 1053,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                         children: "of"
                     }, void 0, false, {
                         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                        lineNumber: 1054,
+                        lineNumber: 1056,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7602,19 +7604,19 @@ const SWIPE_THRESHOLD_PX = 60;
                         children: totalPages
                     }, void 0, false, {
                         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                        lineNumber: 1055,
+                        lineNumber: 1057,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                lineNumber: 1050,
+                lineNumber: 1052,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-        lineNumber: 952,
+        lineNumber: 954,
         columnNumber: 5
     }, this);
 }
@@ -8214,12 +8216,12 @@ function ReadingModeView({ verses, targetAyahId, chapter, onPagedPositionChange 
                 onAyahClick: handleAyahClick
             }, void 0, false, {
                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                lineNumber: 1546,
+                lineNumber: 1548,
                 columnNumber: 7
             }, this)
         }, page.pageNumber, false, {
             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-            lineNumber: 1545,
+            lineNumber: 1547,
             columnNumber: 5
         }, this));
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$SurahProgressContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SurahProgressProvider"], {
@@ -8241,7 +8243,7 @@ function ReadingModeView({ verses, targetAyahId, chapter, onPagedPositionChange 
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                lineNumber: 1565,
+                                lineNumber: 1567,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -8253,18 +8255,18 @@ function ReadingModeView({ verses, targetAyahId, chapter, onPagedPositionChange 
                                 children: "Dismiss"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                                lineNumber: 1568,
+                                lineNumber: 1570,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                        lineNumber: 1564,
+                        lineNumber: 1566,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                    lineNumber: 1563,
+                    lineNumber: 1565,
                     columnNumber: 11
                 }, this),
                 readingLayout === "paged" ? pageSpreads[pagedIndex] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PagedMushafDeck, {
@@ -8282,7 +8284,7 @@ function ReadingModeView({ verses, targetAyahId, chapter, onPagedPositionChange 
                     onNext: goNextPage
                 }, void 0, false, {
                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                    lineNumber: 1583,
+                    lineNumber: 1585,
                     columnNumber: 13
                 }, this) : splitView ? // E-09: left = Mushaf (its own @container so MushafPageFrame's cqw
                 // sizing recalculates against this narrower column instead of the
@@ -8297,7 +8299,7 @@ function ReadingModeView({ verses, targetAyahId, chapter, onPagedPositionChange 
                             children: mushafPagesJsx
                         }, void 0, false, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 1604,
+                            lineNumber: 1606,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SplitTranslationPanel, {
@@ -8309,13 +8311,13 @@ function ReadingModeView({ verses, targetAyahId, chapter, onPagedPositionChange 
                             onAyahClick: jumpFromTranslation
                         }, void 0, false, {
                             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                            lineNumber: 1607,
+                            lineNumber: 1609,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                    lineNumber: 1603,
+                    lineNumber: 1605,
                     columnNumber: 11
                 }, this) : mushafPagesJsx,
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$reader$2f$ReadingAyahToolbar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ReadingAyahToolbar"], {
@@ -8323,7 +8325,7 @@ function ReadingModeView({ verses, targetAyahId, chapter, onPagedPositionChange 
                     onClose: ()=>setSelectedAyah(null)
                 }, void 0, false, {
                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                    lineNumber: 1621,
+                    lineNumber: 1623,
                     columnNumber: 9
                 }, this),
                 activePage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PageProgressPill, {
@@ -8332,7 +8334,7 @@ function ReadingModeView({ verses, targetAyahId, chapter, onPagedPositionChange 
                     hizbNumber: activePage.hizbNumber
                 }, void 0, false, {
                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                    lineNumber: 1627,
+                    lineNumber: 1629,
                     columnNumber: 11
                 }, this),
                 readingLayout === "scroll" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$3$2e$0_$40$babel$2b$core$40$7$2e$29$2e$7_supports$2d$color$40$10$2e$2$2e$2_$5f40$opentelemetry$2b$api$40$1$2e$9$2e$1_$40$types$2b$n_4980c8738f84335d85802b1b8bb311de$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(MushafMinimap, {
@@ -8341,18 +8343,18 @@ function ReadingModeView({ verses, targetAyahId, chapter, onPagedPositionChange 
                     onJump: jumpToPage
                 }, void 0, false, {
                     fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-                    lineNumber: 1635,
+                    lineNumber: 1637,
                     columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-            lineNumber: 1560,
+            lineNumber: 1562,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/reader/ReadingModeView.tsx",
-        lineNumber: 1559,
+        lineNumber: 1561,
         columnNumber: 5
     }, this);
 }
