@@ -1,46 +1,69 @@
-import type { Metadata } from "next"
-import { redirect } from "next/navigation"
-import { auth } from "@/auth"
+"use client"
+
+import { useEffect, useState } from "react"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { useAuth } from "@/components/auth/AuthProvider"
 import {
   GoalsView,
   type GoalsSnapshot,
 } from "@/components/account/GoalsView"
-import { evaluateGoalAndStreak } from "@/lib/db/goals"
-import { getRequestTimeZone } from "@/lib/progress/serverTimezone"
+import { evaluateGoalAndStreak } from "@/lib/firebase/goals"
 
-export const metadata: Metadata = {
-  title: "Goals & streaks",
-}
+export default function GoalsPage() {
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<GoalsSnapshot | null>(null)
 
-export const dynamic = "force-dynamic"
+  useEffect(() => {
+    if (!user) return
 
-export default async function GoalsPage() {
-  const session = await auth()
-  if (!session?.user?.id) {
-    redirect("/login?next=/account/goals")
-  }
+    let isMounted = true
+    const fetchData = async () => {
+      try {
+        // We use a simple fallback timezone for the client initially
+        const snapshot = await evaluateGoalAndStreak(
+          user.uid,
+          Intl.DateTimeFormat().resolvedOptions().timeZone
+        )
 
-  const snapshot = (await evaluateGoalAndStreak(
-    session.user.id,
-    await getRequestTimeZone(),
-  )) as GoalsSnapshot
+        if (isMounted) {
+          setData(snapshot)
+        }
+      } catch (error) {
+        console.error("Failed to fetch goals:", error)
+      } finally {
+        if (isMounted) setLoading(false)
+      }
+    }
+
+    fetchData()
+    return () => { isMounted = false }
+  }, [user])
 
   return (
-    <div className="max-w-3xl">
-      <div className="mb-7">
-        <p className="text-xs font-medium tracking-[0.16em] text-primary uppercase">
-          Your account
-        </p>
-        <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight">
-          Goals & streaks
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Set a simple daily reading goal. Meet it to keep your streak — keep
-          it light.
-        </p>
-      </div>
+    <ProtectedRoute>
+      <div className="max-w-3xl">
+        <div className="mb-7">
+          <p className="text-xs font-medium tracking-[0.16em] text-primary uppercase">
+            Your account
+          </p>
+          <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight">
+            Goals & streaks
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Set a simple daily reading goal. Meet it to keep your streak — keep
+            it light.
+          </p>
+        </div>
 
-      <GoalsView initial={snapshot} />
-    </div>
+        {loading || !data ? (
+          <div className="flex justify-center py-8">
+            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <GoalsView initial={data} />
+        )}
+      </div>
+    </ProtectedRoute>
   )
 }

@@ -1,9 +1,7 @@
 import { cookies } from "next/headers";
 import { getTokens } from "next-firebase-auth-edge";
 import { serverConfig } from "@/lib/firebase/server";
-import { getDb } from "@/lib/db/client";
-import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { getAdminDb } from "@/lib/firebase/server";
 
 export async function auth() {
   const cookieStore = await cookies();
@@ -32,12 +30,10 @@ export async function auth() {
     const decodedToken = tokens.decodedToken;
 
     // Fetch user from DB
-    const db = getDb();
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.id, decodedToken.uid),
-    });
+    const adminDb = getAdminDb();
+    const userDoc = await adminDb.collection("users").doc(decodedToken.uid).get();
 
-    if (!dbUser) {
+    if (!userDoc.exists) {
       return {
         user: {
           id: decodedToken.uid,
@@ -56,8 +52,13 @@ export async function auth() {
       };
     }
 
+    const dbUser = userDoc.data();
+
     return {
-      user: dbUser,
+      user: {
+        id: decodedToken.uid,
+        ...dbUser
+      },
     };
   } catch (error) {
     console.error("Auth error:", error);

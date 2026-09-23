@@ -10,6 +10,7 @@ import {
 } from "@/lib/goals/constants"
 import { ActivityHeatmap } from "./ActivityHeatmap"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/components/auth/AuthProvider"
 
 export interface GoalsSnapshot {
   goal: {
@@ -39,28 +40,19 @@ export function GoalsView({ initial }: { initial: GoalsSnapshot }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const { user } = useAuth()
+  const userId = user?.uid ?? null
+
   async function save(event: FormEvent) {
     event.preventDefault()
+    if (!userId) return
     setBusy(true)
     setError(null)
     try {
-      const res = await fetch("/api/account/goals", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type,
-          target: type === "khatm" ? 0 : Number(target),
-          targetDate: type === "khatm" ? targetDate : null,
-        }),
-      })
-      const body = (await res.json().catch(() => ({}))) as GoalsSnapshot & {
-        error?: string
-      }
-      if (!res.ok) {
-        setError(body.error ?? "Couldn’t save goal.")
-        return
-      }
-      setData(body)
+      const { setActiveGoal, evaluateGoalAndStreak } = await import("@/lib/firebase/goals")
+      await setActiveGoal(userId, type, type === "khatm" ? 0 : Number(target), type === "khatm" ? targetDate : null)
+      const newData = await evaluateGoalAndStreak(userId, Intl.DateTimeFormat().resolvedOptions().timeZone)
+      setData(newData)
     } catch {
       setError("Couldn’t save goal.")
     } finally {
@@ -69,19 +61,15 @@ export function GoalsView({ initial }: { initial: GoalsSnapshot }) {
   }
 
   async function clearGoal() {
+    if (!userId) return
     if (!window.confirm("Clear your goal?")) return
     setBusy(true)
     setError(null)
     try {
-      const res = await fetch("/api/account/goals", { method: "DELETE" })
-      const body = (await res.json().catch(() => ({}))) as GoalsSnapshot & {
-        error?: string
-      }
-      if (!res.ok) {
-        setError(body.error ?? "Couldn’t clear goal.")
-        return
-      }
-      setData(body)
+      const { clearActiveGoal, evaluateGoalAndStreak } = await import("@/lib/firebase/goals")
+      await clearActiveGoal(userId)
+      const newData = await evaluateGoalAndStreak(userId, Intl.DateTimeFormat().resolvedOptions().timeZone)
+      setData(newData)
       setTarget("10")
       setTargetDate("")
       setType("ayahs")

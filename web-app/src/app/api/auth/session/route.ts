@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { setAuthCookies } from "next-firebase-auth-edge/lib/next/cookies";
 import { getFirebaseAuth } from "next-firebase-auth-edge/lib/auth";
 import { serverConfig } from "@/lib/firebase/server";
-import { getDb } from "@/lib/db/client";
-import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 
 export async function POST(request: NextRequest) {
   const reqBody = (await request.json().catch(() => ({}))) as { idToken?: string, displayName?: string };
@@ -26,18 +23,20 @@ export async function POST(request: NextRequest) {
 
   try {
     const decodedToken = await verifyIdToken(idToken);
-    const db = getDb();
+    const { getAdminDb } = await import("@/lib/firebase/server")
+    const adminDb = getAdminDb()
 
-    // Ensure the user exists in D1
-    const existingUser = await db.query.users.findFirst({
-      where: eq(users.id, decodedToken.uid),
-    });
+    // Ensure the user exists in Firestore
+    const userRef = adminDb.collection("users").doc(decodedToken.uid)
+    const userDoc = await userRef.get()
 
-    if (!existingUser) {
-      await db.insert(users).values({
-        id: decodedToken.uid,
+    if (!userDoc.exists) {
+      await userRef.set({
         email: decodedToken.email || "",
         displayName: displayName || decodedToken.email?.split("@")[0] || "",
+        profile: {
+          displayName: displayName || decodedToken.email?.split("@")[0] || ""
+        },
         createdAt: new Date(),
         updatedAt: new Date(),
       });

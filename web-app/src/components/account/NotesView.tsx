@@ -6,6 +6,7 @@ import { NotebookPen, Pencil, Trash2 } from "lucide-react"
 import { NoteEditor, type NoteDto } from "@/components/account/NoteEditor"
 import { useNotes } from "@/context/NotesContext"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/components/auth/AuthProvider"
 
 export interface AccountNoteDto {
   verseKey: string
@@ -43,6 +44,7 @@ function formatUpdated(iso: string): string {
 }
 
 export function NotesView({ initialNotes }: { initialNotes: AccountNoteDto[] }) {
+  const { user } = useAuth()
   const { refresh } = useNotes()
   const [notes, setNotes] = useState(initialNotes)
   const [error, setError] = useState<string | null>(null)
@@ -50,21 +52,14 @@ export function NotesView({ initialNotes }: { initialNotes: AccountNoteDto[] }) 
   const [editing, setEditing] = useState<AccountNoteDto | null>(null)
 
   async function remove(note: AccountNoteDto) {
-    if (busyKey) return
+    if (busyKey || !user?.uid) return
     if (!window.confirm("Delete this note?")) return
 
     setError(null)
     setBusyKey(note.verseKey)
     try {
-      const res = await fetch(
-        `/api/account/notes?verseKey=${encodeURIComponent(note.verseKey)}`,
-        { method: "DELETE" },
-      )
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string }
-        setError(data.error ?? "Couldn’t delete the note.")
-        return
-      }
+      const { removeNote } = await import("@/lib/firebase/notes")
+      await removeNote(user.uid, note.verseKey)
       setNotes((prev) => prev.filter((n) => n.verseKey !== note.verseKey))
       void refresh()
     } catch {

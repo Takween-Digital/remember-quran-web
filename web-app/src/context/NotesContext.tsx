@@ -41,20 +41,6 @@ interface NotesContextValue {
 
 const NotesContext = createContext<NotesContextValue | null>(null)
 
-async function fetchEntries(): Promise<EntryMap> {
-  const res = await fetch("/api/account/notes")
-  if (!res.ok) return new Map()
-  const data = (await res.json()) as { notes?: NoteEntry[] }
-  const map: EntryMap = new Map()
-  for (const n of data.notes ?? []) {
-    map.set(n.verseKey, {
-      hasNote: n.text.length > 0,
-      highlightColor: isHighlightColor(n.highlightColor) ? n.highlightColor : null,
-    })
-  }
-  return map
-}
-
 /**
  * One GET per session holds every verseKey with a note and/or highlight
  * (2000 cap), so ayah icons and reading-mode tints render without N+1.
@@ -74,20 +60,25 @@ export function NotesProvider({ children }: { children: ReactNode }) {
     let cancelled = false
     const fetchFor = userId
 
-    Promise.resolve()
-      .then(() => {
-        if (cancelled) return
-        setEntries(null)
-        setEntriesUserId(null)
-        if (!fetchFor) return
-        return fetchEntries()
-      })
-      .then((next) => {
-        if (cancelled || !next || !fetchFor) return
-        setEntries(next)
+    import("@/lib/firebase/notes").then(({ listNotes }) => {
+      if (cancelled) return
+      setEntries(null)
+      setEntriesUserId(null)
+      if (!fetchFor) return
+      
+      listNotes(fetchFor).then((notes) => {
+        if (cancelled || !fetchFor) return
+        const map: EntryMap = new Map()
+        for (const n of notes) {
+          map.set(n.verseKey, {
+            hasNote: n.text.length > 0,
+            highlightColor: isHighlightColor(n.highlightColor) ? n.highlightColor as HighlightColor : null,
+          })
+        }
+        setEntries(map)
         setEntriesUserId(fetchFor)
-      })
-      .catch(() => {})
+      }).catch(() => {})
+    })
 
     return () => {
       cancelled = true
@@ -97,8 +88,16 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     if (!userId) return
     try {
-      const next = await fetchEntries()
-      setEntries(next)
+      const { listNotes } = await import("@/lib/firebase/notes")
+      const notes = await listNotes(userId)
+      const map: EntryMap = new Map()
+      for (const n of notes) {
+        map.set(n.verseKey, {
+          hasNote: n.text.length > 0,
+          highlightColor: isHighlightColor(n.highlightColor) ? n.highlightColor as HighlightColor : null,
+        })
+      }
+      setEntries(map)
       setEntriesUserId(userId)
     } catch {
       // Reader stays usable — icons may be stale until next refresh

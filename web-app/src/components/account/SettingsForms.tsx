@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
-import { signOut, useSession } from "@/lib/auth/react-compat"
+import { useAuth } from "@/components/auth/AuthProvider"
 import { CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -41,19 +41,7 @@ function Status({ status }: { status: FormStatus }) {
   return null
 }
 
-async function patch(
-  endpoint: string,
-  body: Record<string, string>,
-): Promise<{ ok: boolean; error?: string }> {
-  const res = await fetch(endpoint, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  })
-  const data = (await res.json().catch(() => ({}))) as { error?: string }
-  return { ok: res.ok, error: data.error }
-}
-
+// Removed unused patch helper
 export function SettingsForms({
   initialDisplayName,
   initialEmail,
@@ -62,7 +50,7 @@ export function SettingsForms({
   initialEmail: string
 }) {
   const router = useRouter()
-  const { update } = useSession()
+  const { user } = useAuth()
 
   const [displayName, setDisplayName] = useState(initialDisplayName)
   const [profileStatus, setProfileStatus] = useState<FormStatus>({})
@@ -81,55 +69,72 @@ export function SettingsForms({
 
   async function saveProfile(event: FormEvent) {
     event.preventDefault()
+    if (!user) return
     setProfilePending(true)
     setProfileStatus({})
-    const result = await patch("/api/account/settings/profile", { displayName })
-    if (!result.ok) {
-      setProfileStatus({ error: result.error ?? "Could not save profile." })
+    
+    try {
+      const { updateProfile } = await import("firebase/auth")
+      const { updateDisplayName } = await import("@/lib/firebase/users")
+      
+      await updateProfile(user, { displayName })
+      await updateDisplayName(user.uid, displayName)
+      
+      setProfileStatus({ success: "Profile updated." })
+    } catch (e: any) {
+      setProfileStatus({ error: e.message || "Could not save profile." })
+    } finally {
       setProfilePending(false)
-      return
     }
-    await update()
-    router.refresh()
-    setProfileStatus({ success: "Profile updated." })
-    setProfilePending(false)
   }
 
   async function changeEmail(event: FormEvent) {
     event.preventDefault()
+    if (!user || !user.email) return
     setEmailPending(true)
     setEmailStatus({})
-    const result = await patch("/api/account/settings/email", {
-      email,
-      currentPassword: emailPassword,
-    })
-    if (!result.ok) {
-      setEmailStatus({ error: result.error ?? "Could not change email." })
+    
+    try {
+      const { updateEmail, reauthenticateWithCredential, EmailAuthProvider } = await import("firebase/auth")
+      const credential = EmailAuthProvider.credential(user.email, emailPassword)
+      await reauthenticateWithCredential(user, credential)
+      
+      await updateEmail(user, email)
+      setEmailStatus({ success: "Email updated." })
+    } catch (e: any) {
+      setEmailStatus({ error: e.message || "Could not change email." })
+    } finally {
       setEmailPassword("")
       setEmailPending(false)
-      return
     }
-    await signOut()
   }
 
   async function changePassword(event: FormEvent) {
     event.preventDefault()
-    setPasswordPending(true)
-    setPasswordStatus({})
-    const result = await patch("/api/account/settings/password", {
-      currentPassword,
-      newPassword,
-      confirmPassword,
-    })
-    if (!result.ok) {
-      setPasswordStatus({
-        error: result.error ?? "Could not change password.",
-      })
-      setCurrentPassword("")
-      setPasswordPending(false)
+    if (!user || !user.email) return
+    if (newPassword !== confirmPassword) {
+      setPasswordStatus({ error: "New passwords do not match." })
       return
     }
-    await signOut()
+    
+    setPasswordPending(true)
+    setPasswordStatus({})
+    
+    try {
+      const { updatePassword, reauthenticateWithCredential, EmailAuthProvider } = await import("firebase/auth")
+      const credential = EmailAuthProvider.credential(user.email, currentPassword)
+      await reauthenticateWithCredential(user, credential)
+      
+      await updatePassword(user, newPassword)
+      setPasswordStatus({ success: "Password updated." })
+    } catch (e: any) {
+      setPasswordStatus({ error: e.message || "Could not change password." })
+    } finally {
+      setCurrentPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+      setPasswordPending(false)
+    }
   }
 
   return (

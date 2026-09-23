@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useRef, useEffect } from "react"
-import { saveRecording, getRecording, deleteRecording, type AyahRecording } from "@/lib/db/recordings"
+import { saveRecording, getRecording, deleteRecording, type AyahRecording } from "@/lib/recordings"
 
 export function useRecorder(verseKey: string) {
   const [isRecording, setIsRecording] = useState(false)

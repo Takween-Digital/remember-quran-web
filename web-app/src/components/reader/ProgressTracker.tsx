@@ -7,6 +7,7 @@ import {
   POSITION_THROTTLE_MS,
   PROGRESS_DWELL_MS,
 } from "@/lib/progress/date"
+import { updateLastPosition, logProgressEvent } from "@/lib/firebase/progress"
 
 interface ProgressTrackerProps {
   surahId: number
@@ -87,12 +88,10 @@ export function ProgressTracker({ surahId }: ProgressTrackerProps) {
       if (now - lastPositionAtRef.current < POSITION_THROTTLE_MS) return
       lastPositionAtRef.current = now
       try {
-        await fetch("/api/account/progress/position", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ verseKey: key }),
-          keepalive: true,
-        })
+        const ayah = Number(key.split(":")[1])
+        if (signedIn && session?.user?.id) {
+           await updateLastPosition(session.user.id, key, surahId, ayah)
+        }
       } catch {
         // Silent — reader stays usable
       }
@@ -103,12 +102,9 @@ export function ProgressTracker({ surahId }: ProgressTrackerProps) {
       const to = maxAyahRef.current
       if (from === null || to === null || !dwellOk()) return
       try {
-        await fetch("/api/account/progress/events", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ surah: surahId, fromAyah: from, toAyah: to }),
-          keepalive: true,
-        })
+        if (signedIn && session?.user?.id) {
+           await logProgressEvent(session.user.id, surahId, from, to)
+        }
       } catch {
         // Silent
       }

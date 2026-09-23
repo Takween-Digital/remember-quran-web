@@ -24,7 +24,10 @@ interface HifzReviewSessionProps {
   initialDueAyahs: HifzAyahDto[]
 }
 
+import { useAuth } from "@/components/auth/AuthProvider"
+
 export function HifzReviewSession({ initialDueAyahs }: HifzReviewSessionProps) {
+  const { user } = useAuth()
   const [queue, setQueue] = useState<HifzAyahDto[]>(initialDueAyahs)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [currentVerse, setCurrentVerse] = useState<Verse | null>(null)
@@ -70,16 +73,24 @@ export function HifzReviewSession({ initialDueAyahs }: HifzReviewSessionProps) {
     setSubmitting(true)
 
     try {
-      await fetch("/api/account/hifz", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          verseKey: currentItem.verseKey,
-          grade,
+      const { updateHifzReview } = await import("@/lib/firebase/hifz")
+      const { calculateNextSRS } = await import("@/lib/hifz/srs")
+
+      const srsUpdate = calculateNextSRS(
+        {
           repetitions: currentItem.repetitions,
           intervalDays: currentItem.intervalDays,
           easeFactor: currentItem.easeFactor,
-        }),
+        },
+        grade,
+      )
+
+      await updateHifzReview(user!.uid, currentItem.verseKey, {
+        repetitions: srsUpdate.repetitions,
+        intervalDays: srsUpdate.intervalDays,
+        easeFactor: srsUpdate.easeFactor,
+        nextReviewAt: srsUpdate.nextReviewAt,
+        lastReviewedAt: srsUpdate.lastReviewedAt ?? new Date(),
       })
 
       setReviewedCount((prev) => prev + 1)

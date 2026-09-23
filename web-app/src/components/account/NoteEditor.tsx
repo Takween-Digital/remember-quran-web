@@ -22,6 +22,7 @@ import {
 } from "@/lib/notes/highlights"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
+import { useSession } from "@/lib/auth/react-compat"
 
 export interface NoteDto {
   verseKey: string
@@ -43,14 +44,6 @@ interface NoteEditorProps {
   onSaved?: (note: NoteDto | null) => void
 }
 
-async function fetchNote(verseKey: string): Promise<NoteDto | null> {
-  const res = await fetch(
-    `/api/account/notes?verseKey=${encodeURIComponent(verseKey)}`,
-  )
-  if (!res.ok) return null
-  const data = (await res.json()) as { note?: NoteDto | null }
-  return data.note ?? null
-}
 
 export function NoteEditor({
   open,
@@ -64,6 +57,9 @@ export function NoteEditor({
   const isMobile = useIsMobile()
   const textareaId = useId()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  
+  const { data: session } = useSession()
+  const userId = session?.user?.id ?? null
 
   const [text, setText] = useState("")
   const [baseline, setBaseline] = useState("")
@@ -85,7 +81,7 @@ export function NoteEditor({
     let cancelled = false
 
     Promise.resolve()
-      .then(() => {
+      .then(async () => {
         if (cancelled) return
         setError(null)
         if (typeof initialText === "string") {
@@ -99,7 +95,10 @@ export function NoteEditor({
         setLoading(true)
         setText("")
         setBaseline("")
-        return fetchNote(verseKey)
+        
+        if (!userId) return null
+        const { getNote } = await import("@/lib/firebase/notes")
+        return getNote(userId, verseKey)
       })
       .then((note) => {
         if (cancelled || note === undefined) return
@@ -119,7 +118,7 @@ export function NoteEditor({
     return () => {
       cancelled = true
     }
-  }, [open, verseKey, initialText])
+  }, [open, verseKey, initialText, userId])
 
   // Focus textarea after open + load
   useEffect(() => {
@@ -141,12 +140,9 @@ export function NoteEditor({
     setHighlightColorLocal(verseKey, color)
     setHighlightSaving(true)
     try {
-      const res = await fetch("/api/account/notes", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ verseKey, highlightColor: color }),
-      })
-      if (!res.ok) throw new Error("PATCH failed")
+      if (!userId) throw new Error("Not signed in")
+      const { upsertNote } = await import("@/lib/firebase/notes")
+      await upsertNote(userId, verseKey, text, color)
       void refresh()
     } catch {
       setHighlightColor(previous)
@@ -163,37 +159,30 @@ export function NoteEditor({
     setError(null)
 
     try {
-      const res = await fetch("/api/account/notes", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ verseKey, text }),
-      })
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string
-        note?: NoteDto
-        deleted?: boolean
-      }
-
-      if (!res.ok) {
-        setError(data.error ?? "Couldn’t save the note. Your draft is kept.")
-        return
-      }
-
-      if (data.deleted) {
+      if (!userId) throw new Error("Not signed in")
+      const { upsertNote, removeNote } = await import("@/lib/firebase/notes")
+      
+      const hasText = text.trim().length > 0
+      
+      if (!hasText && !highlightColor) {
+        // If empty text and no highlight, delete the note
+        await removeNote(userId, verseKey)
         setText("")
         setBaseline("")
         setHadNote(false)
         setHasNote(verseKey, false)
         onSaved?.(null)
-      } else if (data.note) {
-        // E-12: a highlight-only row can survive with text cleared — "has a
-        // note" means non-empty text, not merely that the row exists.
-        const hasText = data.note.text.length > 0
-        setText(data.note.text)
-        setBaseline(data.note.text)
+      } else {
+        await upsertNote(userId, verseKey, text, highlightColor)
+        setText(text)
+        setBaseline(text)
         setHadNote(hasText)
         setHasNote(verseKey, hasText)
-        onSaved?.(data.note)
+        onSaved?.({
+          verseKey,
+          text,
+          highlightColor
+        })
       }
 
       void refresh()
@@ -212,15 +201,10 @@ export function NoteEditor({
     setError(null)
 
     try {
-      const res = await fetch(
-        `/api/account/notes?verseKey=${encodeURIComponent(verseKey)}`,
-        { method: "DELETE" },
-      )
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string }
-        setError(data.error ?? "Couldn’t delete the note.")
-        return
-      }
+      if (!userId) throw new Error("Not signed in")
+      const { removeNote } = await import("@/lib/firebase/notes")
+      await removeNote(userId, verseKey)
+      
       setText("")
       setBaseline("")
       setHadNote(false)

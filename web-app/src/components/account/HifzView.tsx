@@ -7,6 +7,7 @@ import { useHifz } from "@/context/HifzContext"
 import { getAyahCount } from "@/lib/quran/verse-key"
 import { JUZ_RANGES, getJuzAyahCount, getJuzForVerse } from "@/lib/quran/juz"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/components/auth/AuthProvider"
 
 export interface HifzAyahDto {
   verseKey: string
@@ -47,6 +48,7 @@ function ProgressBar({ value }: { value: number }) {
 }
 
 export function HifzView({ initialAyahs }: HifzViewProps) {
+  const { user } = useAuth()
   const { refresh } = useHifz()
   const [ayahs, setAyahs] = useState(initialAyahs)
   const [tab, setTab] = useState<Tab>("surah")
@@ -104,16 +106,13 @@ export function HifzView({ initialAyahs }: HifzViewProps) {
   }, [ayahs])
 
   async function unmark(verseKey: string) {
-    if (pendingKey) return
+    if (pendingKey || !user?.uid) return
     setPendingKey(verseKey)
     const prev = ayahs
     setAyahs((list) => list.filter((a) => a.verseKey !== verseKey))
     try {
-      const res = await fetch(
-        `/api/account/hifz?verseKey=${encodeURIComponent(verseKey)}`,
-        { method: "DELETE" },
-      )
-      if (!res.ok) throw new Error(`Unmark failed: ${res.status}`)
+      const { removeHifzRecord } = await import("@/lib/firebase/hifz")
+      await removeHifzRecord(user.uid, verseKey)
       await refresh()
     } catch {
       setAyahs(prev)

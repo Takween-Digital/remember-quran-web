@@ -19,3 +19,19 @@ export const {
   },
   process.env.NEXT_PUBLIC_FIREBASE_API_KEY || ''
 );
+
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+
+export function getAdminDb() {
+  if (!getApps().length) {
+    initializeApp({
+      credential: cert({
+        projectId: serverConfig.projectId,
+        clientEmail: serverConfig.clientEmail,
+        privateKey: serverConfig.privateKey,
+      }),
+    });
+  }
+  return getFirestore();
+}

@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server"
-import { getDb } from "@/lib/db/client"
-import { sql } from "drizzle-orm"
 
 /**
  * Liveness / readiness for account infrastructure.
@@ -12,14 +10,15 @@ export async function GET() {
   const started = Date.now()
 
   try {
-    const db = getDb()
-    await db.run(sql`SELECT 1`)
+    const { getAdminDb } = await import("@/lib/firebase/server")
+    const adminDb = getAdminDb()
+    await adminDb.collection("users").limit(1).get()
 
     return NextResponse.json(
       {
         ok: true,
         service: "rememberquran",
-        database: { configured: true, connected: true, engine: "Cloudflare D1" },
+        database: { configured: true, connected: true, engine: "Firebase Firestore" },
         durationMs: Date.now() - started,
         timestamp: new Date().toISOString(),
       },

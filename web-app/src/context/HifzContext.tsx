@@ -7,13 +7,10 @@ import {
   useMemo,
   type ReactNode,
 } from "react"
+import { useAuth } from "@/components/auth/AuthProvider"
 import { useRemoteSet } from "@/hooks/useRemoteSet"
-
-interface HifzEntry {
-  verseKey: string
-  surahId: number
-  ayahId: number
-}
+import { listMemorisedAyahs, addHifzRecord, removeHifzRecord } from "@/lib/firebase/hifz"
+import { parseVerseKey } from "@/lib/quran/verse-key"
 
 interface HifzContextValue {
   loaded: boolean
@@ -27,34 +24,27 @@ interface HifzContextValue {
 
 const HifzContext = createContext<HifzContextValue | null>(null)
 
-async function fetchHifzKeys(): Promise<Set<string>> {
-  const res = await fetch("/api/account/hifz")
-  if (!res.ok) return new Set()
-  const data = (await res.json()) as { ayahs?: HifzEntry[] }
-  return new Set((data.ayahs ?? []).map((a) => a.verseKey))
-}
-
-async function addHifzKey(verseKey: string): Promise<void> {
-  const res = await fetch("/api/account/hifz", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ verseKey }),
-  })
-  if (!res.ok) throw new Error(`Hifz add failed: ${res.status}`)
-}
-
-async function deleteHifzKey(verseKey: string): Promise<void> {
-  const res = await fetch(
-    `/api/account/hifz?verseKey=${encodeURIComponent(verseKey)}`,
-    { method: "DELETE" },
-  )
-  if (!res.ok) throw new Error(`Hifz delete failed: ${res.status}`)
-}
-
 export function HifzProvider({ children }: { children: ReactNode }) {
-  const fetchCallback = useCallback(() => fetchHifzKeys(), [])
-  const addCallback = useCallback((key: string) => addHifzKey(key), [])
-  const deleteCallback = useCallback((key: string) => deleteHifzKey(key), [])
+  const { user } = useAuth()
+  const userId = user?.uid ?? null
+
+  const fetchCallback = useCallback(async () => {
+    if (!userId) return new Set<string>()
+    const ayahs = await listMemorisedAyahs(userId)
+    return new Set(ayahs.map((a) => a.verseKey))
+  }, [userId])
+
+  const addCallback = useCallback(async (verseKey: string) => {
+    if (!userId) throw new Error("Not signed in")
+    const parsed = parseVerseKey(verseKey)
+    if (!parsed) throw new Error("Invalid verse key")
+    await addHifzRecord(userId, verseKey, parsed.surahId, parsed.ayahId)
+  }, [userId])
+
+  const deleteCallback = useCallback(async (verseKey: string) => {
+    if (!userId) throw new Error("Not signed in")
+    await removeHifzRecord(userId, verseKey)
+  }, [userId])
 
   const remote = useRemoteSet({
     fetchKeys: fetchCallback,

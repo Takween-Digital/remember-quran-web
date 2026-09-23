@@ -27,23 +27,16 @@ export function HeroSection() {
     }
 
     let cancelled = false
-    fetch("/api/account/progress")
-      .then(async (res) => {
-        if (!res.ok) return null
-        const data = (await res.json()) as {
-          lastPosition?: LastPositionDto | null
-        }
-        return data.lastPosition ?? null
-      })
-      .then((pos) => {
+    import("@/lib/firebase/progress").then(({ getLastPosition }) => {
+      getLastPosition(session.user.id).then((pos) => {
         if (!cancelled) {
           setPosition(pos)
           setLoaded(true)
         }
-      })
-      .catch(() => {
+      }).catch(() => {
         if (!cancelled) setLoaded(true)
       })
+    })
 
     return () => {
       cancelled = true

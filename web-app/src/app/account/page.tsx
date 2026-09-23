@@ -12,6 +12,8 @@ import {
 } from "lucide-react"
 import { ContinuePrompt } from "@/components/account/ContinuePrompt"
 
+import { useAuth } from "@/components/auth/AuthProvider"
+
 type SummaryData = {
   user: { email: string; name: string; viewedSurahs: string[] }
   bookmarkCount: number
@@ -20,34 +22,68 @@ type SummaryData = {
   goals: {
     streak: { currentStreak: number }
     todayCount: number
-    goal?: { target: number; type: string }
+    goal?: { target: number; type: string } | null
   }
 }
 
 export default function AccountPage() {
+  const { user: authUser } = useAuth()
   const [data, setData] = useState<SummaryData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("/api/account/summary")
-      .then((res) => {
-        if (!res.ok) {
-          if (res.status === 401) {
-            window.location.href = "/login?next=/account"
+    if (!authUser) return
+
+    let isMounted = true
+
+    async function fetchSummary() {
+      try {
+        const { getCountFromServer, collection, getDocs, query } = await import("firebase/firestore")
+        const { db } = await import("@/lib/firebase/client")
+        const { evaluateGoalAndStreak } = await import("@/lib/firebase/goals")
+
+        const [bookmarksSnap, notesSnap, hifzSnap, goalsSnap, eventsSnap] = await Promise.all([
+          getCountFromServer(collection(db, "users", authUser!.uid, "bookmarks")),
+          getCountFromServer(collection(db, "users", authUser!.uid, "notes")),
+          getCountFromServer(collection(db, "users", authUser!.uid, "hifz")),
+          evaluateGoalAndStreak(authUser!.uid, Intl.DateTimeFormat().resolvedOptions().timeZone),
+          getDocs(query(collection(db, "users", authUser!.uid, "progressEvents")))
+        ])
+
+        if (!isMounted) return
+        
+        const viewedSurahs = new Set<string>()
+        eventsSnap.forEach(doc => {
+          if (doc.data().surahId) {
+            viewedSurahs.add(String(doc.data().surahId))
           }
-          throw new Error("Failed to fetch")
-        }
-        return res.json()
-      })
-      .then((json) => {
-        setData(json)
-        setLoading(false)
-      })
-      .catch((err) => {
-        console.error(err)
-        setLoading(false)
-      })
-  }, [])
+        })
+
+        setData({
+          user: {
+            email: authUser!.email || "",
+            name: authUser!.displayName || "",
+            viewedSurahs: Array.from(viewedSurahs),
+          },
+          bookmarkCount: bookmarksSnap.data().count,
+          noteCount: notesSnap.data().count,
+          hifzCount: hifzSnap.data().count,
+          goals: {
+            streak: { currentStreak: goalsSnap.streak.currentStreak },
+            todayCount: goalsSnap.todayCount,
+            goal: goalsSnap.goal
+          }
+        })
+      } catch (err) {
+        console.error("Failed to load summary", err)
+      } finally {
+        if (isMounted) setLoading(false)
+      }
+    }
+
+    fetchSummary()
+    return () => { isMounted = false }
+  }, [authUser])
 
   if (loading || !data) {
     return (
@@ -65,9 +101,9 @@ export default function AccountPage() {
     )
   }
 
-  const { user, bookmarkCount, noteCount, hifzCount, goals } = data
-  const name = user.name?.trim() || user.email?.split("@")[0] || "friend"
-  const viewedSurahs = user.viewedSurahs ?? []
+  const { user: summaryUser, bookmarkCount, noteCount, hifzCount, goals } = data
+  const name = summaryUser.name?.trim() || summaryUser.email?.split("@")[0] || "friend"
+  const viewedSurahs = summaryUser.viewedSurahs ?? []
 
   const summaries = [
     {
@@ -190,7 +226,7 @@ export default function AccountPage() {
       </section>
 
       <p className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground">
-        Signed in as {user.email}
+        Signed in as {summaryUser.email}
       </p>
     </div>
   )

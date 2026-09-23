@@ -25,16 +25,12 @@ export function useSurahProgress(surahId: number) {
     let mounted = true
     setLoading(true)
 
-    fetch(`/api/account/progress/surah?surahId=${surahId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch surah progress")
-        return res.json()
-      })
-      .then((data: { ranges?: AyahRange[] }) => {
+    import("@/lib/firebase/progress").then(({ getSurahProgress }) => {
+      getSurahProgress(userId, surahId).then((ranges) => {
         if (!mounted) return
         const readSet = new Set<string>()
-        if (data.ranges) {
-          for (const range of data.ranges) {
+        if (ranges) {
+          for (const range of ranges) {
             for (let i = range.from; i <= range.to; i++) {
               readSet.add(`${surahId}:${i}`)
             }
@@ -42,10 +38,10 @@ export function useSurahProgress(surahId: number) {
         }
         setReadAyahs(readSet)
         setLoading(false)
-      })
-      .catch(() => {
+      }).catch(() => {
         if (mounted) setLoading(false)
       })
+    })
 
     return () => {
       mounted = false
