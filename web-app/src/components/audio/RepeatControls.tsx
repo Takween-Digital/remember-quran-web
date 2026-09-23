@@ -10,7 +10,7 @@ import { REPEAT_PAUSE_OPTIONS_MS } from "@/types/audio"
 import { cn } from "@/lib/utils"
 
 const barBtn = cn(
-  "flex size-10 items-center justify-center rounded-md",
+  "flex size-11 sm:size-10 items-center justify-center rounded-md",
   "text-muted-foreground transition-colors duration-[120ms]",
   "hover:bg-accent hover:text-foreground",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",

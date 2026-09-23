@@ -24,7 +24,7 @@ import { FullScreenPlayer } from "./FullScreenPlayer"
 import { cn } from "@/lib/utils"
 
 const barBtn = cn(
-  "flex size-10 items-center justify-center rounded-md",
+  "flex size-11 sm:size-10 items-center justify-center rounded-md",
   "text-muted-foreground transition-colors duration-[120ms]",
   "hover:bg-accent hover:text-foreground",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
@@ -118,19 +118,39 @@ export function MiniPlayer() {
               />
             </div>
           )}
-        <div className="site-shell flex h-20 items-center gap-1.5 px-3 sm:gap-2 sm:px-4">
-          <div className="min-w-0 flex-1">
-            <NowPlayingLabel
-              chapterId={player.chapterId}
-              chapterName={player.chapterName}
-              isRadio={player.mode === "radio"}
-              isPlaying={isPlaying}
-            />
+        <div className="site-shell flex min-h-[5rem] flex-col justify-center gap-2 px-3 py-2.5 sm:h-20 sm:flex-row sm:items-center sm:gap-2 sm:px-4 sm:py-0">
+          <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:flex-1">
+            <div className="min-w-0 flex-1">
+              <NowPlayingLabel
+                chapterId={player.chapterId}
+                chapterName={player.chapterName}
+                isRadio={player.mode === "radio"}
+                isPlaying={isPlaying}
+              />
+            </div>
+            {/* Main playback controls for mobile, normally inline on desktop */}
+            <div className="flex shrink-0 items-center gap-1 sm:hidden" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                title={isPlaying ? "Pause" : "Play"}
+                aria-label={isPlaying ? "Pause" : "Play"}
+                onClick={player.togglePlayPause}
+                className={cn(barBtn, "size-14 bg-primary/10 text-primary hover:bg-primary/20")}
+              >
+                {isBusy ? (
+                  <Loader2 className="size-7 animate-spin" strokeWidth={1.5} />
+                ) : isPlaying ? (
+                  <Pause className="size-7" strokeWidth={1.5} fill="currentColor" />
+                ) : (
+                  <Play className="size-7" strokeWidth={1.5} fill="currentColor" />
+                )}
+              </button>
+            </div>
           </div>
 
           {player.status === "error" ? (
             <div
-              className="flex shrink-0 items-center gap-2"
+              className="hidden shrink-0 items-center gap-2 sm:flex"
               onClick={(e) => e.stopPropagation()}
             >
               <span className="text-xs text-destructive">
@@ -148,7 +168,7 @@ export function MiniPlayer() {
             </div>
           ) : (
             <div
-              className="flex shrink-0 items-center gap-0.5"
+              className="hidden shrink-0 items-center gap-0.5 sm:flex"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -156,7 +176,7 @@ export function MiniPlayer() {
                 title="Previous ayah"
                 aria-label="Previous ayah"
                 onClick={player.prevAyah}
-                className={cn(barBtn, "hidden sm:flex")}
+                className={barBtn}
               >
                 <SkipBack className="size-5" strokeWidth={1.5} />
               </button>
@@ -180,7 +200,7 @@ export function MiniPlayer() {
                 title="Next ayah"
                 aria-label="Next ayah"
                 onClick={player.nextAyah}
-                className={cn(barBtn, "hidden sm:flex")}
+                className={barBtn}
               >
                 <SkipForward className="size-5" strokeWidth={1.5} />
               </button>
@@ -188,7 +208,7 @@ export function MiniPlayer() {
           )}
 
           <div
-            className="flex shrink-0 items-center gap-0.5 sm:gap-1"
+            className="mt-1 flex w-full flex-wrap items-center justify-between gap-1 sm:mt-0 sm:w-auto sm:shrink-0 sm:justify-start sm:gap-1"
             onClick={(e) => e.stopPropagation()}
           >
             <ElapsedTime durationMs={player.durationMs} />
