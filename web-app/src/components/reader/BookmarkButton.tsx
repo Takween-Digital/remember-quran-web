@@ -173,6 +173,7 @@ export function BookmarkButton({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
+        nativeButton={false}
         title="Bookmark"
         aria-label={`Bookmark ${verseKey}`}
         aria-pressed={false}
