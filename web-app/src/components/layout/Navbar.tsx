@@ -87,6 +87,18 @@ function NavTabs({ pathname }: { pathname: string }) {
 function NavActions() {
   return (
     <div className="flex items-center gap-1.5 sm:gap-2">
+      <Link
+        href="/media-maker"
+        title="Create media"
+        aria-label="Create media"
+        className={cn(
+          "flex md:hidden size-9 items-center justify-center rounded-md text-muted-foreground",
+          "transition-colors hover:bg-accent hover:text-foreground",
+          FOCUS,
+        )}
+      >
+        <ImagePlus className="size-[1.125rem]" strokeWidth={1.75} />
+      </Link>
       <NavbarResumeButton />
       <ThemeSwitcher />
       <AuthNav />
