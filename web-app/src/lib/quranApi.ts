@@ -251,17 +251,26 @@ export const getAllVerses = cache(async (
 /**
  * All verses on one Madani-mushaf page (by King Fahd Complex page_number),
  * which can span more than one surah — short surahs routinely share a page.
- * Arabic + word data only (no translation merge): this exists purely to
- * complete the reading mode's 15-line page rendering at surah boundaries,
- * which never shows translations.
+ * Exists purely to complete the reading mode's 15-line page rendering at
+ * surah boundaries. Includes standard translations (E-09's split view can
+ * show these boundary verses too) but skips the Khattab merge — a much
+ * narrower gap than missing translations entirely, and not worth a second
+ * fetch for what's typically only a handful of stray verses.
  */
-export const getVersesByPage = cache(async (pageNumber: number): Promise<Verse[]> => {
+export const getVersesByPage = cache(async (
+  pageNumber: number,
+  translations: number[] = BUNDLE_TRANSLATION_IDS,
+): Promise<Verse[]> => {
+  const apiTranslations = toApiTranslationIds(translations)
   const params = new URLSearchParams({
     words: "true",
     word_fields: WORD_FIELDS,
     fields: VERSE_FIELDS,
     per_page: "50",
   })
+  if (apiTranslations.length > 0) {
+    params.set("translations", apiTranslations.join(","))
+  }
   const data = await apiFetch<VersesResponse>(
     `${VERSES_BASE_URL}/verses/by_page/${pageNumber}?${params}`,
   )

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { HifzView, type HifzAyahDto } from "@/components/account/HifzView"
 import { getChapters } from "@/lib/quranApi"
-import { listMemorisedAyahs } from "@/lib/firestore/hifz"
+import { listMemorisedAyahs } from "@/lib/db/hifz"
 
 export const metadata: Metadata = {
   title: "Hifz",

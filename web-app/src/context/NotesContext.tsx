@@ -9,44 +9,66 @@ import {
   useState,
   type ReactNode,
 } from "react"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
+import { isHighlightColor, type HighlightColor } from "@/lib/notes/highlights"
 
 interface NoteEntry {
   verseKey: string
+  text: string
+  highlightColor: string | null
 }
 
+interface VerseEntry {
+  hasNote: boolean
+  highlightColor: HighlightColor | null
+}
+
+type EntryMap = Map<string, VerseEntry>
+
 interface NotesContextValue {
-  /** True once the signed-in user's note keys have loaded */
+  /** True once the signed-in user's note/highlight data has loaded */
   loaded: boolean
   hasNote: (verseKey: string) => boolean
+  /** E-12: this verse's highlight colour, or null if unhighlighted */
+  getHighlightColor: (verseKey: string) => HighlightColor | null
   /** Re-sync reader icons after editor / account mutations */
   refresh: () => Promise<void>
   /** Optimistically mark a verse as having / not having a note */
   setHasNote: (verseKey: string, present: boolean) => void
+  /** Optimistically set/clear a verse's highlight colour */
+  setHighlightColorLocal: (verseKey: string, color: HighlightColor | null) => void
 }
 
 const NotesContext = createContext<NotesContextValue | null>(null)
 
-async function fetchNoteKeys(): Promise<Set<string>> {
+async function fetchEntries(): Promise<EntryMap> {
   const res = await fetch("/api/account/notes")
-  if (!res.ok) return new Set()
+  if (!res.ok) return new Map()
   const data = (await res.json()) as { notes?: NoteEntry[] }
-  return new Set((data.notes ?? []).map((n) => n.verseKey))
+  const map: EntryMap = new Map()
+  for (const n of data.notes ?? []) {
+    map.set(n.verseKey, {
+      hasNote: n.text.length > 0,
+      highlightColor: isHighlightColor(n.highlightColor) ? n.highlightColor : null,
+    })
+  }
+  return map
 }
 
 /**
- * One GET per session holds every verseKey that has a note (2000 cap), so
- * ayah icons render without N+1. Cleared on logout / account switch.
+ * One GET per session holds every verseKey with a note and/or highlight
+ * (2000 cap), so ayah icons and reading-mode tints render without N+1.
+ * Cleared on logout / account switch.
  */
 export function NotesProvider({ children }: { children: ReactNode }) {
   const { data: session } = useSession()
   const userId = session?.user?.id ?? null
 
-  const [keys, setKeys] = useState<Set<string> | null>(null)
-  const [keysUserId, setKeysUserId] = useState<string | null>(null)
+  const [entries, setEntries] = useState<EntryMap | null>(null)
+  const [entriesUserId, setEntriesUserId] = useState<string | null>(null)
 
-  const effectiveKeys =
-    userId && keysUserId === userId ? keys : null
+  const effectiveEntries =
+    userId && entriesUserId === userId ? entries : null
 
   useEffect(() => {
     let cancelled = false
@@ -55,15 +77,15 @@ export function NotesProvider({ children }: { children: ReactNode }) {
     Promise.resolve()
       .then(() => {
         if (cancelled) return
-        setKeys(null)
-        setKeysUserId(null)
+        setEntries(null)
+        setEntriesUserId(null)
         if (!fetchFor) return
-        return fetchNoteKeys()
+        return fetchEntries()
       })
-      .then((newKeys) => {
-        if (cancelled || !newKeys || !fetchFor) return
-        setKeys(newKeys)
-        setKeysUserId(fetchFor)
+      .then((next) => {
+        if (cancelled || !next || !fetchFor) return
+        setEntries(next)
+        setEntriesUserId(fetchFor)
       })
       .catch(() => {})
 
@@ -75,36 +97,60 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     if (!userId) return
     try {
-      const newKeys = await fetchNoteKeys()
-      setKeys(newKeys)
-      setKeysUserId(userId)
+      const next = await fetchEntries()
+      setEntries(next)
+      setEntriesUserId(userId)
     } catch {
       // Reader stays usable — icons may be stale until next refresh
     }
   }, [userId])
 
   const hasNote = useCallback(
-    (verseKey: string) => effectiveKeys?.has(verseKey) ?? false,
-    [effectiveKeys],
+    (verseKey: string) => effectiveEntries?.get(verseKey)?.hasNote ?? false,
+    [effectiveEntries],
+  )
+
+  const getHighlightColor = useCallback(
+    (verseKey: string) => effectiveEntries?.get(verseKey)?.highlightColor ?? null,
+    [effectiveEntries],
   )
 
   const setHasNote = useCallback((verseKey: string, present: boolean) => {
-    setKeys((prev) => {
-      const next = new Set(prev ?? [])
-      if (present) next.add(verseKey)
-      else next.delete(verseKey)
+    setEntries((prev) => {
+      const next = new Map(prev ?? [])
+      const current = next.get(verseKey) ?? { hasNote: false, highlightColor: null }
+      if (!present && !current.highlightColor) {
+        next.delete(verseKey)
+      } else {
+        next.set(verseKey, { ...current, hasNote: present })
+      }
+      return next
+    })
+  }, [])
+
+  const setHighlightColorLocal = useCallback((verseKey: string, color: HighlightColor | null) => {
+    setEntries((prev) => {
+      const next = new Map(prev ?? [])
+      const current = next.get(verseKey) ?? { hasNote: false, highlightColor: null }
+      if (!color && !current.hasNote) {
+        next.delete(verseKey)
+      } else {
+        next.set(verseKey, { ...current, highlightColor: color })
+      }
       return next
     })
   }, [])
 
   const value = useMemo(
     () => ({
-      loaded: effectiveKeys !== null,
+      loaded: effectiveEntries !== null,
       hasNote,
+      getHighlightColor,
       refresh,
       setHasNote,
+      setHighlightColorLocal,
     }),
-    [effectiveKeys, hasNote, refresh, setHasNote],
+    [effectiveEntries, hasNote, getHighlightColor, refresh, setHasNote, setHighlightColorLocal],
   )
 
   return (

@@ -1,8 +1,7 @@
 import { auth } from "@/auth"
 import { privateJson } from "@/lib/auth/api-response"
-import { updateDisplayName, getUserById } from "@/lib/firestore/users"
+import { updateDisplayName, getUserById } from "@/lib/db/users"
 
-export const runtime = "nodejs"
 
 export async function PATCH(request: Request) {
   const session = await auth()

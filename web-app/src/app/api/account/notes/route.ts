@@ -2,10 +2,10 @@ import type { NextRequest } from "next/server"
 import { getSessionUserId } from "@/lib/auth/session"
 import { privateJson } from "@/lib/auth/api-response"
 import { normalizeNoteText } from "@/lib/notes/text"
+import { normalizeHighlightColor } from "@/lib/notes/highlights"
 import { parseVerseKey } from "@/lib/quran/verse-key"
-import { getNote, listNotes, saveNote, deleteNote } from "@/lib/firestore/notes"
+import { getNote, listNotes, saveNote, deleteNote, setHighlightColor, type NoteRecord } from "@/lib/db/notes"
 
-export const runtime = "nodejs"
 
 async function readBody(request: Request): Promise<Record<string, unknown> | null> {
   try {
@@ -18,10 +18,11 @@ async function readBody(request: Request): Promise<Record<string, unknown> | nul
   }
 }
 
-function serializeNote(note: { verseKey: string; text: string; createdAt: Date; updatedAt: Date }) {
+function serializeNote(note: NoteRecord) {
   return {
     verseKey: note.verseKey,
     text: note.text,
+    highlightColor: note.highlightColor,
     createdAt: note.createdAt,
     updatedAt: note.updatedAt,
   }
@@ -74,10 +75,14 @@ export async function PUT(request: Request) {
   const normalized = normalizeNoteText(body.text)
   if (!normalized.ok) return privateJson({ error: normalized.error }, 400)
 
-  // Empty / whitespace → delete (idempotent)
+  // Empty / whitespace → delete, unless E-12 left a highlight colour on this
+  // row — then there's still something to keep, so just clear the text.
   if (normalized.text.length === 0) {
-    await deleteNote(userId, verseKey)
-    return privateJson({ deleted: true })
+    const existing = await getNote(userId, verseKey)
+    if (!existing?.highlightColor) {
+      await deleteNote(userId, verseKey)
+      return privateJson({ deleted: true })
+    }
   }
 
   const result = await saveNote(userId, verseKey, normalized.text)
@@ -86,6 +91,27 @@ export async function PUT(request: Request) {
   }
 
   return privateJson({ note: serializeNote(result.note) })
+}
+
+/** E-12: set/clear this ayah's highlight colour, independent of its note text. */
+export async function PATCH(request: Request) {
+  const userId = await getSessionUserId()
+  if (!userId) return privateJson({ error: "Unauthorized." }, 401)
+
+  const body = await readBody(request)
+  if (!body) return privateJson({ error: "Invalid JSON body." }, 400)
+
+  const verse = parseVerseKey(body.verseKey)
+  if (!verse) return privateJson({ error: "Invalid ayah reference." }, 400)
+  const verseKey = `${verse.surahId}:${verse.ayahId}`
+
+  const normalized = normalizeHighlightColor(body.highlightColor)
+  if (!normalized.ok) return privateJson({ error: normalized.error }, 400)
+
+  const note = await setHighlightColor(userId, verseKey, normalized.color)
+  if (!note) return privateJson({ deleted: true })
+
+  return privateJson({ note: serializeNote(note) })
 }
 
 export async function DELETE(request: NextRequest) {

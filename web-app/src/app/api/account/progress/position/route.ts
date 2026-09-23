@@ -1,9 +1,8 @@
 import { getSessionUserId } from "@/lib/auth/session"
 import { privateJson } from "@/lib/auth/api-response"
-import { updateLastPosition } from "@/lib/firestore/users"
+import { updateLastPosition } from "@/lib/db/users"
 import { parseVerseKey } from "@/lib/quran/verse-key"
 
-export const runtime = "nodejs"
 
 async function readBody(request: Request): Promise<Record<string, unknown> | null> {
   try {

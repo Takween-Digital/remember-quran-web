@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
 import {
   EVENT_DEBOUNCE_MS,
   POSITION_THROTTLE_MS,

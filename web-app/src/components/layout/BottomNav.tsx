@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
 import { motion } from "framer-motion"
 import type { LucideIcon } from "lucide-react"
 import { Bookmark, BookOpenText, Radio, UserRound } from "lucide-react"

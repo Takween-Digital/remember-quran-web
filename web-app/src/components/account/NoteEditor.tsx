@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react"
-import { NotebookPen } from "lucide-react"
+import { NotebookPen, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -14,12 +14,19 @@ import {
 } from "@/components/ui/sheet"
 import { useNotes } from "@/context/NotesContext"
 import { NOTE_TEXT_MAX_LENGTH } from "@/lib/notes/text"
+import {
+  HIGHLIGHT_COLORS,
+  HIGHLIGHT_SWATCH_CLASS,
+  isHighlightColor,
+  type HighlightColor,
+} from "@/lib/notes/highlights"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 
 export interface NoteDto {
   verseKey: string
   text: string
+  highlightColor?: string | null
   updatedAt?: string
   createdAt?: string
 }
@@ -53,7 +60,7 @@ export function NoteEditor({
   initialText,
   onSaved,
 }: NoteEditorProps) {
-  const { setHasNote, refresh } = useNotes()
+  const { setHasNote, setHighlightColorLocal, refresh } = useNotes()
   const isMobile = useIsMobile()
   const textareaId = useId()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -64,6 +71,10 @@ export function NoteEditor({
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [hadNote, setHadNote] = useState(false)
+  // E-12: applied immediately on tap (like a real highlighter), independent
+  // of the note text's own dirty/Save flow below.
+  const [highlightColor, setHighlightColor] = useState<HighlightColor | null>(null)
+  const [highlightSaving, setHighlightSaving] = useState(false)
 
   const dirty = text !== baseline
   const overLimit = text.length > NOTE_TEXT_MAX_LENGTH
@@ -81,6 +92,7 @@ export function NoteEditor({
           setText(initialText)
           setBaseline(initialText)
           setHadNote(initialText.trim().length > 0)
+          setHighlightColor(null)
           setLoading(false)
           return
         }
@@ -94,7 +106,8 @@ export function NoteEditor({
         const next = note?.text ?? ""
         setText(next)
         setBaseline(next)
-        setHadNote(Boolean(note))
+        setHadNote(next.length > 0)
+        setHighlightColor(isHighlightColor(note?.highlightColor) ? note.highlightColor : null)
         setLoading(false)
       })
       .catch(() => {
@@ -118,6 +131,30 @@ export function NoteEditor({
   function requestClose() {
     if (dirty && !window.confirm("Discard unsaved note?")) return
     onOpenChange(false)
+  }
+
+  /** E-12: toggling a swatch applies immediately — no separate Save step. */
+  async function applyHighlight(color: HighlightColor | null) {
+    if (highlightSaving || color === highlightColor) return
+    const previous = highlightColor
+    setHighlightColor(color)
+    setHighlightColorLocal(verseKey, color)
+    setHighlightSaving(true)
+    try {
+      const res = await fetch("/api/account/notes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ verseKey, highlightColor: color }),
+      })
+      if (!res.ok) throw new Error("PATCH failed")
+      void refresh()
+    } catch {
+      setHighlightColor(previous)
+      setHighlightColorLocal(verseKey, previous)
+      setError("Couldn’t update the highlight colour.")
+    } finally {
+      setHighlightSaving(false)
+    }
   }
 
   async function save() {
@@ -149,10 +186,13 @@ export function NoteEditor({
         setHasNote(verseKey, false)
         onSaved?.(null)
       } else if (data.note) {
+        // E-12: a highlight-only row can survive with text cleared — "has a
+        // note" means non-empty text, not merely that the row exists.
+        const hasText = data.note.text.length > 0
         setText(data.note.text)
         setBaseline(data.note.text)
-        setHadNote(true)
-        setHasNote(verseKey, true)
+        setHadNote(hasText)
+        setHasNote(verseKey, hasText)
         onSaved?.(data.note)
       }
 
@@ -185,6 +225,8 @@ export function NoteEditor({
       setBaseline("")
       setHadNote(false)
       setHasNote(verseKey, false)
+      setHighlightColor(null)
+      setHighlightColorLocal(verseKey, null)
       onSaved?.(null)
       void refresh()
       onOpenChange(false)
@@ -234,6 +276,44 @@ export function NoteEditor({
         </SheetHeader>
 
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
+          {/* E-12: highlight colour — applies immediately on tap */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Highlight</span>
+            <div className="flex items-center gap-1.5">
+              {HIGHLIGHT_COLORS.map((color) => {
+                const active = highlightColor === color
+                return (
+                  <button
+                    key={color}
+                    type="button"
+                    disabled={highlightSaving}
+                    title={`Highlight ${color}`}
+                    aria-label={`Highlight ${color}`}
+                    aria-pressed={active}
+                    onClick={() => void applyHighlight(color)}
+                    className={cn(
+                      "flex size-6 items-center justify-center rounded-full transition-transform disabled:opacity-50",
+                      HIGHLIGHT_SWATCH_CLASS[color],
+                      active ? "ring-2 ring-offset-2 ring-foreground/60 ring-offset-background" : "hover:scale-110",
+                    )}
+                  >
+                    {active && <Check className="size-3.5 text-background" strokeWidth={3} />}
+                  </button>
+                )
+              })}
+              {highlightColor && (
+                <button
+                  type="button"
+                  disabled={highlightSaving}
+                  onClick={() => void applyHighlight(null)}
+                  className="ml-1 text-xs text-muted-foreground underline-offset-2 hover:underline disabled:opacity-50"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
           <label htmlFor={textareaId} className="sr-only">
             Note for {verseKey}
           </label>

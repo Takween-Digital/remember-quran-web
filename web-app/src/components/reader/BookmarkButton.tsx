@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react"
 import { Bookmark, Loader2, Plus, Star } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
 import {
   Popover,
   PopoverContent,
@@ -194,7 +194,7 @@ export function BookmarkButton({
               onClick={() => void handleSaveToCollection(collection.id)}
               className={cn(
                 "flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm",
-                "transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
                 "disabled:pointer-events-none disabled:opacity-50",
               )}
             >
@@ -237,7 +237,7 @@ export function BookmarkButton({
               onClick={() => setCreating(true)}
               className={cn(
                 "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-muted-foreground",
-                "transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
               )}
             >
               <Plus className="size-3.5" strokeWidth={1.75} />

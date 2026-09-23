@@ -4,8 +4,10 @@ import Link from "next/link"
 import { useState, type FormEvent } from "react"
 import { CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { validatePassword } from "@/lib/auth/credentials"
+import { auth } from "@/lib/firebase/client"
+import { confirmPasswordReset } from "firebase/auth"
 
 export function ResetPasswordForm({ oobCode }: { oobCode: string | null }) {
   const [password, setPassword] = useState("")
@@ -37,23 +39,10 @@ export function ResetPasswordForm({ oobCode }: { oobCode: string | null }) {
 
     setPending(true)
     try {
-      const res = await fetch("/api/auth/reset/confirm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          oobCode,
-          password: parsed.password,
-          confirmPassword,
-        }),
-      })
-      const data = (await res.json().catch(() => ({}))) as { error?: string }
-      if (!res.ok) {
-        setError(data.error ?? "Could not reset password.")
-        return
-      }
+      await confirmPasswordReset(auth, oobCode, parsed.password)
       setComplete(true)
-    } catch {
-      setError("Something went wrong. Please try again.")
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.")
     } finally {
       setPending(false)
     }
@@ -85,9 +74,8 @@ export function ResetPasswordForm({ oobCode }: { oobCode: string | null }) {
         >
           New password
         </label>
-        <Input
+        <PasswordInput
           id="reset-new-password"
-          type="password"
           autoComplete="new-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
@@ -104,9 +92,8 @@ export function ResetPasswordForm({ oobCode }: { oobCode: string | null }) {
         >
           Confirm new password
         </label>
-        <Input
+        <PasswordInput
           id="reset-confirm-password"
-          type="password"
           autoComplete="new-password"
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}

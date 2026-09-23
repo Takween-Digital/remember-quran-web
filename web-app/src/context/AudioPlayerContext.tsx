@@ -69,7 +69,7 @@ export interface AudioPlayerState {
 export interface AudioPlayerActions {
   playVerse: (chapterId: number, verseNumber: number) => void
   playChapter: (chapterId: number, fromVerse?: number) => void
-  startRadio: (fromChapterId?: number) => void
+  startRadio: (fromChapterId?: number, fromVerse?: number) => void
   togglePlayPause: () => void
   nextAyah: () => void
   prevAyah: () => void
@@ -77,6 +77,8 @@ export interface AudioPlayerActions {
   seekToTime: (ms: number) => void
   setReciter: (id: number) => void
   setSpeed: (speed: PlaybackSpeed) => void
+  setVolume: (volume: number) => void
+  toggleMute: () => void
   setRepeat: (config: Omit<RepeatConfig, "remaining">) => void
   setSleepTimer: (minutes: number | null) => void
   playWord: (word: Word) => void
@@ -87,6 +89,8 @@ export interface AudioPlayerActions {
 export type AudioPlayerValue = AudioPlayerState & {
   reciterId: number
   speed: PlaybackSpeed
+  volume: number
+  muted: boolean
 } & AudioPlayerActions
 
 const INITIAL_STATE: AudioPlayerState = {
@@ -189,9 +193,16 @@ function reducer(state: AudioPlayerState, action: Action): AudioPlayerState {
 interface AudioPrefs {
   reciterId: number
   speed: PlaybackSpeed
+  volume: number
+  muted: boolean
 }
 
-const DEFAULT_PREFS: AudioPrefs = { reciterId: DEFAULT_RECITER_ID, speed: 1 }
+const DEFAULT_PREFS: AudioPrefs = {
+  reciterId: DEFAULT_RECITER_ID,
+  speed: 1,
+  volume: 1,
+  muted: false,
+}
 
 /** Corrupt/unknown stored prefs fall back to defaults — never invalidates
  * the reader's own rq-reader-settings key. */
@@ -206,6 +217,11 @@ function migrateAudioPrefs(raw: unknown): AudioPrefs {
     speed: PLAYBACK_SPEEDS.includes(p.speed as PlaybackSpeed)
       ? (p.speed as PlaybackSpeed)
       : 1,
+    volume:
+      typeof p.volume === "number" && p.volume >= 0 && p.volume <= 1
+        ? p.volume
+        : 1,
+    muted: typeof p.muted === "boolean" ? p.muted : false,
   }
 }
 
@@ -258,6 +274,8 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   const chapterIdRef = useRef<number | null>(null)
   const reciterIdRef = useRef(prefs.reciterId)
   const speedRef = useRef<PlaybackSpeed>(prefs.speed)
+  const volumeRef = useRef(prefs.volume)
+  const mutedRef = useRef(prefs.muted)
   const resumeAfterWordRef = useRef(false)
   const radioFailStreakRef = useRef(0)
   const prefetchedNextRef = useRef<number | null>(null)
@@ -277,8 +295,19 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     reciterIdRef.current = prefs.reciterId
     speedRef.current = prefs.speed
-    if (audioRef.current) audioRef.current.playbackRate = prefs.speed
-  }, [prefs.reciterId, prefs.speed])
+    volumeRef.current = prefs.volume
+    mutedRef.current = prefs.muted
+    if (audioRef.current) {
+      audioRef.current.playbackRate = prefs.speed
+      // Skip while a sleep-timer fade is actively in progress — it owns
+      // `audio.volume` moment-to-moment in its last 5 seconds, and this
+      // effect re-running (e.g. an unrelated prefs write) shouldn't yank
+      // the level back up mid-fade.
+      if (sleepTimerEndRef.current === null || sleepTimerEndRef.current - Date.now() > 5000) {
+        audioRef.current.volume = prefs.muted ? 0 : prefs.volume
+      }
+    }
+  }, [prefs.reciterId, prefs.speed, prefs.volume, prefs.muted])
 
   const stopLoop = useCallback(() => {
     cancelAnimationFrame(rafRef.current)
@@ -414,17 +443,19 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       // Sleep Timer Check: Auto fadeout and pause
       if (sleepTimerEndRef.current !== null) {
         const remainingMs = sleepTimerEndRef.current - Date.now()
+        const ceiling = mutedRef.current ? 0 : volumeRef.current
         if (remainingMs <= 0) {
           // Timer expired: stop timer, reset volume, and pause
           sleepTimerEndRef.current = null
-          audio.volume = 1
+          audio.volume = ceiling
           audio.pause()
           dispatch({ type: "SET_SLEEP_TIMER", sleepTimerEnd: null })
         } else if (remainingMs < 5000) {
-          // Smoothly fade out volume in the last 5 seconds
-          audio.volume = Math.max(0, remainingMs / 5000)
-        } else if (audio.volume < 1) {
-          audio.volume = 1
+          // Smoothly fade out volume in the last 5 seconds, down from the
+          // user's own level rather than always assuming full volume.
+          audio.volume = Math.max(0, ceiling * (remainingMs / 5000))
+        } else if (audio.volume < ceiling) {
+          audio.volume = ceiling
         }
       }
 
@@ -509,7 +540,14 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       } else {
         pendingSeekMsRef.current = timing.from
       }
-      lastVerseIdxRef.current = -1
+      // The index of the verse we just seeked to — not a sentinel -1.
+      // `nextAyah`/`prevAyah` read this ref directly to know "where we are
+      // now" before computing the next target; while paused, the RAF loop
+      // below (the only other thing that updates it) never runs to correct
+      // a -1 back to reality, so a second Next/Previous click while paused
+      // would read idx 0 again and land on the same verse as the first
+      // click instead of advancing further.
+      lastVerseIdxRef.current = clampVerse(verseNumber) - 1
       lastWordPosRef.current = null
       setPosition({
         verseKey: timing.verseKey,
@@ -629,12 +667,12 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   )
 
   const startRadio = useCallback(
-    (fromChapterId?: number) => {
+    (fromChapterId?: number, fromVerse = 1) => {
       radioFailStreakRef.current = 0
       void loadChapter({
         reciterId: reciterIdRef.current,
         chapterId: fromChapterId ?? chapterIdRef.current ?? 1,
-        seekToVerse: 1,
+        seekToVerse: fromVerse,
         autoplay: true,
         mode: "radio",
       })
@@ -723,9 +761,14 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     } else {
       pendingSeekMsRef.current = clamped
     }
-    lastVerseIdxRef.current = -1
+    // Same reasoning as seekToVerseInternal: record the verse we actually
+    // landed on, not a -1 sentinel — Next/Previous Ayah read this ref
+    // directly, and while paused nothing else corrects a stale -1 back to
+    // the real position before the next click.
+    const newIdx = findVerseIndex(timingsRef.current, clamped)
+    lastVerseIdxRef.current = newIdx
     lastWordPosRef.current = null
-    const timing = timingsRef.current[findVerseIndex(timingsRef.current, clamped)]
+    const timing = timingsRef.current[newIdx]
     setPosition({
       verseKey: timing?.verseKey ?? null,
       wordPosition: null,
@@ -769,6 +812,31 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     [setRawPrefs],
   )
 
+  const setVolume = useCallback(
+    (volume: number) => {
+      const clamped = Math.min(1, Math.max(0, volume))
+      // Raising the slider off zero while muted should audibly unmute —
+      // otherwise dragging it up looks like it did nothing.
+      const unmute = clamped > 0 && mutedRef.current
+      setRawPrefs((prev: unknown) => ({
+        ...migrateAudioPrefs(prev),
+        volume: clamped,
+        ...(unmute ? { muted: false } : null),
+      }))
+      volumeRef.current = clamped
+      if (unmute) mutedRef.current = false
+      if (audioRef.current) audioRef.current.volume = mutedRef.current ? 0 : clamped
+    },
+    [setRawPrefs],
+  )
+
+  const toggleMute = useCallback(() => {
+    const muted = !mutedRef.current
+    setRawPrefs((prev: unknown) => ({ ...migrateAudioPrefs(prev), muted }))
+    mutedRef.current = muted
+    if (audioRef.current) audioRef.current.volume = muted ? 0 : volumeRef.current
+  }, [setRawPrefs])
+
   const setRepeatAction = useCallback((config: Omit<RepeatConfig, "remaining">) => {
     clearRepeatPause()
     if (config.mode === "off") {
@@ -799,15 +867,16 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   }, [clearRepeatPause])
 
   const setSleepTimer = useCallback((minutes: number | null) => {
+    const ceiling = mutedRef.current ? 0 : volumeRef.current
     if (minutes === null || minutes <= 0) {
       sleepTimerEndRef.current = null
-      if (audioRef.current) audioRef.current.volume = 1
+      if (audioRef.current) audioRef.current.volume = ceiling
       dispatch({ type: "SET_SLEEP_TIMER", sleepTimerEnd: null })
       return
     }
     const end = Date.now() + minutes * 60 * 1000
     sleepTimerEndRef.current = end
-    if (audioRef.current) audioRef.current.volume = 1
+    if (audioRef.current) audioRef.current.volume = ceiling
     dispatch({ type: "SET_SLEEP_TIMER", sleepTimerEnd: end })
   }, [])
 
@@ -853,7 +922,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current
     if (audio) {
       audio.pause()
-      audio.volume = 1
+      audio.volume = mutedRef.current ? 0 : volumeRef.current
       audio.removeAttribute("src")
       audio.load()
     }
@@ -878,7 +947,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   // Also fires on OS-level interruptions (calls, other apps taking audio)
   const handlePause = useCallback(() => {
     stopLoop()
-    if (audioRef.current) audioRef.current.volume = 1
+    if (audioRef.current) audioRef.current.volume = mutedRef.current ? 0 : volumeRef.current
     if (repeatGapRef.current) return // memorisation inter-loop pause
     if (!audioRef.current?.currentSrc) return // src cleared by stop()
     // Reassigning `audio.src` (loadChapter, e.g. switching surahs while one
@@ -933,8 +1002,9 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   const handleLoadedMetadata = useCallback(() => {
     const audio = audioRef.current
     if (!audio) return
-    // Safari resets playbackRate on src change — always re-apply
+    // Safari resets playbackRate (and volume) on src change — always re-apply
     audio.playbackRate = speedRef.current
+    audio.volume = mutedRef.current ? 0 : volumeRef.current
     if (pendingSeekMsRef.current !== null) {
       audio.currentTime = pendingSeekMsRef.current / 1000
       pendingSeekMsRef.current = null
@@ -1021,6 +1091,8 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       seekToTime,
       setReciter,
       setSpeed,
+      setVolume,
+      toggleMute,
       setRepeat: setRepeatAction,
       setSleepTimer,
       playWord,
@@ -1038,6 +1110,8 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       seekToTime,
       setReciter,
       setSpeed,
+      setVolume,
+      toggleMute,
       setRepeatAction,
       setSleepTimer,
       playWord,
@@ -1051,9 +1125,11 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       ...state,
       reciterId: prefs.reciterId,
       speed: prefs.speed,
+      volume: prefs.volume,
+      muted: prefs.muted,
       ...actions,
     }),
-    [state, prefs.reciterId, prefs.speed, actions],
+    [state, prefs.reciterId, prefs.speed, prefs.volume, prefs.muted, actions],
   )
 
   return (

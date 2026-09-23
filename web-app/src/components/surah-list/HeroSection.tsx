@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
 import { ArrowRight, BookOpenText, Radio, Search } from "lucide-react"
 import { useChapterMeta } from "@/context/ChaptersContext"
 import { useUI } from "@/context/UIContext"

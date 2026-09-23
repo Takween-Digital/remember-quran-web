@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { SettingsForms } from "@/components/account/SettingsForms"
-import { getUserById } from "@/lib/firestore/users"
+import { getUserById } from "@/lib/db/users"
 
 export const metadata: Metadata = {
   title: "Account settings",

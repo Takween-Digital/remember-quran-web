@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Bookmark, ImagePlus, Radio, Target } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
 import { useSoftGate } from "@/context/SoftGateContext"
 import type { SoftGateReason } from "@/lib/auth/safe-next"
 

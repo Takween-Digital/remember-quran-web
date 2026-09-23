@@ -1,10 +1,9 @@
 import { auth } from "@/auth"
 
-/**
- * Session guard for account APIs. Returns the authenticated user id or null —
- * callers respond 401 themselves so each route controls its error shape.
- */
-export async function getSessionUserId(): Promise<string | null> {
+export async function getSessionUserId() {
   const session = await auth()
-  return session?.user?.id ?? null
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+  return session.user.id
 }

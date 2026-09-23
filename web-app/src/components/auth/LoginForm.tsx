@@ -3,11 +3,13 @@
 import Link from "next/link"
 import { useState, useEffect, type FormEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { signIn } from "next-auth/react"
+import { auth } from "@/lib/firebase/client"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { useAuth } from "@/components/auth/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { validateCredentials } from "@/lib/auth/credentials"
-import { navigateAfterAuth } from "@/lib/auth/navigate-after-auth"
 import { safeNextPath } from "@/lib/auth/safe-next"
 import { cn } from "@/lib/utils"
 
@@ -17,10 +19,15 @@ const fieldLabel =
 export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { user: sessionUser, loading: sessionPending } = useAuth()
   const next = safeNextPath(searchParams.get("next"), "/account")
-  // Set by the failure branch below via a real top-level navigation back to
-  // this same page (see its comment for why) — read once on load, then
-  // stripped from the URL so refreshing doesn't re-show a stale error.
+
+  useEffect(() => {
+    if (!sessionPending && sessionUser) {
+      window.location.assign(next)
+    }
+  }, [sessionPending, sessionUser, next])
+
   const failedEmail = searchParams.get("loginFailed") ? searchParams.get("email") : null
 
   const [email, setEmail] = useState(failedEmail ?? "")
@@ -36,9 +43,7 @@ export function LoginForm() {
     url.searchParams.delete("loginFailed")
     url.searchParams.delete("email")
     router.replace(`${url.pathname}${url.search}`, { scroll: false })
-    // Only ever meant to run once, against the URL the page loaded with.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [router, searchParams])
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -52,38 +57,27 @@ export function LoginForm() {
 
     setPending(true)
     try {
-      const result = await signIn("credentials", {
-        email: parsed.data.email,
-        password: parsed.data.password,
-        redirect: false,
-        callbackUrl: next,
+      const userCredential = await signInWithEmailAndPassword(auth, parsed.data.email, parsed.data.password)
+      const idToken = await userCredential.user.getIdToken()
+      
+      const res = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
       })
 
-      if (!result || result.error) {
-        // A real top-level navigation, not a React state update: NextAuth's
-        // own callback fetch always resolves 200 here regardless of whether
-        // the credentials were valid — `redirect: false` only changes what
-        // *we* do with that response, not the request Chrome's password
-        // manager already saw. Redisplaying the error in place leaves Chrome
-        // with only a "form submitted, got a 200" signal, which reads as a
-        // successful login and triggers the Save Password prompt even on a
-        // wrong password. Landing back on this same URL with the form still
-        // present (via a genuine navigation, not client-side state) is the
-        // signal it actually needs to recognize the attempt failed.
-        const url = new URL(window.location.href)
-        url.searchParams.set("loginFailed", "1")
-        url.searchParams.set("email", parsed.data.email)
-        window.location.assign(url.toString())
-        return
+      if (!res.ok) {
+        throw new Error("Failed to create session")
       }
 
-      // Soft nav + refresh so the session cookie is picked up without
-      // remounting the whole app shell (providers, chapters, audio).
-      await navigateAfterAuth(router, next)
+      window.location.assign(next)
     } catch {
-      setError("Something went wrong. Please try again.")
-      setPassword("")
-      setPending(false)
+      const url = new URL(window.location.href)
+      url.searchParams.set("loginFailed", "1")
+      url.searchParams.set("email", parsed.data.email)
+      window.location.assign(url.toString())
     }
   }
 
@@ -122,10 +116,9 @@ export function LoginForm() {
             Forgot password?
           </Link>
         </div>
-        <Input
+        <PasswordInput
           id="login-password"
           name="password"
-          type="password"
           autoComplete="current-password"
           required
           value={password}

@@ -1,6 +1,5 @@
 import type { NextRequest } from "next/server"
 
-export const runtime = "nodejs"
 
 export async function GET(request: NextRequest) {
   const surahParam = request.nextUrl.searchParams.get("surah") ?? "1"

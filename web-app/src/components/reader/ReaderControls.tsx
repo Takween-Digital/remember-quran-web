@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
+  ArrowLeft,
   Play,
   Pause,
   Loader2,
@@ -10,6 +11,8 @@ import {
   Maximize,
   Minimize,
   Focus,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react"
 import {
   Sheet,
@@ -28,9 +31,9 @@ import { SurahPickerTrigger } from "./SurahPickerTrigger"
 import { cn } from "@/lib/utils"
 
 const iconBtn = cn(
-  "icon-press flex size-8 items-center justify-center rounded-md",
+  "icon-press flex min-h-11 min-w-11 items-center justify-center rounded-md pointer-fine:size-8 pointer-fine:min-h-0 pointer-fine:min-w-0",
   "text-muted-foreground hover:bg-accent hover:text-foreground",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2",
   "disabled:opacity-30 disabled:pointer-events-none",
 )
 
@@ -43,6 +46,7 @@ function parseSurahId(pathname: string): number | null {
 
 export function ReaderControls() {
   const pathname = usePathname()
+  const router = useRouter()
   const {
     mobileNavOpen,
     setMobileNavOpen,
@@ -90,6 +94,14 @@ export function ReaderControls() {
 
   if (!toolbarChapter) return null
 
+  function handleBack() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back()
+    } else {
+      router.push("/")
+    }
+  }
+
   function toggleSurahNav() {
     if (window.matchMedia("(min-width: 768px)").matches) {
       toggleSidebar()
@@ -110,6 +122,31 @@ export function ReaderControls() {
       >
         <div className="flex h-11 items-center justify-between gap-2 px-2 sm:px-4">
           <div className="flex min-w-0 items-center gap-0.5">
+            <button
+              type="button"
+              title={pickerExpanded ? "Hide sidebar" : "Show sidebar"}
+              aria-label={pickerExpanded ? "Hide sidebar" : "Show sidebar"}
+              aria-pressed={pickerExpanded}
+              onClick={toggleSurahNav}
+              className={cn(iconBtn, pickerExpanded && "text-primary")}
+            >
+              {pickerExpanded ? (
+                <PanelLeftClose className="size-4" strokeWidth={1.75} />
+              ) : (
+                <PanelLeftOpen className="size-4" strokeWidth={1.75} />
+              )}
+            </button>
+
+            <button
+              type="button"
+              title="Back"
+              aria-label="Back"
+              onClick={handleBack}
+              className={iconBtn}
+            >
+              <ArrowLeft className="size-4" strokeWidth={1.75} />
+            </button>
+
             <SurahPickerTrigger
               chapter={toolbarChapter}
               expanded={pickerExpanded}
@@ -199,7 +236,7 @@ export function ReaderControls() {
               className={cn(
                 "w-full rounded-md bg-primary px-3 py-2.5 text-sm font-medium text-primary-foreground",
                 "transition-colors duration-(--dur-base) hover:bg-primary/90",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
               )}
             >
               Done

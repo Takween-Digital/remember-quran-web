@@ -25,14 +25,19 @@ export function BismillahHeader({ className }: BismillahHeaderProps) {
       role="banner"
       aria-label="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
       className={cn(
-        "my-2 sm:my-3 flex items-center justify-center text-center select-none",
+        "w-full flex items-center justify-center text-center select-none",
         className,
       )}
     >
       <p
         aria-hidden="true"
-        className="aqf-bsml leading-none text-[#1E1B18] dark:text-[#ECE6DA]"
-        style={{ fontSize: "3rem" }}
+        className={cn(
+          "aqf-bsml inline-block text-center text-reader-ink",
+          // Reduced sizes so it doesn't crowd the page
+          "text-[2rem] xs:text-[2.2rem] sm:text-[2.5rem] md:text-[2.8rem]",
+          "leading-[1.15]",
+          "transform-gpu translate-x-[3px] sm:translate-x-[5px]",
+        )}
       >
         {AQF_BISMILLAH_CHAR}
       </p>

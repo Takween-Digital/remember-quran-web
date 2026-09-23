@@ -9,7 +9,6 @@ import {
 } from "@/lib/media/card-presets"
 import { parseVerseKey } from "@/lib/quran/verse-key"
 
-export const runtime = "nodejs"
 
 const WIDTH = 1200
 const HEIGHT = 630

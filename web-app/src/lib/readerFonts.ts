@@ -29,7 +29,6 @@ export const FONT_SCALE_LABELS: Record<FontScale, string> = {
   6: "2XL",
 }
 
-/** Arabic sizes in rem — generous leading handled in CSS */
 export const ARABIC_FONT_SIZES: Record<FontScale, string> = {
   1: "1.5rem",
   2: "1.875rem",
@@ -37,6 +36,19 @@ export const ARABIC_FONT_SIZES: Record<FontScale, string> = {
   4: "2.75rem",
   5: "3.25rem",
   6: "3.75rem",
+}
+
+/** Reading mode (15-line Mushaf manuscript) font sizes in rem. QcfLine fits
+ * every line to its container by measuring and scaling it (see
+ * QcfLine.tsx), so these can stay large and bold — the line is compressed
+ * to fit rather than needing to be pre-shrunk to avoid wrapping. */
+export const READING_MODE_ARABIC_FONT_SIZES: Record<FontScale, string> = {
+  1: "0.96rem",
+  2: "1.07rem",
+  3: "1.19rem",
+  4: "1.30rem",
+  5: "1.41rem",
+  6: "1.52rem",
 }
 
 export const TRANSLATION_FONT_SIZES: Record<FontScale, string> = {
@@ -56,5 +68,5 @@ export const QURAN_FONT_FAMILY: Record<QuranFont, string> = {
 
 export const MIN_FONT_SCALE = 1 as FontScale
 export const MAX_FONT_SCALE = 6 as FontScale
-export const DEFAULT_ARABIC_SCALE = 3 as FontScale
+export const DEFAULT_ARABIC_SCALE = 1 as FontScale
 export const DEFAULT_TRANSLATION_SCALE = 3 as FontScale

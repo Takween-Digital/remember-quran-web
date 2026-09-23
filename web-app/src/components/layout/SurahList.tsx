@@ -90,20 +90,15 @@ export function SurahList({
     <div className="flex h-full min-h-0 flex-col">
       {showSearch && (
         <div className="shrink-0 border-b border-border/60 bg-sidebar px-2 py-2">
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
-              strokeWidth={1.75}
-            />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-              placeholder="Surah, 2:255, or search a word…"
-              aria-label="Filter surahs, jump to ayah, or search the Quran"
-              className="h-8 border-border/60 bg-background pl-8 text-xs"
-            />
-          </div>
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            placeholder="Surah, 2:255, or search a word…"
+            aria-label="Filter surahs, jump to ayah, or search the Quran"
+            prefixNode={<Search className="size-[18px] shrink-0 text-muted-foreground/70" strokeWidth={2} />}
+            wrapperClassName="min-h-[36px] rounded-lg border-transparent bg-sidebar-accent text-sm shadow-none focus-within:border-ring focus-within:bg-card"
+          />
         </div>
       )}
 

@@ -10,7 +10,10 @@ import { ReciterSettingsSelector } from "./ReciterSettingsSelector"
 import { TajweedToggle } from "./TajweedToggle"
 import { TajweedLegend } from "./TajweedLegend"
 import { HideArabicToggle } from "./HideArabicToggle"
-import { InfiniteScrollToggle } from "./InfiniteScrollToggle"
+import { AutoFollowToggle } from "./AutoFollowToggle"
+import { ReadingLayoutToggle } from "./ReadingLayoutToggle"
+import { ReaderThemeSelector } from "./ReaderThemeSelector"
+import { SplitViewToggle } from "./SplitViewToggle"
 import { TafsirBookSelector } from "@/components/study/TafsirBookSelector"
 
 function Section({
@@ -36,21 +39,38 @@ export function ReaderSettingsPanel({
   /** Close the settings sheet (e.g. after starting a hide-range session). */
   onRequestClose?: () => void
 } = {}) {
-  const { displayMode } = useReaderSettings()
+  const { displayMode, readingLayout, splitViewTranslation } = useReaderSettings()
   const isReadingMode = displayMode === "reading"
+  const isScrollLayout = readingLayout === "scroll"
+  // Reading mode still hides the translation list by default (there's no
+  // room for it inline in the Mushaf grid) — it only comes back once split
+  // view actually has somewhere to put it (Scroll layout only, see E-06).
+  const showTranslationSelector = !isReadingMode || (isScrollLayout && splitViewTranslation)
 
   return (
     <div className="space-y-6">
       <Section title="View">
         <DisplayModeToggle />
+        {isReadingMode && <ReadingLayoutToggle />}
+        {isReadingMode && isScrollLayout && <SplitViewToggle />}
         <HideArabicToggle onRequestClose={onRequestClose} />
-        <InfiniteScrollToggle />
       </Section>
+
+      {isReadingMode && (
+        <>
+          <div className="h-px bg-border/60" />
+
+          <Section title="Reading surface">
+            <ReaderThemeSelector />
+          </Section>
+        </>
+      )}
 
       <div className="h-px bg-border/60" />
 
       <Section title="Recitation">
         <ReciterSettingsSelector />
+        {isReadingMode && <AutoFollowToggle />}
       </Section>
 
       <div className="h-px bg-border/60" />
@@ -65,7 +85,7 @@ export function ReaderSettingsPanel({
         <FontSizeSelector />
       </Section>
 
-      {!isReadingMode && (
+      {showTranslationSelector && (
         <>
           <div className="h-px bg-border/60" />
 

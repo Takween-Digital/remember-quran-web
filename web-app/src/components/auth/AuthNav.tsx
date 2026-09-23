@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
+import { useAuth } from "@/components/auth/AuthProvider"
+import { auth } from "@/lib/firebase/client"
 import {
   ChevronDown,
   LayoutGrid,
@@ -31,10 +32,10 @@ const navLink =
 
 export function AuthNav() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { user, loading } = useAuth()
   const pathname = usePathname()
 
-  if (status === "loading") {
+  if (loading) {
     return (
       <div
         aria-hidden
@@ -43,7 +44,7 @@ export function AuthNav() {
     )
   }
 
-  if (!session?.user) {
+  if (!user) {
     return (
       <Link href="/login?next=/account" className={cn(navLink, FOCUS)}>
         <UserRound className="size-4 sm:size-5" strokeWidth={1.75} />
@@ -53,12 +54,13 @@ export function AuthNav() {
   }
 
   const label =
-    session.user.name?.trim() ||
-    session.user.email?.split("@")[0] ||
+    user.displayName?.trim() ||
+    user.email?.split("@")[0] ||
     "Account"
 
   async function handleSignOut() {
-    await signOut({ redirect: false })
+    await auth.signOut()
+    await fetch("/api/auth/session", { method: "DELETE" })
     await navigateAfterAuth(router, "/")
   }
 
@@ -85,7 +87,7 @@ export function AuthNav() {
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex flex-col gap-0.5 px-2 py-1.5">
             <span className="truncate text-sm text-foreground">{label}</span>
-            <span className="truncate font-normal">{session.user.email}</span>
+            <span className="truncate font-normal">{user.email}</span>
           </DropdownMenuLabel>
           <DropdownMenuItem onClick={() => router.push("/account")}>
             <LayoutGrid />

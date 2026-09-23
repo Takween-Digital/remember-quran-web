@@ -1,10 +1,9 @@
 import { getSessionUserId } from "@/lib/auth/session"
 import { privateJson } from "@/lib/auth/api-response"
-import { getUserById } from "@/lib/firestore/users"
+import { getUserById } from "@/lib/db/users"
 import { TOTAL_SURAHS } from "@/lib/progress/date"
 import { parseVerseKey } from "@/lib/quran/verse-key"
 
-export const runtime = "nodejs"
 
 export async function GET() {
   const userId = await getSessionUserId()

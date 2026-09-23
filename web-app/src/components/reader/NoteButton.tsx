@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { NotebookPen } from "lucide-react"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth/react-compat"
 import { NoteEditor } from "@/components/account/NoteEditor"
 import { useNotes } from "@/context/NotesContext"
 import { useSoftGate } from "@/context/SoftGateContext"

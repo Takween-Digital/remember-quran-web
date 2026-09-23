@@ -98,6 +98,14 @@ function InputGroupButton({
       type={type}
       data-size={size}
       variant={variant}
+      // Button's own `size` prop defaults to "md", which carries a
+      // `min-h-[44px]` touch-target floor — without forwarding `size` here,
+      // that floor wins over the smaller size-6/size-8 this component's own
+      // variant classes set below (min-height always wins over a smaller
+      // height), so this button overflows the input field it's meant to sit
+      // flush inside. Button already defines matching "xs"/"icon-xs"/
+      // "icon-sm" variants with no such floor.
+      size={size}
       className={cn(inputGroupButtonVariants({ size }), className)}
       {...props}
     />

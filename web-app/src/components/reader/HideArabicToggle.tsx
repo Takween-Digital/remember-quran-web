@@ -50,7 +50,7 @@ export function HideArabicToggle({
   // done during render via a tracked-key comparison rather than an effect,
   // so there's no extra render+effect round trip.
   const rangeKey = hideArabicRange
-    ? `${hideArabicRange.start}:${hideArabicRange.end}`
+    ? `${hideArabicRange.surahId}:${hideArabicRange.start}:${hideArabicRange.end}`
     : null
   const [trackedRangeKey, setTrackedRangeKey] = useState(rangeKey)
   if (rangeKey !== trackedRangeKey) {
@@ -80,8 +80,9 @@ export function HideArabicToggle({
 
   function selectRange() {
     setScopeMode("range")
-    if (!rangeReady) return
+    if (surahId == null || !rangeReady) return
     const next = normalizeHideRange(
+      surahId,
       Number(draftStart) || placeholderStart,
       Number(draftEnd) || placeholderEnd,
       maxAyah,
@@ -93,8 +94,8 @@ export function HideArabicToggle({
   }
 
   function applyRange() {
-    if (!rangeReady) return
-    const next = normalizeHideRange(draftStart, draftEnd, maxAyah)
+    if (surahId == null || !rangeReady) return
+    const next = normalizeHideRange(surahId, draftStart, draftEnd, maxAyah)
     if (!next) return
     setHideArabicRange(next)
     setDraftStart(String(next.start))
@@ -111,7 +112,7 @@ export function HideArabicToggle({
     cn(
       "flex-1 rounded-md px-2 py-1.5 text-xs font-medium",
       "transition-colors duration-[120ms]",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
       active
         ? "bg-primary/10 text-primary"
         : "text-muted-foreground hover:bg-accent",
@@ -202,7 +203,7 @@ export function HideArabicToggle({
                   "h-8 shrink-0 rounded-md px-2.5 text-xs font-medium",
                   "bg-primary text-primary-foreground",
                   "transition-colors duration-[120ms] hover:bg-primary/90",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
                   "disabled:pointer-events-none disabled:opacity-40",
                 )}
               >
@@ -226,7 +227,7 @@ export function HideArabicToggle({
                 className={cn(
                   "flex-1 rounded-md border border-border px-2 py-1.5 text-[11px] font-medium",
                   "text-muted-foreground transition-colors duration-[120ms] hover:bg-accent hover:text-foreground",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
                 )}
               >
                 Reveal all
@@ -237,7 +238,7 @@ export function HideArabicToggle({
                 className={cn(
                   "flex-1 rounded-md border border-border px-2 py-1.5 text-[11px] font-medium",
                   "text-muted-foreground transition-colors duration-[120ms] hover:bg-accent hover:text-foreground",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
                 )}
               >
                 Hide all

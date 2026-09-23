@@ -1,13 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import type { LucideIcon } from "lucide-react"
-import { BookOpenText, Headphones, ImagePlus, Search, Star } from "lucide-react"
+import { BookOpenText, Headphones, ImagePlus, LayoutGrid } from "lucide-react"
 import { ArabesquePattern } from "@/components/layout/ArabesquePattern"
+import { useAuth } from "@/components/auth/AuthProvider"
 import { AuthNav } from "@/components/auth/AuthNav"
 import { LogoWordmark } from "@/components/layout/Logo"
+import { NavbarResumeButton } from "@/components/layout/NavbarResumeButton"
 import { ThemeSwitcher } from "@/components/layout/ThemeSwitcher"
 import { useUI } from "@/context/UIContext"
 import { cn } from "@/lib/utils"
@@ -36,10 +37,28 @@ const TABS = [
   },
 ]
 
+/** RQ-23: a signed-in user's only route to their account was three clicks
+ * deep (profile menu → Account overview) — surface it as a normal top-level
+ * tab, same as Quran/Listen/Create, once they're actually signed in. */
+function useDashboardTab() {
+  const { user } = useAuth()
+  if (!user) return []
+  return [
+    {
+      href: "/account",
+      label: "Dashboard",
+      icon: LayoutGrid,
+      match: (p: string) => p.startsWith("/account"),
+    },
+  ]
+}
+
 function NavTabs({ pathname }: { pathname: string }) {
+  const dashboardTab = useDashboardTab()
+  const tabs = [...TABS, ...dashboardTab]
   return (
-    <nav className="flex h-full items-center gap-1 sm:gap-2">
-      {TABS.map(({ href, label, icon: Icon, match }) => {
+    <nav className="hidden md:flex h-full items-center gap-1 sm:gap-2">
+      {tabs.map(({ href, label, icon: Icon, match }) => {
         const active = match(pathname)
         return (
           <Link
@@ -66,19 +85,9 @@ function NavTabs({ pathname }: { pathname: string }) {
 }
 
 function NavActions() {
-  const { setCommandOpen } = useUI()
   return (
-    <div className="flex items-center gap-1 sm:gap-2">
-      <button
-        onClick={() => setCommandOpen(true)}
-        aria-label="Search"
-        className={cn(
-          "flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground transition-colors",
-          FOCUS
-        )}
-      >
-        <Search className="size-5" strokeWidth={1.75} />
-      </button>
+    <div className="flex items-center gap-1.5 sm:gap-2">
+      <NavbarResumeButton />
       <ThemeSwitcher />
       <AuthNav />
     </div>
@@ -90,10 +99,11 @@ function LogoLink({ className }: { className?: string }) {
     <Link
       href="/"
       aria-label="RememberQuran — home"
-      className={cn("rounded-sm", FOCUS, className)}
+      className={cn("rounded-sm shrink-0", FOCUS, className)}
     >
       <span className="inline-flex transition-opacity duration-(--dur-base) hover:opacity-80">
-        <LogoWordmark size="md" />
+        <LogoWordmark size="sm" className="sm:hidden" />
+        <LogoWordmark size="md" className="hidden sm:inline-flex" />
       </span>
     </Link>
   )
@@ -101,27 +111,30 @@ function LogoLink({ className }: { className?: string }) {
 
 export function Navbar() {
   const pathname = usePathname()
-  const { sidebarOpen, focusMode, setCommandOpen } = useUI()
+  const { sidebarOpen, focusMode } = useUI()
   const [scrolled, setScrolled] = useState(false)
-  const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up")
+  const frame = useRef(0)
   const isSurahRoute = /^\/\d+/.test(pathname)
   // The reader uses the sidebar open state
   const sidebarEffectivelyOpen = sidebarOpen
 
   useEffect(() => {
-    let lastScrollY = window.scrollY
-    const onScroll = () => {
+    const measure = () => {
+      frame.current = 0
       setScrolled(window.scrollY > 4)
-      if (window.scrollY > lastScrollY && window.scrollY > 50) {
-        setScrollDirection("down")
-      } else if (window.scrollY < lastScrollY) {
-        setScrollDirection("up")
-      }
-      lastScrollY = window.scrollY
     }
-    onScroll()
+
+    const onScroll = () => {
+      if (frame.current) return
+      frame.current = window.requestAnimationFrame(measure)
+    }
+
+    measure()
     window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
+    return () => {
+      if (frame.current) window.cancelAnimationFrame(frame.current)
+      window.removeEventListener("scroll", onScroll)
+    }
   }, [])
 
   // Focus mode (toggled from ReaderControls) only makes sense on the reader
@@ -176,7 +189,7 @@ export function Navbar() {
         {floating && (
           <ArabesquePattern
             id="navbar"
-            className="text-gold-leaf/[0.05] [animation-duration:120s]"
+            className="hidden sm:block text-gold-leaf/[0.05] [animation-duration:120s]"
           />
         )}
         {isSurahRoute ? (

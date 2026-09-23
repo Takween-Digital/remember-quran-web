@@ -23,6 +23,7 @@ export function AyahEndMarker({ digits, ariaLabel, className, onClick }: AyahEnd
       onClick={onClick}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
+      title={onClick ? "Tap for bookmark, note, tafsir & more" : undefined}
       onKeyDown={
         onClick
           ? (e) => {
@@ -34,14 +35,13 @@ export function AyahEndMarker({ digits, ariaLabel, className, onClick }: AyahEnd
           : undefined
       }
       className={cn(
-        "inline-flex items-center justify-center align-middle select-none mx-1",
-        "font-uthmani text-[1.15em] leading-none text-[#1E1B18] dark:text-[#ECE6DA]",
+        "inline-flex items-center justify-center align-baseline select-none mx-1.5 font-uthmani leading-none text-reader-ink shrink-0",
         onClick && "cursor-pointer hover:opacity-80 active:scale-95 transition-transform duration-150 focus-visible:outline-none",
         className,
       )}
       aria-label={ariaLabel}
     >
-      {digits}
+      <span className="leading-none">{digits}</span>
     </span>
   )
 }

@@ -4,13 +4,19 @@
    Noto Naskh Arabic → Arabic UI text (surah names in lists, NOT revelation)
    JetBrains Mono → verse references, ayah numbers, numerals
    ─────────────────────────────────────────────────────────────────────────── */
-@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Public+Sans:wght@400;500;600&family=Noto+Naskh+Arabic:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap");
 
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+
+/* Touch-target sizing should follow input capability, not screen width — a
+ * touch-screen laptop and a small phone can report similar viewport widths
+ * but need opposite treatment. Base classes stay at the 44px touch floor;
+ * `pointer-fine:` opts into the tighter 32px dense-desktop sizing only when
+ * a precise pointer with real hover is actually present. */
+@custom-variant pointer-fine (@media (hover: hover) and (pointer: fine));
 
 /* The reader's backward infinite scroll (prepending an earlier surah above
    the current one) manually compensates scrollTop so the page doesn't visibly
@@ -59,9 +65,14 @@ html {
   --font-mono: var(--font-jetbrains-mono), ui-monospace, "Cascadia Code", monospace;
   --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
   --font-arabic-ui: var(--font-noto-naskh), serif;
-  --font-arabic: "UthmanicHafs", "KFGQPC Uthmanic Hafs", serif;
-  --font-uthmani: "UthmanicHafs", "KFGQPC Uthmanic Hafs", serif;
-  --font-kfgqpc-v2: "KFGQPC_HAFS_V2", "UthmanicHafs", serif;
+  /* "Traditional Arabic"/"Segoe UI" cover Quranic tashkeel far better than
+     generic `serif` does on Windows (Times New Roman) while a font is
+     loading or if it fails outright — macOS's own serif substitution
+     already handles Arabic reasonably, so this only matters as a
+     Windows-specific safety net. */
+  --font-arabic: "UthmanicHafs", "KFGQPC Uthmanic Hafs", "Traditional Arabic", "Segoe UI", serif;
+  --font-uthmani: "UthmanicHafs", "KFGQPC Uthmanic Hafs", "Traditional Arabic", "Segoe UI", serif;
+  --font-kfgqpc-v2: "KFGQPC_HAFS_V2", "UthmanicHafs", "Traditional Arabic", "Segoe UI", serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -103,6 +114,12 @@ html {
   --color-gold-soft: var(--brand-gold-soft);
   --color-gold-leaf: var(--gold-leaf);
   --color-reader-ink: var(--reader-ink);
+  --color-reader-paper: var(--reader-paper);
+  --color-reader-paper-edge: var(--reader-paper-edge);
+  --color-reader-paper-gilt: var(--reader-paper-gilt);
+  --color-reader-paper-gilt-strong: var(--reader-paper-gilt-strong);
+  --color-reader-paper-ink-soft: var(--reader-paper-ink-soft);
+  --color-reader-paper-shade: var(--reader-paper-shade);
 
   --shadow-sm: var(--elev-sm);
   --shadow-md: var(--elev-md);
@@ -128,6 +145,7 @@ html {
   --quran-sm:      1.5rem;   /* 24px */
   --quran-md:      2rem;     /* 32px */
   --quran-lg:      2.5rem;   /* 40px */
+  --quran-xl:      3rem;     /* 48px */
   --quran-display: 4.5rem;   /* 72px — media card only */
   --quran-leading: 2.15;
 
@@ -183,18 +201,20 @@ html {
   --shadow-paper-lg: 0 4px 8px rgba(43,41,37,0.06), 0 24px 56px -16px rgba(43,41,37,0.22);
   --shadow-player:   0 -2px 12px rgba(43,41,37,0.1), 0 -1px 3px rgba(43,41,37,0.06);
 
-  /* ── Motion (strict ceiling) ── */
-  --dur-fast: 140ms;
-  --dur-base: 220ms;
-  --dur-slow: 360ms;
-  --dur-ambient: 1200ms;
+  /* ── Motion (strict ceiling, docs/DESIGN-SYSTEM.md §4) ── */
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 260ms;
+  --dur-glacial: 1400ms;
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-overshoot: cubic-bezier(0.3, 1.5, 0.5, 1);
 
   /* ── Interaction ── */
   --press-scale: 0.985;
   --hover-lift: -1px;
-  --focus-ring: 2px solid var(--jade-600);
+  --focus-ring: 2px solid var(--brand-gold);
   --focus-ring-offset: 2px;
 }
 
@@ -254,6 +274,14 @@ html {
   --reader-paper-edge: #e8d9ac;
   --reader-paper-shadow: 0 1px 2px rgba(93, 71, 20, 0.07), 0 24px 48px -26px rgba(93, 71, 20, 0.4);
 
+  /* Mushaf illuminated-manuscript ornament — the gold-leaf framing on
+     MushafPageFrame/SurahHeaderCartouche. Distinct from --brand-gold (the
+     one interactive accent): this is decorative-only, never clickable. */
+  --reader-paper-gilt: #c2a676;
+  --reader-paper-gilt-strong: #a88448;
+  --reader-paper-ink-soft: #3d2f21;
+  --reader-paper-shade: #efe5cd;
+
   --elev-sm: var(--shadow-paper-sm);
   --elev-md: var(--shadow-paper-md);
   --elev-lg: var(--shadow-paper-lg);
@@ -307,6 +335,11 @@ html {
   --reader-paper: var(--card);
   --reader-paper-edge: var(--border);
   --reader-paper-shadow: var(--elev-md);
+
+  --reader-paper-gilt: #8e7348;
+  --reader-paper-gilt-strong: #c5a059;
+  --reader-paper-ink-soft: #e8dccb;
+  --reader-paper-shade: #171410;
 
   --elev-sm: 0 1px 2px rgb(0 0 0 / 0.4);
   --elev-md: 0 2px 4px rgb(0 0 0 / 0.3), 0 12px 28px -14px rgb(0 0 0 / 0.7);
@@ -368,9 +401,57 @@ html {
   --reader-paper-edge: var(--border);
   --reader-paper-shadow: var(--elev-md);
 
+  --reader-paper-gilt: var(--brand-gold);
+  --reader-paper-gilt-strong: var(--brand-gold-strong);
+  --reader-paper-ink-soft: var(--foreground-subtle);
+  --reader-paper-shade: var(--surface-sunk);
+
   --elev-sm: 0 1px 2px rgb(0 0 0 / 0.4);
   --elev-md: 0 2px 4px rgb(0 0 0 / 0.3), 0 12px 28px -14px rgb(0 0 0 / 0.7);
   --elev-lg: 0 4px 8px rgb(0 0 0 / 0.35), 0 28px 60px -20px rgb(0 0 0 / 0.8);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   READING-SURFACE THEMES (E-07)
+   Independent of the site's own light/dark/modern theme — set via
+   data-reader-theme on QuranReader's <article>, so these simply redeclare
+   the --reader-* custom properties on a descendant, which always wins over
+   whatever .dark/.modern/:root set on <html> regardless of stylesheet order
+   (closest declaration in the DOM tree wins for inherited custom
+   properties). "default" sets no attribute at all — it just defers to
+   whichever site theme is already active.
+   ═══════════════════════════════════════════════════════════════════════════ */
+[data-reader-theme="sepia"] {
+  --reader-paper: #f4ead5;
+  --reader-paper-edge: #e0d0ab;
+  --reader-paper-shadow: 0 1px 2px rgba(93, 71, 20, 0.07), 0 24px 48px -26px rgba(93, 71, 20, 0.4);
+  --reader-ink: #3b2f1e;
+  --reader-paper-gilt: #a68b4e;
+  --reader-paper-gilt-strong: #8a7038;
+  --reader-paper-ink-soft: #5c4a30;
+  --reader-paper-shade: #ecdfc4;
+}
+
+[data-reader-theme="parchment"] {
+  --reader-paper: #e8dcc8;
+  --reader-paper-edge: #d4c4a0;
+  --reader-paper-shadow: 0 1px 2px rgba(60, 45, 20, 0.1), 0 24px 48px -26px rgba(60, 45, 20, 0.45);
+  --reader-ink: #2c2417;
+  --reader-paper-gilt: #8b7340;
+  --reader-paper-gilt-strong: #6f5a2e;
+  --reader-paper-ink-soft: #46381f;
+  --reader-paper-shade: #ddcfb4;
+}
+
+[data-reader-theme="amoled"] {
+  --reader-paper: #000000;
+  --reader-paper-edge: #1a1a1a;
+  --reader-paper-shadow: 0 2px 4px rgb(0 0 0 / 0.5), 0 12px 28px -14px rgb(0 0 0 / 0.85);
+  --reader-ink: #d4d0c8;
+  --reader-paper-gilt: #8b7a3e;
+  --reader-paper-gilt-strong: #a68f4a;
+  --reader-paper-ink-soft: #948d7d;
+  --reader-paper-shade: #0a0a0a;
 }
 
 @layer base {
@@ -421,7 +502,7 @@ h1, h2, h3, .font-serif {
 /* Quranic text — always King Fahd Complex Uthmanic Hafs */
 .font-uthmani,
 [data-quran-text] {
-  font-family: "UthmanicHafs", "KFGQPC Uthmanic Hafs", serif !important;
+  font-family: "UthmanicHafs", "KFGQPC Uthmanic Hafs", "Traditional Arabic", "Segoe UI", serif !important;
   line-height: var(--quran-leading);
   direction: rtl;
 }
@@ -440,49 +521,29 @@ h1, h2, h3, .font-serif {
    text in light mode, one step brighter in dark. Tajweed spans override
    `color` on their own children, so this is safe as a base. */
 .quran-arabic {
-  font-family: var(--reader-arabic-font, "UthmanicHafs"), "KFGQPC Uthmanic Hafs", serif !important;
+  font-family: var(--reader-arabic-font, "UthmanicHafs"), "KFGQPC Uthmanic Hafs", "Traditional Arabic", "Segoe UI", serif !important;
   font-size: var(--arabic-font-size, 2.25rem);
   line-height: 2;
   word-spacing: 0.05em;
   color: var(--reader-ink);
+  /* Crisper ligature/kerning shaping — the QCF glyphs are dense pre-shaped
+     ligatures, not simple letterforms, and benefit from the browser's
+     higher-quality (slower) text layout path more than plain UI text does. */
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
 }
 
 /* ── Reading Mode Fluid Typography ──
-   Scales down the Arabic font size on smaller screens to prevent long lines
-   from wrapping in the strict 15-line Mushaf layout, while still respecting
-   the relative differences between the xs-2xl font scale options. */
+   This used to shrink font-size in steps down to the smallest phones, to
+   keep long lines from wrapping in the strict 15-line Mushaf layout before
+   QcfLine existed. Now every QCF-rendered line is measured and scaled
+   (see QcfLine.tsx) to fit its container exactly, at any width — so this
+   base size is free to stay large and bold everywhere; the fit is handled
+   by *compressing* an oversized line via scaleX, not by pre-shrinking the
+   font and then stretching it back out, which is what was quietly thinning
+   the script on smaller screens. */
 .reading-mode-text {
-  font-size: var(--arabic-font-size, 2.25rem);
-}
-
-@media (max-width: 1024px) {
-  .reading-mode-text {
-    font-size: calc(var(--arabic-font-size, 2.25rem) * 0.9);
-  }
-}
-
-@media (max-width: 768px) {
-  .reading-mode-text {
-    font-size: calc(var(--arabic-font-size, 2.25rem) * 0.75);
-  }
-}
-
-@media (max-width: 640px) {
-  .reading-mode-text {
-    font-size: calc(var(--arabic-font-size, 2.25rem) * 0.6);
-  }
-}
-
-@media (max-width: 500px) {
-  .reading-mode-text {
-    font-size: calc(var(--arabic-font-size, 2.25rem) * 0.5);
-  }
-}
-
-@media (max-width: 400px) {
-  .reading-mode-text {
-    font-size: calc(var(--arabic-font-size, 2.25rem) * 0.4);
-  }
+  font-size: var(--reading-arabic-font-size, 1.35rem);
 }
 
 .quran-translation {
@@ -641,6 +702,79 @@ h1, h2, h3, .font-serif {
 
 @utility animate-fade-in {
   animation: fade-in var(--dur-base) var(--ease-out) both;
+}
+
+/* ── Reading-mode page-turn ──
+   Applied to each printed Mushaf page's wrapper (ReadingModeView). A page
+   fades/slides as it scrolls through the viewport, driven purely by scroll
+   position — no JS. Gated behind @supports (browsers without view-timeline
+   just render pages static, a fine fallback) and its own reduced-motion
+   guard: the sitewide reduced-motion override (see @media
+   prefers-reduced-motion below) forces animation-duration near zero, which
+   assumes a clock-driven animation — this one's "duration" is scroll
+   distance instead, so it isn't reliably neutralized that way, hence
+   handling it explicitly here. */
+@keyframes mushaf-page-turn {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+  }
+  20%,
+  80% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.98);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .mushaf-page-turn {
+      animation: mushaf-page-turn linear both;
+      animation-timeline: view(block);
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+/* ── Paged Mushaf flip (E-06) ──
+   Entrance-only approximation of a page turn: the incoming page swings in
+   from behind the edge it "came from" (right for next, left for prev) and
+   settles flat. Ordinary clock-driven CSS animation, so the sitewide
+   prefers-reduced-motion override above (which forces animation-duration
+   near zero) already neutralizes it correctly — no extra guard needed here,
+   unlike mushaf-page-turn's scroll-driven case. */
+@keyframes mushaf-flip-next {
+  from {
+    opacity: 0.4;
+    transform: rotateY(-75deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0deg);
+  }
+}
+
+@keyframes mushaf-flip-prev {
+  from {
+    opacity: 0.4;
+    transform: rotateY(75deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0deg);
+  }
+}
+
+.mushaf-flip-next {
+  animation: mushaf-flip-next 420ms var(--ease-out) both;
+}
+
+.mushaf-flip-prev {
+  animation: mushaf-flip-prev 420ms var(--ease-out) both;
 }
 
 /* Standard site chrome — navbar, footer, audio bar, and page shells share one width. */
@@ -873,7 +1007,7 @@ h1, h2, h3, .font-serif {
 }
 
 @utility animate-pulse-ambient {
-  animation: rqPulse var(--dur-ambient) var(--ease-standard) infinite;
+  animation: rqPulse var(--dur-glacial) var(--ease-standard) infinite;
 }
 
 @utility shimmer {
@@ -1043,7 +1177,7 @@ h1, h2, h3, .font-serif {
   .mushaf-flow {
     display: block;
     width: 100%;
-    font-family: "UthmanicHafs", "KFGQPC Uthmanic Hafs", serif !important;
+    font-family: "UthmanicHafs", "KFGQPC Uthmanic Hafs", "Traditional Arabic", "Segoe UI", serif !important;
     text-align: justify;
     text-align-last: right;
     text-justify: right;
@@ -1056,7 +1190,71 @@ h1, h2, h3, .font-serif {
     text-rendering: optimizeLegibility;
   }
 
+  /* Authentic 15-line Madani justified line: guarantees flush right and left calligraphy margins */
+  .mushaf-justified-line {
+    display: block;
+    width: 100%;
+    text-align: justify;
+    text-align-last: justify;
+    text-justify: inter-word;
+    direction: rtl;
+    line-height: 1.1;
+    white-space: normal;
+  }
+
+  /* Support fallback for browsers where inline-flex elements require an invisible break to justify */
+  .mushaf-justified-line::after {
+    content: "";
+    display: inline-block;
+    width: 100%;
+    height: 0;
+    visibility: hidden;
+  }
+
+  .mushaf-justified-line-end {
+    display: block;
+    width: 100%;
+    text-align: center;
+    text-align-last: center;
+    direction: rtl;
+    line-height: 1.1;
+    white-space: normal;
+  }
+
   .aqf-bsml {
     font-family: 'aqf_bsml', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* ── E-03: Reading Mode Page-Turn Animation (Scroll-Driven) ──
+     Subtle fade and scale/slide as the page frame enters or leaves the scroll
+     viewport. Native CSS animation-timeline: view() avoids heavy JS observers. */
+  @supports (animation-timeline: view()) {
+    @keyframes page-enter {
+      from {
+        opacity: 0;
+        transform: translateY(2rem) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes page-exit {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      to {
+        opacity: 0.3;
+        transform: translateY(-2rem) scale(0.98);
+      }
+    }
+
+    .mushaf-page-turn {
+      animation: page-enter linear both, page-exit linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 15%, exit 85% exit 100%;
+    }
   }
 }

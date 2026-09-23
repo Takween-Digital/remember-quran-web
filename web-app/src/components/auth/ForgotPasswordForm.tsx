@@ -6,19 +6,19 @@ import { CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { validateEmail } from "@/lib/auth/credentials"
+import { auth } from "@/lib/firebase/client"
+import { sendPasswordResetEmail } from "firebase/auth"
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
-  const [devResetUrl, setDevResetUrl] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
     setError(null)
     setMessage(null)
-    setDevResetUrl(null)
 
     const parsed = validateEmail(email)
     if (!parsed.success) {
@@ -28,27 +28,13 @@ export function ForgotPasswordForm() {
 
     setPending(true)
     try {
-      const res = await fetch("/api/auth/reset/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: parsed.email }),
-      })
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string
-        message?: string
-        devResetUrl?: string
-      }
-      if (!res.ok) {
-        setError(data.error ?? "Could not send a reset email.")
-        return
-      }
-      setMessage(
-        data.message ??
-          "If an account exists for that email, a reset link has been sent.",
-      )
-      setDevResetUrl(data.devResetUrl ?? null)
-    } catch {
-      setError("Something went wrong. Please try again.")
+      await sendPasswordResetEmail(auth, parsed.email)
+      setMessage("If an account exists for that email, a reset link has been sent.")
+    } catch (err: any) {
+      // Firebase throws errors for invalid emails, etc.
+      // Usually, it's safer to not reveal if an email exists, 
+      // but sendPasswordResetEmail will do it automatically.
+      setError(err.message || "Something went wrong. Please try again.")
     } finally {
       setPending(false)
     }
@@ -94,14 +80,6 @@ export function ForgotPasswordForm() {
             <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
             {message}
           </p>
-          {devResetUrl && (
-            <Link
-              href={devResetUrl}
-              className="mt-3 block font-medium text-primary underline underline-offset-4"
-            >
-              Open local reset link
-            </Link>
-          )}
         </div>
       )}
 

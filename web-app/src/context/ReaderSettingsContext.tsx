@@ -11,6 +11,7 @@ import {
 } from "react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { useSurahContent } from "@/context/SurahContentContext"
+import { useUI } from "@/context/UIContext"
 import {
   DEFAULT_TRANSLATIONS,
   isRegisteredTranslationId,
@@ -23,6 +24,7 @@ import {
   DEFAULT_ARABIC_SCALE,
   DEFAULT_TRANSLATION_SCALE,
   ARABIC_FONT_SIZES,
+  READING_MODE_ARABIC_FONT_SIZES,
   TRANSLATION_FONT_SIZES,
   QURAN_FONT_FAMILY,
   MIN_FONT_SCALE,
@@ -36,6 +38,14 @@ import {
 
 /** verse = translation/verse-by-verse view; reading = continuous Arabic (mushaf-like); card = verse-card grid */
 export type DisplayMode = "verse" | "reading"
+
+/** Reading mode layout: scroll = continuous vertical flow (default); paged = one Mushaf page at a time, turned via swipe/arrow keys */
+export type ReadingLayout = "scroll" | "paged"
+
+/** Reading-surface palette (E-07) — overrides --reader-paper/--reader-ink/etc.
+ * regardless of the site's own light/dark/modern theme. "default" defers to
+ * whatever the active site theme already sets (Nur light, dark, or modern). */
+export type ReaderTheme = "default" | "sepia" | "parchment" | "amoled"
 
 
 /** @deprecated Use FontScale — kept for migration from older localStorage */
@@ -54,8 +64,14 @@ export interface ReaderSettings {
   tajweedEnabled: boolean
   /** Memorisation: blur Arabic until tapped (M5) — default false */
   hideArabic: boolean
-  /** Auto-load the next surah as the reader scrolls to the bottom — default false */
-  infiniteScroll: boolean
+  /** Reading mode: highlight + auto-scroll the printed line as it's recited — default true */
+  autoFollowRecitation: boolean
+  /** Reading mode layout — default "scroll" */
+  readingLayout: ReadingLayout
+  /** Reading-surface palette — default "default" */
+  readerTheme: ReaderTheme
+  /** Reading mode (Scroll layout only): side-by-side translation column — default false */
+  splitViewTranslation: boolean
 }
 
 interface ReaderSettingsContextValue extends ReaderSettings {
@@ -73,7 +89,10 @@ interface ReaderSettingsContextValue extends ReaderSettings {
   setTafsirSlug: (slug: string) => void
   setTajweedEnabled: (enabled: boolean) => void
   setHideArabic: (enabled: boolean) => void
-  setInfiniteScroll: (enabled: boolean) => void
+  setAutoFollowRecitation: (enabled: boolean) => void
+  setReadingLayout: (layout: ReadingLayout) => void
+  setReaderTheme: (theme: ReaderTheme) => void
+  setSplitViewTranslation: (enabled: boolean) => void
   /**
    * Session-only: when hide Arabic is on, limit blur to this inclusive range.
    * null = whole surah (default).
@@ -93,6 +112,7 @@ interface ReaderSettingsContextValue extends ReaderSettings {
   /** Re-hide every ayah currently in the hide scope. */
   hideAllInHideScope: (surahId: number) => void
   arabicFontSize: string
+  readingModeArabicFontSize: string
   translationFontSize: string
   arabicFontFamily: string
 }
@@ -115,7 +135,10 @@ const DEFAULT_SETTINGS: ReaderSettings = {
   tafsirSlug: DEFAULT_TAFSIR_SLUG,
   tajweedEnabled: false,
   hideArabic: false,
-  infiniteScroll: true,
+  autoFollowRecitation: true,
+  readingLayout: "paged",
+  readerTheme: "default",
+  splitViewTranslation: false,
 }
 
 function clampScale(n: number): FontScale {
@@ -187,10 +210,25 @@ function migrateSettings(raw: unknown): ReaderSettings {
       typeof s.hideArabic === "boolean"
         ? s.hideArabic
         : DEFAULT_SETTINGS.hideArabic,
-    infiniteScroll:
-      typeof s.infiniteScroll === "boolean"
-        ? s.infiniteScroll
-        : DEFAULT_SETTINGS.infiniteScroll,
+    autoFollowRecitation:
+      typeof s.autoFollowRecitation === "boolean"
+        ? s.autoFollowRecitation
+        : DEFAULT_SETTINGS.autoFollowRecitation,
+    readingLayout:
+      s.readingLayout === "scroll" || s.readingLayout === "paged"
+        ? s.readingLayout
+        : DEFAULT_SETTINGS.readingLayout,
+    readerTheme:
+      s.readerTheme === "default" ||
+      s.readerTheme === "sepia" ||
+      s.readerTheme === "parchment" ||
+      s.readerTheme === "amoled"
+        ? s.readerTheme
+        : DEFAULT_SETTINGS.readerTheme,
+    splitViewTranslation:
+      typeof s.splitViewTranslation === "boolean"
+        ? s.splitViewTranslation
+        : DEFAULT_SETTINGS.splitViewTranslation,
   }
 }
 
@@ -200,6 +238,7 @@ const ReaderSettingsContext = createContext<ReaderSettingsContextValue | null>(
 
 export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
   const { surahId } = useSurahContent()
+  const { setFocusMode, setSidebarOpen } = useUI()
   const [raw, setRaw] = useLocalStorage<unknown>(
     "rq-reader-settings",
     DEFAULT_SETTINGS,
@@ -222,6 +261,16 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
     }
     prevSurahIdRef.current = surahId
   }, [surahId])
+
+  // E-01: Sync focus mode with persisted display mode on mount
+  const didSyncFocusRef = useRef(false)
+  useEffect(() => {
+    if (didSyncFocusRef.current) return
+    didSyncFocusRef.current = true
+    if (settings.displayMode === "reading") {
+      setFocusMode(true)
+    }
+  }, [settings.displayMode, setFocusMode])
 
   const setSettings = useCallback(
     (updater: (prev: ReaderSettings) => ReaderSettings) => {
@@ -287,8 +336,18 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
   )
 
   const setDisplayMode = useCallback(
-    (displayMode: DisplayMode) => setSettings((p) => ({ ...p, displayMode })),
-    [setSettings],
+    (displayMode: DisplayMode) => {
+      setSettings((p) => ({ ...p, displayMode }))
+      // E-01: Auto-immerse — reading mode gets full canvas
+      if (displayMode === "reading") {
+        setFocusMode(true)
+        setSidebarOpen(false)
+      } else {
+        setFocusMode(false)
+        setSidebarOpen(true)
+      }
+    },
+    [setSettings, setFocusMode, setSidebarOpen],
   )
 
   const setActiveTranslations = useCallback(
@@ -341,16 +400,32 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
     [setSettings],
   )
 
+  const setAutoFollowRecitation = useCallback(
+    (autoFollowRecitation: boolean) =>
+      setSettings((p) => ({ ...p, autoFollowRecitation })),
+    [setSettings],
+  )
+
+  const setReadingLayout = useCallback(
+    (readingLayout: ReadingLayout) => setSettings((p) => ({ ...p, readingLayout })),
+    [setSettings],
+  )
+
+  const setReaderTheme = useCallback(
+    (readerTheme: ReaderTheme) => setSettings((p) => ({ ...p, readerTheme })),
+    [setSettings],
+  )
+
+  const setSplitViewTranslation = useCallback(
+    (splitViewTranslation: boolean) => setSettings((p) => ({ ...p, splitViewTranslation })),
+    [setSettings],
+  )
+
   const setHideArabic = useCallback(
     (hideArabic: boolean) => {
       setSettings((p) => ({ ...p, hideArabic }))
       if (!hideArabic) setRevealedVerseKeys(new Set())
     },
-    [setSettings],
-  )
-
-  const setInfiniteScroll = useCallback(
-    (infiniteScroll: boolean) => setSettings((p) => ({ ...p, infiniteScroll })),
     [setSettings],
   )
 
@@ -365,9 +440,13 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
 
   const isVerseInHideScope = useCallback(
     (verseKey: string) => {
-      const ayah = Number(verseKey.split(":")[1])
-      if (!Number.isInteger(ayah) || ayah < 1) return false
-      return isAyahInHideRange(ayah, hideArabicRange)
+      const [surahRaw, ayahRaw] = verseKey.split(":")
+      const surah = Number(surahRaw)
+      const ayah = Number(ayahRaw)
+      if (!Number.isInteger(surah) || !Number.isInteger(ayah) || ayah < 1) {
+        return false
+      }
+      return isAyahInHideRange(surah, ayah, hideArabicRange)
     },
     [hideArabicRange],
   )
@@ -382,16 +461,19 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
   }, [])
 
   // With infinite scroll, more than one surah can be on screen at once. A
-  // fixed ayah Range is always scoped to the base surah (ranges are
-  // surah-relative), but "All ayahs" scope means everything currently
-  // loaded — so it must span every appended surah, not just the base one.
+  // fixed ayah Range is always scoped to the surah it was created for
+  // (hideArabicRange.surahId) — not necessarily whichever surah is currently
+  // "active" while scrolling — but "All ayahs" scope means everything
+  // currently loaded, so it must span every appended surah from the active
+  // one, not just the base one.
   const revealAllInHideScope = useCallback(
     (sid: number, maxAyah: number, latestSid?: number | null) => {
       if (hideArabicRange) {
+        const { surahId: rangeSurahId, start, end } = hideArabicRange
         setRevealedVerseKeys((prev) => {
           const next = new Set(prev)
-          for (let a = hideArabicRange.start; a <= hideArabicRange.end; a++) {
-            next.add(`${sid}:${a}`)
+          for (let a = start; a <= end; a++) {
+            next.add(`${rangeSurahId}:${a}`)
           }
           return next
         })
@@ -413,10 +495,11 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
   const hideAllInHideScope = useCallback(
     (sid: number) => {
       if (hideArabicRange) {
+        const { surahId: rangeSurahId, start, end } = hideArabicRange
         setRevealedVerseKeys((prev) => {
           const next = new Set(prev)
-          for (let a = hideArabicRange.start; a <= hideArabicRange.end; a++) {
-            next.delete(`${sid}:${a}`)
+          for (let a = start; a <= end; a++) {
+            next.delete(`${rangeSurahId}:${a}`)
           }
           return next
         })
@@ -448,7 +531,10 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
         setTafsirSlug,
         setTajweedEnabled,
         setHideArabic,
-        setInfiniteScroll,
+        setAutoFollowRecitation,
+        setReadingLayout,
+        setReaderTheme,
+        setSplitViewTranslation,
         hideArabicRange,
         setHideArabicRange,
         isVerseRevealed,
@@ -457,6 +543,7 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
         revealAllInHideScope,
         hideAllInHideScope,
         arabicFontSize: ARABIC_FONT_SIZES[settings.arabicFontScale],
+        readingModeArabicFontSize: READING_MODE_ARABIC_FONT_SIZES[settings.arabicFontScale],
         translationFontSize: TRANSLATION_FONT_SIZES[settings.translationFontScale],
         arabicFontFamily: QURAN_FONT_FAMILY[settings.quranFont],
       }}

@@ -19,14 +19,15 @@ import { SpeedControl } from "./SpeedControl"
 import { RepeatControls } from "./RepeatControls"
 import { ReciterSelector } from "./ReciterSelector"
 import { SleepTimerControl } from "./SleepTimerControl"
+import { VolumeControl } from "./VolumeControl"
 import { FullScreenPlayer } from "./FullScreenPlayer"
 import { cn } from "@/lib/utils"
 
 const barBtn = cn(
-  "flex size-8 items-center justify-center rounded-md",
+  "flex size-10 items-center justify-center rounded-md",
   "text-muted-foreground transition-colors duration-[120ms]",
   "hover:bg-accent hover:text-foreground",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
   "disabled:opacity-30 disabled:pointer-events-none",
 )
 
@@ -110,14 +111,14 @@ export function MiniPlayer() {
         {player.durationMs !== null &&
           player.status !== "error" &&
           player.status !== "loading" && (
-            <div className="absolute top-0 inset-x-0 h-[2px] bg-border/30">
+            <div className="absolute top-0 inset-x-0 h-[3px] bg-border/30">
               <div 
                 className="h-full bg-jade-500 transition-all duration-[var(--dur-base)] ease-linear"
                 style={{ width: `${(elapsed * 1000 / player.durationMs) * 100}%` }}
               />
             </div>
           )}
-        <div className="site-shell flex h-[72px] items-center gap-1.5 px-3 sm:gap-2 sm:px-4">
+        <div className="site-shell flex h-20 items-center gap-1.5 px-3 sm:gap-2 sm:px-4">
           <div className="min-w-0 flex-1">
             <NowPlayingLabel
               chapterId={player.chapterId}
@@ -142,7 +143,7 @@ export function MiniPlayer() {
                 onClick={player.retry}
                 className={cn(barBtn, "text-foreground")}
               >
-                <RotateCcw className="size-4" strokeWidth={1.5} />
+                <RotateCcw className="size-5" strokeWidth={1.5} />
               </button>
             </div>
           ) : (
@@ -157,21 +158,21 @@ export function MiniPlayer() {
                 onClick={player.prevAyah}
                 className={cn(barBtn, "hidden sm:flex")}
               >
-                <SkipBack className="size-4" strokeWidth={1.5} />
+                <SkipBack className="size-5" strokeWidth={1.5} />
               </button>
               <button
                 type="button"
                 title={isPlaying ? "Pause" : "Play"}
                 aria-label={isPlaying ? "Pause" : "Play"}
                 onClick={player.togglePlayPause}
-                className={cn(barBtn, "size-9 text-foreground")}
+                className={cn(barBtn, "size-12 text-foreground")}
               >
                 {isBusy ? (
-                  <Loader2 className="size-4.5 animate-spin" strokeWidth={1.5} />
+                  <Loader2 className="size-6 animate-spin" strokeWidth={1.5} />
                 ) : isPlaying ? (
-                  <Pause className="size-4.5" strokeWidth={1.5} />
+                  <Pause className="size-6" strokeWidth={1.5} />
                 ) : (
-                  <Play className="size-4.5" strokeWidth={1.5} />
+                  <Play className="size-6" strokeWidth={1.5} />
                 )}
               </button>
               <button
@@ -181,7 +182,7 @@ export function MiniPlayer() {
                 onClick={player.nextAyah}
                 className={cn(barBtn, "hidden sm:flex")}
               >
-                <SkipForward className="size-4" strokeWidth={1.5} />
+                <SkipForward className="size-5" strokeWidth={1.5} />
               </button>
             </div>
           )}
@@ -191,6 +192,7 @@ export function MiniPlayer() {
             onClick={(e) => e.stopPropagation()}
           >
             <ElapsedTime durationMs={player.durationMs} />
+            <VolumeControl />
             <SpeedControl />
             {player.mode !== "radio" && <RepeatControls />}
             <SleepTimerControl />
@@ -203,7 +205,7 @@ export function MiniPlayer() {
               onClick={player.stop}
               className={barBtn}
             >
-              <X className="size-4" strokeWidth={1.5} />
+              <X className="size-5" strokeWidth={1.5} />
             </button>
           </div>
         </div>

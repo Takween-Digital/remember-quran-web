@@ -1,5 +1,9 @@
 export interface TajweedRule {
   label: string
+  /** Arabic name of the rule — shown alongside `label` in the inline
+   * tooltip (E-10). Standard tajweed terminology, not a translation of
+   * `label` word-for-word. */
+  arabic: string
   description: string
 }
 
@@ -9,23 +13,23 @@ export interface TajweedRule {
  * no colour, no error).
  */
 export const TAJWEED_RULES: Record<string, TajweedRule> = {
-  ham_wasl: { label: "Hamzat al-Wasl", description: "Connecting hamza — silent when preceded by another word" },
-  laam_shamsiyah: { label: "Laam Shamsiyyah", description: "The laam is assimilated into the following sun letter" },
-  madda_normal: { label: "Madd Normal", description: "Natural elongation of two counts" },
-  madda_permissible: { label: "Madd Permissible", description: "Permissible elongation of 2, 4 or 6 counts" },
-  madda_necessary: { label: "Madd Necessary", description: "Obligatory elongation of 6 counts" },
-  madda_obligatory: { label: "Madd Obligatory", description: "Obligatory elongation — must be 4 or 5 counts" },
-  ghunnah: { label: "Ghunnah", description: "Nasalisation — 2-count nasal sound through the nose" },
-  qalaqah: { label: "Qalqalah", description: "Echoing sound on a stopped consonant (ق ط ب ج د)" },
-  ikhafa: { label: "Ikhfāʾ", description: "Concealment — nasal nun/tanwin before 15 letters" },
-  ikhafa_shafawi: { label: "Ikhfāʾ Shafawī", description: "Lip concealment — meem saakin before ba" },
-  idgham_ghunnah: { label: "Idghām with Ghunnah", description: "Merging with nasalisation into the next letter" },
-  idgham_wo_ghunnah: { label: "Idghām without Ghunnah", description: "Merging without nasalisation" },
-  idgham_mutajanisayn: { label: "Idghām Mutajānisayn", description: "Merging of two letters sharing the same articulation point" },
-  idgham_mutaqaribayn: { label: "Idghām Mutaqāribayn", description: "Merging of two letters with adjacent articulation points" },
-  iqlab: { label: "Iqlāb", description: "Conversion — noon saakin/tanwin becomes meem before ba" },
-  slnt: { label: "Silent", description: "Letter is written but not pronounced" },
-  "custom-alef-maksora": { label: "Alef Maqsura", description: "Superscript alef on alef maqsura — elongated like a regular alef" },
+  ham_wasl: { label: "Hamzat al-Wasl", arabic: "همزة الوصل", description: "Connecting hamza — silent when preceded by another word" },
+  laam_shamsiyah: { label: "Laam Shamsiyyah", arabic: "اللام الشمسية", description: "The laam is assimilated into the following sun letter" },
+  madda_normal: { label: "Madd Normal", arabic: "المد الطبيعي", description: "Natural elongation of two counts" },
+  madda_permissible: { label: "Madd Permissible", arabic: "المد الجائز", description: "Permissible elongation of 2, 4 or 6 counts" },
+  madda_necessary: { label: "Madd Necessary", arabic: "المد اللازم", description: "Obligatory elongation of 6 counts" },
+  madda_obligatory: { label: "Madd Obligatory", arabic: "المد الواجب", description: "Obligatory elongation — must be 4 or 5 counts" },
+  ghunnah: { label: "Ghunnah", arabic: "غنة", description: "Nasalisation — 2-count nasal sound through the nose" },
+  qalaqah: { label: "Qalqalah", arabic: "قلقلة", description: "Echoing sound on a stopped consonant (ق ط ب ج د)" },
+  ikhafa: { label: "Ikhfāʾ", arabic: "إخفاء", description: "Concealment — nasal nun/tanwin before 15 letters" },
+  ikhafa_shafawi: { label: "Ikhfāʾ Shafawī", arabic: "إخفاء شفوي", description: "Lip concealment — meem saakin before ba" },
+  idgham_ghunnah: { label: "Idghām with Ghunnah", arabic: "إدغام بغنة", description: "Merging with nasalisation into the next letter" },
+  idgham_wo_ghunnah: { label: "Idghām without Ghunnah", arabic: "إدغام بلا غنة", description: "Merging without nasalisation" },
+  idgham_mutajanisayn: { label: "Idghām Mutajānisayn", arabic: "إدغام متجانسين", description: "Merging of two letters sharing the same articulation point" },
+  idgham_mutaqaribayn: { label: "Idghām Mutaqāribayn", arabic: "إدغام متقاربين", description: "Merging of two letters with adjacent articulation points" },
+  iqlab: { label: "Iqlāb", arabic: "إقلاب", description: "Conversion — noon saakin/tanwin becomes meem before ba" },
+  slnt: { label: "Silent", arabic: "حرف صامت", description: "Letter is written but not pronounced" },
+  "custom-alef-maksora": { label: "Alef Maqsura", arabic: "ألف مقصورة", description: "Superscript alef on alef maqsura — elongated like a regular alef" },
 }
 
 /** All known rule slugs — used by the legend and for safe class generation */

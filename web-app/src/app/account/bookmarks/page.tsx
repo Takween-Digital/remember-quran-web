@@ -6,8 +6,8 @@ import {
   type BookmarkDto,
   type CollectionDto,
 } from "@/components/account/BookmarksView"
-import { getOrCreateFavourites, listCollections } from "@/lib/firestore/bookmarkCollections"
-import { listBookmarks } from "@/lib/firestore/bookmarks"
+import { getOrCreateFavourites, listCollections } from "@/lib/db/bookmarkCollections"
+import { listBookmarks } from "@/lib/db/bookmarks"
 import { getChapters } from "@/lib/quranApi"
 
 export const metadata: Metadata = {
