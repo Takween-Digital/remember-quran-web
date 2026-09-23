@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///Users/pc/rememberquran.com/web-app/src/components/reader/SurahBootstrap.tsx"],"sourcesContent":["\"use client\"\n\nimport { useLayoutEffect } from \"react\"\nimport type { Chapter } from \"@/types/quran\"\nimport { useSurahContent } from \"@/context/SurahContentContext\"\n\ninterface SurahBootstrapProps {\n  chapter: Chapter\n  targetAyahId?: number\n}\n\n/**\n * SSR entry: ships chapter metadata only (no multi‑MB verse HTML).\n * Verses load progressively via `/api/surah/[id]?page=N`.\n */\nexport function SurahBootstrap({ chapter, targetAyahId }: SurahBootstrapProps) {\n  const { bootstrap } = useSurahContent()\n\n  useLayoutEffect(() => {\n    bootstrap(chapter, targetAyahId)\n  }, [chapter, targetAyahId, bootstrap])\n\n  return null\n}\n"],"names":["SurahBootstrap","chapter","targetAyahId","bootstrap"],"mappings":";;;;AAEA;AAEA;;AAJA;;;AAeO,SAASA,eAAe,EAAEC,OAAO,EAAEC,YAAY,EAAuB;;IAC3E,MAAM,EAAEC,SAAS,EAAE,GAAG,IAAA,4JAAe;IAErC,IAAA,gYAAe;0CAAC;YACdA,UAAUF,SAASC;QACrB;yCAAG;QAACD;QAASC;QAAcC;KAAU;IAErC,OAAO;AACT;GARgBH;;QACQ,4JAAe;;;KADvBA"}}]
+}

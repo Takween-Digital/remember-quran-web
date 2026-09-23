@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-export async function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   // A lightweight edge check to see if the user has a token cookie.
   // This bypasses the need to do expensive JWT verification or DB calls
   // on every request at the edge, saving critical CPU time on Cloudflare.
