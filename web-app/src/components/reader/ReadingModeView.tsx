@@ -555,14 +555,6 @@ function ReadingPage({
   }
 
   const isCenteredOpeningPage = page.pageNumber <= 2
-  // Pages with multiple surahs (e.g. Juz 30) have far fewer than 15 word-lines
-  // but inject inline SurahHeaderCartouche+BismillahHeader as extra flex children.
-  // justify-between on such pages inflates the flex height beyond the fixed
-  // aspect-ratio frame, bleeding text out the bottom. Detect and switch layout.
-  const surahStartCount = page.lines.filter(({ words }) =>
-    words.some(({ word, verse }) => verse.verse_number === 1 && word.position === 1)
-  ).length
-  const isMultiSurahPage = surahStartCount > 1
 
   // Shared QCF fit ratio for this page — every full line reports its own
   // measured ratio here (they should all agree, since they share one
@@ -625,17 +617,11 @@ function ReadingPage({
             "text-reader-ink",
             isCenteredOpeningPage
               ? "flex flex-col items-center justify-center space-y-2 py-1 text-center leading-[2.0]"
-              : isMultiSurahPage
-                // Multi-surah pages (Juz 30): flow from top with consistent gap.
-                // justify-between would spread few lines + multiple headers to fill
-                // the full frame height, exceeding the aspect-ratio box.
-                ? "flex flex-col justify-start gap-[0.55em] pt-0.5 pb-2 sm:pb-2.5"
-                // Standard 15-line pages: justify-between spreads lines to fill the frame.
-                : "flex flex-col justify-between gap-[0.4em] pt-0.5 pb-2 sm:pb-2.5",
+              // Standard 15-line pages: justify-between evenly spaces the exactly 15 lines
+              // to perfectly fill the top-to-bottom height of the Madani frame.
+              : "flex flex-col justify-between pt-0.5 pb-2 sm:pb-2.5",
             // The font size MUST be mathematically identical on every page to preserve the grid.
-            // A Surah Header + Bismillah physically replaces exactly 3 or 4 lines of text.
-            // Using cqw (inline/width) instead of cqh to avoid cyclic height dependency in Chrome/WebKit:
-            // the outer frame is aspect-[1/1.5] so width is always proportional to height — safe anchor.
+            // Using cqw (inline/width) instead of cqh to avoid cyclic height dependency in Chrome/WebKit.
             "text-[clamp(16px,6.2cqw,40px)]",
           )}
         >
@@ -698,10 +684,10 @@ function ReadingPage({
               return (
                 <Fragment key={lineNumber}>
                   {surahStart && startingChapter && (
-                    <div className="w-full">
+                    <>
                       <SurahHeaderCartouche chapter={startingChapter} />
                       {startingChapter.bismillah_pre && <BismillahHeader />}
-                    </div>
+                    </>
                   )}
                   <MushafLine
                     pageNumber={page.pageNumber}
