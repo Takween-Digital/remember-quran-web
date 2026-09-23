@@ -129,7 +129,7 @@ export function MushafPageFrame({
       >
         {/* Authentic Madani Double Gold Hairline Border Frame */}
         <div className="relative rounded-xs border-2 border-reader-paper-gilt p-0.5 sm:p-1 md:p-1.5 h-full flex flex-col min-h-0">
-          <div className="relative rounded-xs border border-reader-paper-gilt/60 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 flex-1 flex flex-col overflow-visible min-h-0">
+          <div className="relative rounded-xs border border-reader-paper-gilt/60 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 flex-1 flex flex-col overflow-hidden min-h-0">
             {/* Top Page Header: Classical Manuscript Header Bar (Surah and Juz) */}
             <header className="mb-2 sm:mb-3 flex items-center justify-between border-b-2 border-reader-paper-gilt/60 pb-1 px-1.5 select-none text-center">
               <div className="flex items-center gap-1.5">

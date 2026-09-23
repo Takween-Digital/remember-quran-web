@@ -555,6 +555,14 @@ function ReadingPage({
   }
 
   const isCenteredOpeningPage = page.pageNumber <= 2
+  // Pages with multiple surahs (e.g. Juz 30) have far fewer than 15 word-lines
+  // but inject inline SurahHeaderCartouche+BismillahHeader as extra flex children.
+  // justify-between on such pages inflates the flex height beyond the fixed
+  // aspect-ratio frame, bleeding text out the bottom. Detect and switch layout.
+  const surahStartCount = page.lines.filter(({ words }) =>
+    words.some(({ word, verse }) => verse.verse_number === 1 && word.position === 1)
+  ).length
+  const isMultiSurahPage = surahStartCount > 1
 
   // Shared QCF fit ratio for this page — every full line reports its own
   // measured ratio here (they should all agree, since they share one
@@ -617,10 +625,13 @@ function ReadingPage({
             "text-reader-ink",
             isCenteredOpeningPage
               ? "flex flex-col items-center justify-center space-y-2 py-1 text-center leading-[2.0]"
-              : // Both normal pages and pages with Surah starts use the identical layout engine:
-                // gap is a hard floor — tashkeel marks need real clearance from the line above/below.
-                // justify-between spreads the lines perfectly to fill the min-h without breaking the container.
-                "flex flex-col justify-between gap-[0.4em] pt-0.5 pb-2 sm:pb-2.5",
+              : isMultiSurahPage
+                // Multi-surah pages (Juz 30): flow from top with consistent gap.
+                // justify-between would spread few lines + multiple headers to fill
+                // the full frame height, exceeding the aspect-ratio box.
+                ? "flex flex-col justify-start gap-[0.55em] pt-0.5 pb-2 sm:pb-2.5"
+                // Standard 15-line pages: justify-between spreads lines to fill the frame.
+                : "flex flex-col justify-between gap-[0.4em] pt-0.5 pb-2 sm:pb-2.5",
             // The font size MUST be mathematically identical on every page to preserve the grid.
             // A Surah Header + Bismillah physically replaces exactly 3 or 4 lines of text.
             // Using cqw (inline/width) instead of cqh to avoid cyclic height dependency in Chrome/WebKit:

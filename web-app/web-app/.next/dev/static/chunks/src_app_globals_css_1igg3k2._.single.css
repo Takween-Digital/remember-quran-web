@@ -2344,6 +2344,10 @@
     gap: .7cqw;
   }
 
+  .gap-\[0\.55em\] {
+    gap: .55em;
+  }
+
   .gap-\[2\.2cqw\] {
     gap: 2.2cqw;
   }
