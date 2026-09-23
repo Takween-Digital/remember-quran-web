@@ -1,29 +1,26 @@
-import NextAuth from "next-auth"
-import { NextResponse } from "next/server"
-import { authConfig } from "@/auth.config"
+import { NextRequest, NextResponse } from "next/server"
 
-/**
- * Next.js 16 Proxy (formerly Middleware) — optimistic /account gate.
- * Real authorization still happens in account layouts/pages via `auth()`.
- */
-const { auth } = NextAuth(authConfig)
+export async function proxy(request: NextRequest) {
+  // A lightweight edge check to see if the user has a token cookie.
+  // This bypasses the need to do expensive JWT verification or DB calls
+  // on every request at the edge, saving critical CPU time on Cloudflare.
+  // The actual verification happens in the API route.
+  const token = request.cookies.get("AuthToken")?.value
 
-export default auth((req) => {
-  const isLoggedIn = Boolean(req.auth?.user)
-  const isAccount = req.nextUrl.pathname.startsWith("/account")
-
-  if (isAccount && !isLoggedIn) {
-    const login = new URL("/login", req.nextUrl.origin)
-    login.searchParams.set(
-      "next",
-      `${req.nextUrl.pathname}${req.nextUrl.search}`,
-    )
-    return NextResponse.redirect(login)
+  if (!token) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/login"
+    url.searchParams.set("next", request.nextUrl.pathname)
+    return NextResponse.redirect(url)
   }
 
   return NextResponse.next()
-})
+}
 
 export const config = {
-  matcher: ["/account/:path*"],
+  matcher: [
+    // Only apply this middleware to account routes.
+    // Public routes like /[surahId] completely bypass this for 0ms CPU time.
+    "/account/:path*",
+  ],
 }
