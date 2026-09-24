@@ -6,7 +6,7 @@ import { useAudioPlayer } from "@/context/AudioPlayerContext"
 import { cn } from "@/lib/utils"
 
 const barBtn = cn(
-  "flex h-11 sm:h-10 items-center justify-center rounded-md px-2 sm:px-1.5",
+  "flex h-12 sm:h-11 items-center justify-center rounded-md px-2 sm:px-1.5",
   "text-muted-foreground transition-colors duration-[120ms]",
   "hover:bg-accent hover:text-foreground",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",

@@ -24,7 +24,7 @@ import { FullScreenPlayer } from "./FullScreenPlayer"
 import { cn } from "@/lib/utils"
 
 const barBtn = cn(
-  "flex size-11 sm:size-10 items-center justify-center rounded-md",
+  "flex size-12 sm:size-11 items-center justify-center rounded-md",
   "text-muted-foreground transition-colors duration-[120ms]",
   "hover:bg-accent hover:text-foreground",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
@@ -135,7 +135,7 @@ export function MiniPlayer() {
                 title={isPlaying ? "Pause" : "Play"}
                 aria-label={isPlaying ? "Pause" : "Play"}
                 onClick={player.togglePlayPause}
-                className={cn(barBtn, "size-16 bg-primary/10 text-primary hover:bg-primary/20")}
+                className={cn(barBtn, "size-18 bg-primary/10 text-primary hover:bg-primary/20")}
               >
                 {isBusy ? (
                   <Loader2 className="size-8 animate-spin" strokeWidth={1.5} />
@@ -176,19 +176,19 @@ export function MiniPlayer() {
                 title="Previous ayah"
                 aria-label="Previous ayah"
                 onClick={player.prevAyah}
-                className={cn(barBtn, "size-12")}
+                className={cn(barBtn, "size-14")}
               >
-                <SkipBack className="size-6" strokeWidth={1.5} />
+                <SkipBack className="size-7" strokeWidth={1.5} />
               </button>
               <button
                 type="button"
                 title={isPlaying ? "Pause" : "Play"}
                 aria-label={isPlaying ? "Pause" : "Play"}
                 onClick={player.togglePlayPause}
-                className={cn(barBtn, "size-14 text-foreground")}
+                className={cn(barBtn, "size-16 text-foreground")}
               >
                 {isBusy ? (
-                  <Loader2 className="size-7 animate-spin" strokeWidth={1.5} />
+                  <Loader2 className="size-8 animate-spin" strokeWidth={1.5} />
                 ) : isPlaying ? (
                   <Pause className="size-7" strokeWidth={1.5} />
                 ) : (
