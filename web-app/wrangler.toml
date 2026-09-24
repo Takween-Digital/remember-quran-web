@@ -1,4 +1,5 @@
 name = "rememberquran"
+main = "dist/server/index.js"
 compatibility_date = "2025-01-01"
 
 [[d1_databases]]
@@ -6,13 +7,13 @@ binding = "DB"
 database_name = "rememberquran-db"
 database_id = "2a4a38a9-de4e-432c-bb90-5a419bb6c82a"
 
-[[env.production.routes]]
-pattern = "rememberquran.com"
-custom_domain = true
+[env.production]
 
-[[env.production.routes]]
-pattern = "www.rememberquran.com"
-custom_domain = true
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "rememberquran-db"
+database_id = "2a4a38a9-de4e-432c-bb90-5a419bb6c82a"
+
 
 [[env.production.kv_namespaces]]
 binding = "AUDIO_CACHE_KV"
