@@ -1,3 +1,4 @@
+import { cache } from "react"
 import type {
   Chapter,
   Verse,
@@ -139,7 +140,7 @@ function mergeKhattab(verse: Verse, khattab: Map<number, string>): Verse {
 }
 
 /** All 114 chapters — cached indefinitely (Quran never changes) */
-export const getChapters = async (): Promise<Chapter[]> => {
+export const getChapters = cache(async (): Promise<Chapter[]> => {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 30000) // 30s timeout
 
@@ -162,10 +163,10 @@ export const getChapters = async (): Promise<Chapter[]> => {
     console.error("getChapters failed:", errorMsg)
     throw new Error(`Failed to load Quran chapters: ${errorMsg}`)
   }
-}
+})
 
 /** Single chapter metadata — cached indefinitely */
-export const getChapter = async (id: number): Promise<Chapter> => {
+export const getChapter = cache(async (id: number): Promise<Chapter> => {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 30000) // 30s timeout
 
@@ -183,7 +184,7 @@ export const getChapter = async (id: number): Promise<Chapter> => {
     console.error(`getChapter(${id}) failed:`, errorMsg)
     throw new Error(`Failed to load chapter ${id}: ${errorMsg}`)
   }
-}
+})
 
 /**
  * Drop duplicate wire weight — qpc text is what the Uthmani font renders;
@@ -252,7 +253,7 @@ export async function getVerses(
 }
 
 /** One page with Clear Quran merge + slim wire payload — for progressive loading */
-export const getVersesPage = async (
+export const getVersesPage = cache(async (
   chapterId: number,
   page: number,
   translations: number[] = BUNDLE_TRANSLATION_IDS,
@@ -272,10 +273,10 @@ export const getVersesPage = async (
     verses: verses.map(slimVerse),
     pagination: data.pagination,
   }
-}
+})
 
 /** All verses for a chapter — handles pagination and Khattab merge */
-export const getAllVerses = async (
+export const getAllVerses = cache(async (
   chapterId: number,
   translations: number[] = BUNDLE_TRANSLATION_IDS,
 ): Promise<Verse[]> => {
@@ -292,7 +293,7 @@ export const getAllVerses = async (
   }
 
   return verses
-}
+})
 
 /**
  * All verses on one Madani-mushaf page (by King Fahd Complex page_number),
@@ -303,7 +304,7 @@ export const getAllVerses = async (
  * narrower gap than missing translations entirely, and not worth a second
  * fetch for what's typically only a handful of stray verses.
  */
-export const getVersesByPage = async (
+export const getVersesByPage = cache(async (
   pageNumber: number,
   translations: number[] = BUNDLE_TRANSLATION_IDS,
 ): Promise<Verse[]> => {
@@ -321,10 +322,10 @@ export const getVersesByPage = async (
     `${VERSES_BASE_URL}/verses/by_page/${pageNumber}?${params}`,
   )
   return data.verses.map(sanitizeVerse).map(slimVerse)
-}
+})
 
 /** Single verse by key e.g. "2:255" */
-export const getVerseByKey = async (
+export const getVerseByKey = cache(async (
   verseKey: string,
   translations: number[] = BUNDLE_TRANSLATION_IDS,
 ): Promise<Verse> => {
@@ -348,4 +349,4 @@ export const getVerseByKey = async (
 
   const verse = sanitizeVerse(data.verse)
   return khattab ? mergeKhattab(verse, khattab) : verse
-}
+})
