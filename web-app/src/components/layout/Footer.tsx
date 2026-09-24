@@ -163,7 +163,7 @@ export function Footer() {
             <span className="text-foreground/70">RememberQuran</span> ·
             Public-benefit, ad-free
           </p>
-          <div className="flex items-center gap-2 sm:ml-auto">
+          <div className="flex items-center gap-2 sm:ms-auto">
             <ThemeSegmented />
             <BackToTop />
           </div>
