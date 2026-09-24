@@ -6,6 +6,14 @@ binding = "DB"
 database_name = "rememberquran-db"
 database_id = "2a4a38a9-de4e-432c-bb90-5a419bb6c82a"
 
+[[env.production.routes]]
+pattern = "rememberquran.com"
+custom_domain = true
+
+[[env.production.routes]]
+pattern = "www.rememberquran.com"
+custom_domain = true
+
 [[env.production.kv_namespaces]]
 binding = "AUDIO_CACHE_KV"
 id = "7be8fb49d877416eb6a27a2675ff8450"
@@ -21,11 +29,3 @@ FIREBASE_PROJECT_ID = "remember-quran"
 FIREBASE_CLIENT_EMAIL = "firebase-adminsdk-fbsvc@remember-quran.iam.gserviceaccount.com"
 NEXT_PUBLIC_APP_URL = "https://rememberquran.com"
 NODE_ENV = "production"
-
-[[routes]]
-pattern = "rememberquran.com"
-custom_domain = true
-
-[[routes]]
-pattern = "www.rememberquran.com"
-custom_domain = true
