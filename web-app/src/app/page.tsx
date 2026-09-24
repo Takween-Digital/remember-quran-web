@@ -1,5 +1,4 @@
-export const revalidate = false
-export const dynamic = "force-static"
+export const dynamic = "force-dynamic"
 
 export default function HomePage() {
   return (

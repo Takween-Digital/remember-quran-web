@@ -57,7 +57,13 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const chapters = await getChapters()
+  let chapters = []
+  try {
+    chapters = await getChapters()
+  } catch (error) {
+    // If chapters fail to load, use empty array - UI will still render
+    console.error("Failed to load chapters:", error)
+  }
 
   return (
     <html
