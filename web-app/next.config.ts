@@ -8,10 +8,6 @@ const nextConfig: NextConfig = {
     "**.run.app",
     "localhost",
   ],
-  swcMinify: true,
-  compress: true,
-  poweredByHeader: false,
-  productionBrowserSourceMaps: false,
   experimental: {
     staleTimes: {
       dynamic: 30,
@@ -27,19 +23,6 @@ const nextConfig: NextConfig = {
           {
             key: "Cache-Control",
             value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-      {
-        source: "/:path*",
-        headers: [
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
           },
         ],
       },
