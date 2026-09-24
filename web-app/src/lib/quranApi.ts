@@ -59,15 +59,20 @@ async function apiFetch<T>(
     revalidate: 86400,
   },
 ): Promise<T> {
-  const fetchOptions: RequestInit =
-    typeof cacheOption === "object" && "revalidate" in cacheOption
-      ? { next: cacheOption }
-      : { cache: cacheOption as RequestInit["cache"] }
-
-  const res = await fetch(url, {
-    ...fetchOptions,
+  const fetchOptions: RequestInit = {
     headers: { Accept: "application/json" },
-  })
+  }
+
+  if (typeof cacheOption === "object" && "revalidate" in cacheOption) {
+    fetchOptions.headers = {
+      ...fetchOptions.headers,
+      "Cache-Control": `public, max-age=${cacheOption.revalidate}`,
+    }
+  } else {
+    fetchOptions.cache = cacheOption as RequestInit["cache"]
+  }
+
+  const res = await fetch(url, fetchOptions)
 
   if (!res.ok) {
     throw new Error(`Quran API error ${res.status} ${res.statusText} — ${url}`)
