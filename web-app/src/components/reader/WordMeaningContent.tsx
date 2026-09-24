@@ -143,7 +143,7 @@ export function WordMeaningContent({ word, verseKey }: WordMeaningContentProps) 
               e.stopPropagation()
               actions.playWord(word)
             }}
-            className="flex size-5 items-center justify-center rounded-full text-muted-foreground transition-all duration-150 hover:bg-gold/15 hover:text-gold focus-visible:outline-none"
+            className="flex size-5 items-center justify-center rounded-full text-muted-foreground transition duration-150 hover:bg-gold/15 hover:text-gold focus-visible:outline-none"
           >
             <Volume2 className="size-3" strokeWidth={2} />
           </button>
@@ -157,7 +157,7 @@ export function WordMeaningContent({ word, verseKey }: WordMeaningContentProps) 
               e.stopPropagation()
               openWord(verseKey, word.position)
             }}
-            className="flex h-5 items-center justify-center gap-1 rounded-full px-1.5 text-muted-foreground transition-all duration-150 hover:bg-gold/15 hover:text-gold focus-visible:outline-none"
+            className="flex h-5 items-center justify-center gap-1 rounded-full px-1.5 text-muted-foreground transition duration-150 hover:bg-gold/15 hover:text-gold focus-visible:outline-none"
           >
             <GraduationCap className="size-3" strokeWidth={2} />
             <span className="text-[9px] font-medium uppercase tracking-wider">Grammar</span>
@@ -172,7 +172,7 @@ export function WordMeaningContent({ word, verseKey }: WordMeaningContentProps) 
             disabled={bookmarkPending}
             onClick={handleBookmarkClick}
             className={cn(
-              "flex size-5 items-center justify-center rounded-full transition-all duration-150 hover:bg-gold/15 hover:text-gold focus-visible:outline-none disabled:opacity-50",
+              "flex size-5 items-center justify-center rounded-full transition duration-150 hover:bg-gold/15 hover:text-gold focus-visible:outline-none disabled:opacity-50",
               saved ? "text-primary" : "text-muted-foreground",
             )}
           >

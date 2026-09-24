@@ -195,7 +195,7 @@ export function BookmarkButton({
               disabled={busy}
               onClick={() => void handleSaveToCollection(collection.id)}
               className={cn(
-                "flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm",
+                "flex items-center gap-2 rounded-md px-2 py-1.5 text-start text-sm",
                 "transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
                 "disabled:pointer-events-none disabled:opacity-50",
               )}
@@ -236,7 +236,7 @@ export function BookmarkButton({
               type="button"
               onClick={() => setCreating(true)}
               className={cn(
-                "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-muted-foreground",
+                "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-start text-sm text-muted-foreground",
                 "transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
               )}
             >

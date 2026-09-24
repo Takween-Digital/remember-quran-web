@@ -114,7 +114,7 @@ function MobileNav({ pathname }: { pathname: string }) {
       </SheetTrigger>
       <SheetContent side="right" className="w-[85%] max-w-[320px] p-0 flex flex-col">
         <SheetHeader className="p-4 border-b">
-          <SheetTitle className="text-left">
+          <SheetTitle className="text-start">
             <LogoWordmark size="md" />
           </SheetTitle>
         </SheetHeader>

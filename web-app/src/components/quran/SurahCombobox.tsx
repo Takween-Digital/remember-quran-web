@@ -55,7 +55,7 @@ export function SurahCombobox({
         <ComboboxList>
           {(chapter) => (
             <ComboboxItem key={chapter.id} value={chapter} className="border-b border-border/50 py-2 last:border-b-0">
-              <span className="w-7 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+              <span className="w-7 shrink-0 text-end text-xs tabular-nums text-muted-foreground">
                 {chapter.id}
               </span>
               <span className="min-w-0 flex-1 truncate">

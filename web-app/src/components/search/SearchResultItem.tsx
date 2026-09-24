@@ -37,7 +37,7 @@ export function SearchResultItem({ result }: SearchResultItemProps) {
       {/* Arabic words — RTL, highlight matched words */}
       {words.length > 0 && (
         <p
-          className="font-arabic mb-2 text-right text-xl leading-loose"
+          className="font-arabic mb-2 text-end text-xl leading-loose"
           dir="rtl"
           lang="ar"
         >

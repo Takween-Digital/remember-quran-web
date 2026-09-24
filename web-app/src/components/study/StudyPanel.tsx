@@ -56,7 +56,7 @@ function StudyPanelNav({
   navigateAyah: (delta: 1 | -1) => void
 }) {
   return (
-    <div className="ml-auto flex items-center gap-0.5">
+    <div className="ms- flex items-center gap-0.5">
       <button
         type="button"
         title="Previous ayah"
@@ -244,7 +244,7 @@ export function StudyPanel() {
         {target && (
           <>
             <header className="border-b border-border px-4 pt-4 pb-3">
-              <div className="flex items-center gap-2 pr-9">
+              <div className="flex items-center gap-2 pe-">
                 <SheetTitle className="min-w-0 truncate">
                   {titleLabel}
                 </SheetTitle>

@@ -94,7 +94,7 @@ export function AyahSelector({ surahId, versesCount }: AyahSelectorProps) {
         </form>
         <div
           ref={scrollGridToActive}
-          className="grid max-h-56 grid-cols-5 gap-1 overflow-y-auto overscroll-contain pr-0.5"
+          className="grid max-h-56 grid-cols-5 gap-1 overflow-y-auto overscroll-contain pe-.5"
           role="listbox"
           aria-label="Ayahs"
         >

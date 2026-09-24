@@ -88,7 +88,7 @@ export function AyahPicker({ value, onChange, className }: AyahPickerProps) {
 
       <Dialog open={open} onOpenChange={resetDialog}>
         <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
-          <DialogHeader className="border-b border-border px-4 py-3 text-left">
+          <DialogHeader className="border-b border-border px-4 py-3 text-start">
             <DialogTitle className="font-serif text-lg">
               {step === "surah" ? "Choose a Surah" : "Choose an ayah"}
             </DialogTitle>
@@ -142,7 +142,7 @@ export function AyahPicker({ value, onChange, className }: AyahPickerProps) {
                       }}
                       className="flex items-center gap-3"
                     >
-                      <span className="w-7 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                      <span className="w-7 shrink-0 text-end text-xs tabular-nums text-muted-foreground">
                         {chapter.id}
                       </span>
                       <span className="min-w-0 flex-1 truncate">
@@ -178,7 +178,7 @@ export function AyahPicker({ value, onChange, className }: AyahPickerProps) {
                         onSelect={() => selectVerse(key)}
                       >
                         Ayah {ayah}
-                        <span className="ml-auto text-xs tabular-nums text-muted-foreground">
+                        <span className="ms- text-xs tabular-nums text-muted-foreground">
                           {key}
                         </span>
                       </CommandItem>

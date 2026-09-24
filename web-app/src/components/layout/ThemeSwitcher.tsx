@@ -33,7 +33,7 @@ export function ThemeSwitcher() {
     >
       <Sun
         className={cn(
-          "size-4 sm:size-5 transition-all duration-300",
+          "size-4 sm:size-5 transition duration-300",
           isDark
             ? "scale-0 rotate-90 opacity-0 absolute"
             : "scale-100 rotate-0 opacity-100",
@@ -42,7 +42,7 @@ export function ThemeSwitcher() {
       />
       <Moon
         className={cn(
-          "size-4 sm:size-5 transition-all duration-300",
+          "size-4 sm:size-5 transition duration-300",
           isDark
             ? "scale-100 rotate-0 opacity-100"
             : "scale-0 -rotate-90 opacity-0 absolute",

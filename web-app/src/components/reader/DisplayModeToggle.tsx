@@ -43,7 +43,7 @@ export function DisplayModeToggle() {
             aria-checked={active}
             onClick={() => setDisplayMode(value)}
             className={cn(
-              "flex w-full items-start gap-3 rounded-md px-2.5 py-2.5 text-left",
+              "flex w-full items-start gap-3 rounded-md px-2.5 py-2.5 text-start",
               "transition-colors duration-[120ms]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
               active

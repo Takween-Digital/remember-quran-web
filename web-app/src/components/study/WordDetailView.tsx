@@ -110,7 +110,7 @@ export function WordDetailView({ verseKey, wordPosition }: WordDetailViewProps) 
           </div>
         )}
         {entry.root && (
-          <div className="text-right">
+          <div className="text-end">
             <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Root
             </p>

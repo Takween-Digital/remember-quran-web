@@ -849,7 +849,7 @@ function SplitTranslationPanel({
               data-verse-key={verse.verse_key}
               onClick={() => onAyahClick(verse.verse_key)}
               className={cn(
-                "flex flex-col items-start gap-1 px-4 py-4 text-left transition-colors duration-200",
+                "flex flex-col items-start gap-1 px-4 py-4 text-start transition-colors duration-200",
                 isActive ? "bg-primary/5" : "hover:bg-muted/40",
               )}
             >
@@ -963,7 +963,7 @@ function PagedMushafDeck({
           aria-label="Previous page"
           className="flex size-10 shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-0 sm:size-12 group z-10"
         >
-          <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-md backdrop-blur-md sm:size-12">
+          <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-md backdrop-blur-md sm:size-12">
             <ChevronLeft className="size-5 sm:size-6 transition-transform group-hover:-translate-x-0.5" strokeWidth={2.5} />
           </span>
         </button>
@@ -1040,7 +1040,7 @@ function PagedMushafDeck({
           aria-label="Next page"
           className="flex size-10 shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-0 sm:size-12 group z-10"
         >
-          <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-md backdrop-blur-md sm:size-12">
+          <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-md backdrop-blur-md sm:size-12">
             <ChevronRight className="size-5 sm:size-6 transition-transform group-hover:translate-x-0.5" strokeWidth={2.5} />
           </span>
         </button>

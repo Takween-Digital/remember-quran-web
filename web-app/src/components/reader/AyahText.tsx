@@ -33,7 +33,7 @@ export function AyahText({
       lang="ar"
       dir="rtl"
       className={cn(
-        "font-uthmani leading-[var(--quran-leading)] text-right m-0 transition-colors duration-[var(--dur-base)] ease-[var(--ease-standard)]",
+        "font-uthmani leading-[var(--quran-leading)] text-end m-0 transition-colors duration-[var(--dur-base)] ease-[var(--ease-standard)]",
         SIZES[size],
         highlighted ? "bg-[var(--brand-gold-soft)] rounded-[var(--radius-sm)]" : "bg-transparent",
         className

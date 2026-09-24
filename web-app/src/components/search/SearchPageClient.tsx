@@ -145,7 +145,7 @@ export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search in Arabic or English…"
-          className="w-full rounded-lg border border-border bg-background py-2.5 pl-9 pr-4 text-sm outline-none ring-ring transition-[box-shadow] duration-[120ms] focus:ring-2"
+          className="w-full rounded-lg border border-border bg-background py-2.5 ps- pe- text-sm outline-none ring-ring transition-[box-shadow] duration-[120ms] focus:ring-2"
         />
       </div>
 

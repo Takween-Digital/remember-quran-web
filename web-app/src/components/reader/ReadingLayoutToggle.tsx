@@ -40,7 +40,7 @@ export function ReadingLayoutToggle() {
             aria-checked={active}
             onClick={() => setReadingLayout(value)}
             className={cn(
-              "flex w-full items-start gap-3 rounded-md px-2.5 py-2.5 text-left",
+              "flex w-full items-start gap-3 rounded-md px-2.5 py-2.5 text-start",
               "transition-colors duration-[120ms]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
               active ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent",

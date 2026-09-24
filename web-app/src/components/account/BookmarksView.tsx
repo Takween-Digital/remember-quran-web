@@ -336,7 +336,7 @@ function CollectionSection({
           <div className="flex items-center gap-0.5">
             {confirmingDelete ? (
               <>
-                <span className="mr-1 text-xs text-muted-foreground">
+                <span className="me- text-xs text-muted-foreground">
                   {items.length > 0
                     ? `Move ${items.length} to Favourites and delete?`
                     : "Delete this collection?"}
@@ -411,7 +411,7 @@ function CollectionSection({
                 </span>
                 <span className="min-w-0 flex-1 truncate text-sm">
                   {bookmark.surahName}
-                  <span className="ml-2 text-xs text-muted-foreground">
+                  <span className="ms- text-xs text-muted-foreground">
                     Ayah {bookmark.ayahId}
                   </span>
                 </span>
@@ -488,7 +488,7 @@ function MoveMenu({
               key={target.id}
               type="button"
               className={cn(
-                "flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm",
+                "flex items-center gap-2 rounded-md px-2 py-1.5 text-start text-sm",
                 "transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               )}
               onClick={() => {

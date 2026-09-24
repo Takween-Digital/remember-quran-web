@@ -246,7 +246,7 @@ export function HifzView({ initialAyahs }: HifzViewProps) {
                   <ul className="mt-3 flex flex-wrap gap-1.5">
                     {s.ayahs.map((a) => (
                       <li key={a.verseKey}>
-                        <span className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/40 pl-2 text-xs">
+                        <span className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/40 ps- text-xs">
                           <Link
                             href={`/${a.surahId}/${a.ayahId}`}
                             className="tabular-nums text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

@@ -92,7 +92,7 @@ export function SurahCommandDialog() {
               >
                 <Zap className="size-4 text-primary/60" strokeWidth={1.5} />
                 <span className="text-primary font-medium">{input.trim()}</span>
-                <span className="ml-auto text-xs text-muted-foreground">jump to ayah</span>
+                <span className="ms- text-xs text-muted-foreground">jump to ayah</span>
               </CommandItem>
             </CommandGroup>
           ) : null}
@@ -107,7 +107,7 @@ export function SurahCommandDialog() {
                 >
                   <BookOpen className="size-4 text-primary/60" strokeWidth={1.5} />
                   <div className="flex flex-1 items-center gap-3 min-w-0">
-                    <span className="tabular-nums text-xs text-muted-foreground/70 w-5 text-right shrink-0 font-mono">
+                    <span className="tabular-nums text-xs text-muted-foreground/70 w-5 text-end shrink-0 font-mono">
                       {chapter.id}
                     </span>
                     <span className="truncate flex-1">{chapter.name_simple}</span>

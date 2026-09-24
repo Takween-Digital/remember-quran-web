@@ -137,7 +137,7 @@ export function SurahList({
                   )}
                 >
                   <Search className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
-                  <span className="min-w-0 flex-1 truncate text-left">
+                  <span className="min-w-0 flex-1 truncate text-start">
                     Search Quran for <span className="font-medium text-foreground">&ldquo;{trimmedQuery}&rdquo;</span>
                   </span>
                 </button>
@@ -175,7 +175,7 @@ export function SurahList({
                     )}
                     aria-current={isActive ? "page" : undefined}
                   >
-                    <span className="w-6 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                    <span className="w-6 shrink-0 text-end text-xs tabular-nums text-muted-foreground">
                       {chapter.id}
                     </span>
                     <span className="min-w-0 flex-1 truncate">{chapter.name_simple}</span>

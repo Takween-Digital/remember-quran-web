@@ -208,7 +208,7 @@ export function HifzReviewSession({ initialDueAyahs }: HifzReviewSessionProps) {
           lang="ar"
           onClick={() => !revealed && setRevealed(true)}
           className={cn(
-            "min-h-[140px] flex items-center justify-center py-6 px-4 rounded-xl border transition-all text-center",
+            "min-h-[140px] flex items-center justify-center py-6 px-4 rounded-xl border transition text-center",
             revealed
               ? "border-border/60 bg-background/50"
               : "border-dashed border-primary/30 bg-primary/5 cursor-pointer hover:bg-primary/10",
@@ -219,7 +219,7 @@ export function HifzReviewSession({ initialDueAyahs }: HifzReviewSessionProps) {
               Loading ayah...
             </p>
           ) : currentVerse ? (
-            <div className={cn("transition-all duration-300", !revealed && "blur-md select-none opacity-40")}>
+            <div className={cn("transition duration-300", !revealed && "blur-md select-none opacity-40")}>
               <ArabicLine
                 words={currentVerse.words}
                 verseKey={currentVerse.verse_key}
@@ -257,7 +257,7 @@ export function HifzReviewSession({ initialDueAyahs }: HifzReviewSessionProps) {
             type="button"
             disabled={submitting}
             onClick={() => handleGrade("again")}
-            className="flex flex-col items-center justify-center p-3 rounded-xl border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-all font-medium text-xs disabled:opacity-50"
+            className="flex flex-col items-center justify-center p-3 rounded-xl border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 transition font-medium text-xs disabled:opacity-50"
           >
             <RotateCcw className="size-4 mb-1" />
             <span>Again</span>
@@ -269,7 +269,7 @@ export function HifzReviewSession({ initialDueAyahs }: HifzReviewSessionProps) {
             type="button"
             disabled={submitting}
             onClick={() => handleGrade("hard")}
-            className="flex flex-col items-center justify-center p-3 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-all font-medium text-xs disabled:opacity-50"
+            className="flex flex-col items-center justify-center p-3 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition font-medium text-xs disabled:opacity-50"
           >
             <Brain className="size-4 mb-1" />
             <span>Hard</span>
@@ -281,7 +281,7 @@ export function HifzReviewSession({ initialDueAyahs }: HifzReviewSessionProps) {
             type="button"
             disabled={submitting}
             onClick={() => handleGrade("good")}
-            className="flex flex-col items-center justify-center p-3 rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 transition-all font-medium text-xs disabled:opacity-50"
+            className="flex flex-col items-center justify-center p-3 rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 transition font-medium text-xs disabled:opacity-50"
           >
             <CheckCircle2 className="size-4 mb-1" />
             <span>Good</span>
@@ -293,7 +293,7 @@ export function HifzReviewSession({ initialDueAyahs }: HifzReviewSessionProps) {
             type="button"
             disabled={submitting}
             onClick={() => handleGrade("easy")}
-            className="flex flex-col items-center justify-center p-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all font-medium text-xs disabled:opacity-50"
+            className="flex flex-col items-center justify-center p-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition font-medium text-xs disabled:opacity-50"
           >
             <Sparkles className="size-4 mb-1" />
             <span>Easy</span>

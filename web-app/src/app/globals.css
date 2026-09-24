@@ -45,6 +45,7 @@
 /* HTML & Root */
 html {
   overflow-anchor: none;
+  scrollbar-gutter: stable;
 }
 
 :root {
@@ -125,6 +126,10 @@ html {
 body {
   font-size: var(--text-base);
   line-height: 1.5;
+  overscroll-behavior-y: none;
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 h1 {

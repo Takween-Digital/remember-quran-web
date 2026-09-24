@@ -39,7 +39,7 @@ export function LegalSection({
   return (
     <section className="flex flex-col gap-3">
       <h2 className="font-serif text-xl font-medium tracking-tight">{title}</h2>
-      <div className="flex flex-col gap-3 text-muted-foreground [&_a]:text-primary [&_a]:underline-offset-2 hover:[&_a]:underline [&_strong]:font-medium [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5">
+      <div className="flex flex-col gap-3 text-muted-foreground [&_a]:text-primary [&_a]:underline-offset-2 hover:[&_a]:underline [&_strong]:font-medium [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:ps-">
         {children}
       </div>
     </section>

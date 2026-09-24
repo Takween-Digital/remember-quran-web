@@ -54,7 +54,7 @@ export function SurahCard({ chapter }: SurahCardProps) {
       onTouchStart={() => surahContent?.prefetchSurah(chapter.id)}
       dir="ltr"
       className={cn(
-        "group relative flex items-center gap-3.5 rounded-[var(--radius-card)] border bg-card p-4 transition-all duration-(--dur-base) ease-(--ease-out)",
+        "group relative flex items-center gap-3.5 rounded-[var(--radius-card)] border bg-card p-4 transition duration-(--dur-base) ease-(--ease-out)",
         isPending 
           ? "border-gold-strong/50 shadow-[0_4px_12px_rgba(182,152,91,0.08)] bg-gold-strong/5" 
           : "border-border/50 hover:-translate-y-[1px] hover:border-gold-strong/30 hover:shadow-[0_4px_12px_rgba(182,152,91,0.08)]",

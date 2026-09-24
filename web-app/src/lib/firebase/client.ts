@@ -17,11 +17,17 @@ let auth: any;
 let db: any;
 
 try {
+  if (!firebaseConfig.apiKey) {
+    throw new Error(
+      "🔥 Firebase Error: NEXT_PUBLIC_FIREBASE_API_KEY is missing or invalid. " +
+      "Please check your .env or .env.local file and ensure the environment variable is loaded."
+    );
+  }
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
   auth = getAuth(app);
   db = getFirestore(app);
 } catch (error) {
-  console.warn("Firebase initialization failed:", error);
+  console.warn("Firebase initialization failed:", error instanceof Error ? error.message : error);
   auth = {} as any;
   db = {} as any;
 }

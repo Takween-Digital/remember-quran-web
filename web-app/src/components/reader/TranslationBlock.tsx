@@ -12,7 +12,7 @@ export function TranslationBlock({ translation }: TranslationBlockProps) {
   const lang = meta?.lang ?? "en"
 
   return (
-    <div className="mt-3 border-l-2 border-border/70 pl-3">
+    <div className="mt-3 border-l-2 border-border/70 ps-">
       <p
         dir={dir}
         lang={lang}

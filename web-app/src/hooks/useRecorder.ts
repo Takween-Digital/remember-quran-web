@@ -21,6 +21,9 @@ export function useRecorder(verseKey: string) {
   const startRecording = useCallback(async () => {
     try {
       setError(null)
+      if (typeof window === "undefined" || !window.MediaRecorder) {
+        throw new Error("Recording is not supported in this browser. Please use a modern browser.")
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       const mediaRecorder = new MediaRecorder(stream)
       

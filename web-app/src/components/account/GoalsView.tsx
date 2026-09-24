@@ -110,7 +110,7 @@ export function GoalsView({ initial }: { initial: GoalsSnapshot }) {
             <p className="text-sm text-muted-foreground">Current streak</p>
             <p className="mt-0.5 font-serif text-3xl font-medium tabular-nums tracking-tight">
               {data.streak.currentStreak}
-              <span className="ml-1.5 text-base font-normal text-muted-foreground">
+              <span className="ms-.5 text-base font-normal text-muted-foreground">
                 {data.streak.currentStreak === 1 ? "day" : "days"}
               </span>
             </p>
@@ -140,7 +140,7 @@ export function GoalsView({ initial }: { initial: GoalsSnapshot }) {
               {" / "}
               <span className="tabular-nums">{data.goal.target}</span> {unit}
               {data.metToday && (
-                <span className="ml-2 font-medium text-emerald-600 dark:text-emerald-400">✓ Goal met today</span>
+                <span className="ms- font-medium text-emerald-600 dark:text-emerald-400">✓ Goal met today</span>
               )}
             </p>
             <div

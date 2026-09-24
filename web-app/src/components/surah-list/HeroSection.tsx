@@ -92,7 +92,7 @@ export function HeroSection() {
         <div className="mx-auto mt-8 max-w-md sm:mt-10">
           <button
             onClick={() => setCommandOpen(true)}
-            className="flex w-full items-center gap-3 rounded-full border border-border bg-background/80 px-6 py-4 text-left shadow-sm backdrop-blur-md transition-all hover:border-primary/30 hover:bg-background hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex w-full items-center gap-3 rounded-full border border-border bg-background/80 px-6 py-4 text-start shadow-sm backdrop-blur-md transition hover:border-primary/30 hover:bg-background hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             aria-label="Search the Quran"
           >
             <Search className="size-5 shrink-0 text-muted-foreground" strokeWidth={1.5} />
@@ -113,7 +113,7 @@ export function HeroSection() {
             }
             className={cn(
               "inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-primary bg-primary px-8 text-base font-medium text-primary-foreground shadow-sm sm:w-auto",
-              "transition-all duration-300 ease-out hover:-translate-y-px hover:shadow-md hover:bg-primary/90",
+              "transition duration-300 ease-out hover:-translate-y-px hover:shadow-md hover:bg-primary/90",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             )}
           >
@@ -126,7 +126,7 @@ export function HeroSection() {
             href="/radio"
             className={cn(
               "inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-border bg-background px-8 text-base font-medium text-foreground shadow-sm sm:w-auto",
-              "transition-all duration-300 ease-out hover:-translate-y-px hover:border-primary/30 hover:bg-muted/50 hover:shadow-md",
+              "transition duration-300 ease-out hover:-translate-y-px hover:border-primary/30 hover:bg-muted/50 hover:shadow-md",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             )}
           >

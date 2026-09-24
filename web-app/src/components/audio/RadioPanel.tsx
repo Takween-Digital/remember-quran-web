@@ -79,7 +79,7 @@ export function RadioPanel() {
           className={cn(
             "flex size-20 items-center justify-center rounded-full",
             "bg-primary text-primary-foreground shadow-lg",
-            "transition-all duration-150 hover:scale-[1.03] hover:bg-primary/90 active:scale-100",
+            "transition duration-150 hover:scale-[1.03] hover:bg-primary/90 active:scale-100",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4",
           )}
         >
@@ -88,7 +88,7 @@ export function RadioPanel() {
           ) : isPlaying ? (
             <Pause className="size-8" strokeWidth={1.5} />
           ) : (
-            <Play className="ml-1 size-8" strokeWidth={1.5} />
+            <Play className="ms- size-8" strokeWidth={1.5} />
           )}
         </button>
 

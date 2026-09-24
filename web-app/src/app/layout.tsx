@@ -8,6 +8,7 @@ import dynamic from "next/dynamic"
 import { Navbar } from "@/components/layout/Navbar"
 import { Footer } from "@/components/layout/Footer"
 import { TimezoneSync } from "@/components/TimezoneSync"
+import { Toaster } from "sonner"
 import "./globals.css"
 
 const MiniPlayer = dynamic(() => import("@/components/audio/MiniPlayer").then(mod => mod.MiniPlayer))
@@ -106,6 +107,7 @@ export default async function RootLayout({
         <Providers chapters={chapters}>
           <TimezoneSync />
           <Navbar />
+          <Toaster position="bottom-center" richColors />
           <main
             id="main"
             tabIndex={-1}

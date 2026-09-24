@@ -44,8 +44,8 @@ function SurahSearchInput({
         placeholder="Search surahs by name or number…"
         aria-label="Search surahs by name or number"
         className={cn(
-          "h-11 w-full rounded-full border border-border bg-card py-2.5 pl-11 pr-10 text-sm shadow-xs",
-          "transition-all duration-(--dur-base) ease-(--ease-out)",
+          "h-11 w-full rounded-full border border-border bg-card py-2.5 ps- pe- text-sm shadow-xs",
+          "transition duration-(--dur-base) ease-(--ease-out)",
           "placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary",
           "[&::-webkit-search-cancel-button]:hidden",
         )}
@@ -105,7 +105,7 @@ export function SurahExplorer({ chapters }: { chapters: Chapter[] }) {
             </h2>
           </div>
 
-          <div className="sm:border-l sm:border-border/60 sm:pl-6">
+          <div className="sm:border-l sm:border-border/60 sm:ps-">
             <SurahFilter value={filter} onChange={setFilter} />
           </div>
         </div>

@@ -190,7 +190,7 @@ export function FullScreenPlayer({ onClose }: { onClose: () => void }) {
             ) : isPlaying ? (
               <Pause className="size-7" strokeWidth={1.75} fill="currentColor" />
             ) : (
-              <Play className="ml-0.5 size-7" strokeWidth={1.75} fill="currentColor" />
+              <Play className="ms-.5 size-7" strokeWidth={1.75} fill="currentColor" />
             )}
           </button>
           <button

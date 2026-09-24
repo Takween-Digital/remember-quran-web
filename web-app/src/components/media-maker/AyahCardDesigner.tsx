@@ -481,8 +481,12 @@ export function AyahCardDesigner({
         "video/mp4;codecs=avc1,mp4a.40.2",
         "video/mp4",
       ]
+      if (typeof MediaRecorder === "undefined") {
+        throw new Error("Video recording is not supported in this browser.")
+      }
+
       const supportedMime =
-        typeof MediaRecorder !== "undefined" && typeof MediaRecorder.isTypeSupported === "function"
+        typeof MediaRecorder.isTypeSupported === "function"
           ? mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type)) || ""
           : ""
 
@@ -849,7 +853,7 @@ export function AyahCardDesigner({
           )}
           {canNativeShare ? "Share" : copied ? "Copied" : "Copy image"}
         </Button>
-        <p className="flex items-center gap-1.5 text-xs text-muted-foreground sm:ml-2">
+        <p className="flex items-center gap-1.5 text-xs text-muted-foreground sm:ms-">
           <ImageIcon className="size-3.5" strokeWidth={1.75} />
           Free high-res export
         </p>

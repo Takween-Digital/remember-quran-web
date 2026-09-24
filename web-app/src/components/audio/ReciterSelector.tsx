@@ -57,7 +57,7 @@ export function ReciterSelector() {
         )}
       />
       <SheetContent side="bottom" className="mx-auto flex max-h-[85vh] w-full flex-col gap-4 rounded-t-3xl p-0 sm:max-w-md">
-        <SheetHeader className="px-6 pt-6 text-left">
+        <SheetHeader className="px-6 pt-6 text-start">
           <SheetTitle className="text-xl">Select Reciter</SheetTitle>
         </SheetHeader>
         
@@ -100,7 +100,7 @@ export function ReciterSelector() {
                     setQuery("")
                   }}
                   className={cn(
-                    "flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left",
+                    "flex w-full items-center gap-4 rounded-xl px-4 py-3 text-start",
                     "transition-colors duration-[120ms]",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
                     active ? "bg-primary/10 text-primary" : "hover:bg-accent",

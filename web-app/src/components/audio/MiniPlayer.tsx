@@ -113,7 +113,7 @@ export function MiniPlayer() {
           player.status !== "loading" && (
             <div className="absolute top-0 inset-x-0 h-[3px] bg-border/30">
               <div 
-                className="h-full bg-jade-500 transition-all duration-[var(--dur-base)] ease-linear"
+                className="h-full bg-jade-500 transition duration-[var(--dur-base)] ease-linear"
                 style={{ width: `${(elapsed * 1000 / player.durationMs) * 100}%` }}
               />
             </div>

@@ -83,7 +83,7 @@ export function IslamicHistoryCard() {
                 onClick={() => setIndex(i)}
                 aria-label={`Go to fact ${i + 1}`}
                 aria-current={isActive ? "true" : undefined}
-                className={`h-1.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white ${
+                className={`h-1.5 rounded-full transition duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white ${
                   isActive ? "w-5 bg-gold" : "w-1.5 bg-white/30 hover:bg-white/50"
                 }`}
               />
@@ -97,7 +97,7 @@ export function IslamicHistoryCard() {
             type="button"
             onClick={handlePrev}
             aria-label="Previous fact"
-            className="flex size-7 items-center justify-center rounded-full bg-white/10 text-white/80 backdrop-blur-xs transition-all duration-200 hover:bg-white/20 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
+            className="flex size-7 items-center justify-center rounded-full bg-white/10 text-white/80 backdrop-blur-xs transition duration-200 hover:bg-white/20 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
           >
             <ChevronLeft className="size-4" strokeWidth={2.25} />
           </button>
@@ -105,7 +105,7 @@ export function IslamicHistoryCard() {
             type="button"
             onClick={handleNext}
             aria-label="Next fact"
-            className="flex size-7 items-center justify-center rounded-full bg-white/10 text-white/80 backdrop-blur-xs transition-all duration-200 hover:bg-white/20 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
+            className="flex size-7 items-center justify-center rounded-full bg-white/10 text-white/80 backdrop-blur-xs transition duration-200 hover:bg-white/20 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
           >
             <ChevronRight className="size-4" strokeWidth={2.25} />
           </button>

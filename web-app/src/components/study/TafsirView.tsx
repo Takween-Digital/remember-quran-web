@@ -99,7 +99,7 @@ function TafsirBody({
       {hasText ? (
         // Safe: sanitized server-side in /api/tafsir (single choke point)
         <div
-          className={cn("study-prose", isRtl && "text-right")}
+          className={cn("study-prose", isRtl && "text-end")}
           dir={isRtl ? "rtl" : "ltr"}
           lang={isRtl ? "ar" : "en"}
           dangerouslySetInnerHTML={{ __html: content.text }}

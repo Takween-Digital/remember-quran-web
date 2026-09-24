@@ -47,7 +47,7 @@ function ScaleTrack({
         <div className="absolute inset-x-0 h-1.5 rounded-full bg-muted/80" />
         {/* Track fill */}
         <div
-          className="absolute h-1.5 rounded-full bg-primary/60 transition-all duration-150 ease-out"
+          className="absolute h-1.5 rounded-full bg-primary/60 transition duration-150 ease-out"
           style={{ width: `${percentage}%` }}
         />
         {/* Scale dots */}
@@ -62,7 +62,7 @@ function ScaleTrack({
               aria-label={`Set size to ${FONT_SCALE_LABELS[pos]}`}
               onClick={() => onChange(pos)}
               className={cn(
-                "absolute -translate-x-1/2 z-10 rounded-full transition-all duration-150",
+                "absolute -translate-x-1/2 z-10 rounded-full transition duration-150",
                 "hover:scale-125",
                 isActive
                   ? "size-3.5 bg-primary ring-2 ring-primary/20"
@@ -161,7 +161,7 @@ export function FontSizeSelector() {
         onIncrease={increaseArabicFontScale}
         preview={
           <span
-            className="leading-none text-foreground transition-all duration-150"
+            className="leading-none text-foreground transition duration-150"
             dir="rtl"
             lang="ar"
             style={{
@@ -182,7 +182,7 @@ export function FontSizeSelector() {
         onIncrease={increaseTranslationFontScale}
         preview={
           <span
-            className="truncate font-serif text-foreground transition-all duration-150"
+            className="truncate font-serif text-foreground transition duration-150"
             style={{ fontSize: `calc(${translationFontSize} * 0.9)` }}
           >
             In the name of Allah, the Most Gracious, the Most Merciful

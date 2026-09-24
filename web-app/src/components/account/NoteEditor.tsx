@@ -290,7 +290,7 @@ export function NoteEditor({
                   type="button"
                   disabled={highlightSaving}
                   onClick={() => void applyHighlight(null)}
-                  className="ml-1 text-xs text-muted-foreground underline-offset-2 hover:underline disabled:opacity-50"
+                  className="ms- text-xs text-muted-foreground underline-offset-2 hover:underline disabled:opacity-50"
                 >
                   Clear
                 </button>

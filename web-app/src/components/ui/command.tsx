@@ -72,7 +72,7 @@ function CommandInput({
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
     <div data-slot="command-input-wrapper" className="p-4 pb-3">
-      <InputGroup className="h-10! rounded-lg! border border-border/50 bg-muted/30 shadow-none transition-colors hover:border-primary/20 hover:bg-muted/50 focus-within:border-primary/50 focus-within:bg-muted/70 *:data-[slot=input-group-addon]:pr-3!">
+      <InputGroup className="h-10! rounded-lg! border border-border/50 bg-muted/30 shadow-none transition-colors hover:border-primary/20 hover:bg-muted/50 focus-within:border-primary/50 focus-within:bg-muted/70 *:data-[slot=input-group-addon]:pe-!">
         <CommandPrimitive.Input
           data-slot="command-input"
           className={cn(
@@ -162,7 +162,7 @@ function CommandItem({
       {...props}
     >
       {children}
-      <CheckIcon className="ml-auto opacity-0 size-4 text-primary group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
+      <CheckIcon className="ms- opacity-0 size-4 text-primary group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
     </CommandPrimitive.Item>
   )
 }
@@ -175,7 +175,7 @@ function CommandShortcut({
     <span
       data-slot="command-shortcut"
       className={cn(
-        "ml-auto text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",
+        "ms- text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",
         className
       )}
       {...props}
