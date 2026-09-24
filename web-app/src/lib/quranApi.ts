@@ -137,11 +137,17 @@ export const getChapters = cache(async (): Promise<Chapter[]> => {
       { revalidate: 86400 },
     )
     clearTimeout(timeoutId)
+
+    if (!data.chapters || data.chapters.length === 0) {
+      throw new Error("API returned no chapters data")
+    }
+
     return data.chapters
   } catch (error) {
     clearTimeout(timeoutId)
-    console.error("getChapters failed:", error)
-    throw new Error(`Failed to load Quran chapters: ${error instanceof Error ? error.message : String(error)}`)
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    console.error("getChapters failed:", errorMsg)
+    throw new Error(`Failed to load Quran chapters: ${errorMsg}`)
   }
 })
 
