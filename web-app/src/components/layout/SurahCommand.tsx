@@ -22,17 +22,6 @@ export function SurahCommand() {
     setMounted(true)
   }
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault()
-        setMounted(true)
-        setCommandOpen(true)
-      }
-    }
-    document.addEventListener("keydown", handler)
-    return () => document.removeEventListener("keydown", handler)
-  }, [setCommandOpen])
 
   if (!mounted) return null
   return <SurahCommandDialog />
