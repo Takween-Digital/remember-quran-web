@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { BookOpenText, Headphones, ImagePlus, LayoutGrid, Mail, Menu } from "lucide-react"
-import { ArabesquePattern } from "@/components/layout/ArabesquePattern"
 import { useAuth } from "@/components/auth/AuthProvider"
 import { AuthNav } from "@/components/auth/AuthNav"
 import { LogoWordmark } from "@/components/layout/Logo"
@@ -257,12 +256,6 @@ export function Navbar() {
               ),
         )}
       >
-        {floating && (
-          <ArabesquePattern
-            id="navbar"
-            className="hidden sm:block text-gold-leaf/[0.05] [animation-duration:120s]"
-          />
-        )}
         {isSurahRoute ? (
           /* Reader: logo sits in w-72 above the sidebar — no border-r so the
              sidebar divider starts below the navbar (clean corner, no line

@@ -104,7 +104,7 @@ async function getKhattabChapter(
 ): Promise<Map<number, string>> {
   const data = await apiFetch<KhattabChapterResponse>(
     `${KHATTAB_CDN_URL}/${chapterId}.json`,
-    "force-cache",
+    { revalidate: 86400 },
   )
   return new Map(data.chapter.map((v) => [v.verse, v.text]))
 }
@@ -125,7 +125,7 @@ function mergeKhattab(verse: Verse, khattab: Map<number, string>): Verse {
 export const getChapters = cache(async (): Promise<Chapter[]> => {
   const data = await apiFetch<ChaptersResponse>(
     `${CHAPTERS_BASE_URL}/chapters`,
-    "force-cache",
+    { revalidate: 86400 },
   )
   return data.chapters
 })
@@ -134,7 +134,7 @@ export const getChapters = cache(async (): Promise<Chapter[]> => {
 export const getChapter = cache(async (id: number): Promise<Chapter> => {
   const data = await apiFetch<ChapterResponse>(
     `${CHAPTERS_BASE_URL}/chapters/${id}`,
-    "force-cache",
+    { revalidate: 86400 },
   )
   return data.chapter
 })
