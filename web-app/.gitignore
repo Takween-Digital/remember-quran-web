@@ -77,3 +77,4 @@ CLAUDE.md
 # vinext build output
 /dist/
 .vinext/
+.env.local
