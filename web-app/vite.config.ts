@@ -15,4 +15,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["firebase-admin", "@grpc/grpc-js", "protobufjs", "@grpc/proto-loader"],
   },
+  build: {
+    cssMinify: false,
+  },
 });

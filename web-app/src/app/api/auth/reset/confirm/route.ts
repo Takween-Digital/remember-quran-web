@@ -1,5 +1,6 @@
 import { privateJson } from "@/lib/auth/api-response"
-import { confirmPasswordReset, resolveFirebaseUid } from "@/lib/auth/firebase-credentials"
+import { confirmPasswordReset } from "@/lib/auth/firebase-credentials"
+import { resolveFirebaseUid } from "@/lib/auth/firebase-uid"
 import { getUserByEmail, touchPasswordChangedAt } from "@/lib/firestore/users"
 
 export const runtime = "nodejs"
