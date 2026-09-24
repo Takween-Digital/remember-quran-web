@@ -1,6 +1,6 @@
 {
   "name": "rememberquran",
-  "main": "dist/server/cloudflare-handler.js",
+  "main": "dist/server/index.js",
   "compatibility_date": "2025-01-01",
   "compatibility_flags": ["nodejs_compat"],
   "d1_databases": [
@@ -54,9 +54,6 @@
         "NODE_ENV": "production"
       }
     }
-  }
-,
-  "main": "vinext/server/fetch-handler"
-,
+  },
   "assets": { "directory": "dist/client", "not_found_handling": "none", "binding": "ASSETS" }
 }
