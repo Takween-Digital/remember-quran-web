@@ -58,9 +58,11 @@ async function apiFetch<T>(
   cacheOption: RequestInit["cache"] | { revalidate: number } = {
     revalidate: 86400,
   },
+  signal?: AbortSignal,
 ): Promise<T> {
   const fetchOptions: RequestInit = {
     headers: { Accept: "application/json" },
+    signal,
   }
 
   if (typeof cacheOption === "object" && "revalidate" in cacheOption) {
@@ -107,11 +109,22 @@ interface KhattabChapterResponse {
 async function getKhattabChapter(
   chapterId: number,
 ): Promise<Map<number, string>> {
-  const data = await apiFetch<KhattabChapterResponse>(
-    `${KHATTAB_CDN_URL}/${chapterId}.json`,
-    { revalidate: 86400 },
-  )
-  return new Map(data.chapter.map((v) => [v.verse, v.text]))
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout for CDN
+
+  try {
+    const data = await apiFetch<KhattabChapterResponse>(
+      `${KHATTAB_CDN_URL}/${chapterId}.json`,
+      { revalidate: 86400 },
+      controller.signal,
+    )
+    clearTimeout(timeoutId)
+    return new Map(data.chapter.map((v) => [v.verse, v.text]))
+  } catch (error) {
+    clearTimeout(timeoutId)
+    console.warn(`Khattab chapter ${chapterId} failed, continuing without it`)
+    return new Map()
+  }
 }
 
 function mergeKhattab(verse: Verse, khattab: Map<number, string>): Verse {
@@ -135,6 +148,7 @@ export const getChapters = cache(async (): Promise<Chapter[]> => {
     const data = await apiFetch<ChaptersResponse>(
       `${CHAPTERS_BASE_URL}/chapters`,
       { revalidate: 86400 },
+      controller.signal,
     )
     clearTimeout(timeoutId)
 
@@ -153,11 +167,23 @@ export const getChapters = cache(async (): Promise<Chapter[]> => {
 
 /** Single chapter metadata — cached indefinitely */
 export const getChapter = cache(async (id: number): Promise<Chapter> => {
-  const data = await apiFetch<ChapterResponse>(
-    `${CHAPTERS_BASE_URL}/chapters/${id}`,
-    { revalidate: 86400 },
-  )
-  return data.chapter
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 30000) // 30s timeout
+
+  try {
+    const data = await apiFetch<ChapterResponse>(
+      `${CHAPTERS_BASE_URL}/chapters/${id}`,
+      { revalidate: 86400 },
+      controller.signal,
+    )
+    clearTimeout(timeoutId)
+    return data.chapter
+  } catch (error) {
+    clearTimeout(timeoutId)
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    console.error(`getChapter(${id}) failed:`, errorMsg)
+    throw new Error(`Failed to load chapter ${id}: ${errorMsg}`)
+  }
 })
 
 /**

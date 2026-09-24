@@ -472,7 +472,8 @@ html {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: rgb(var(--ring) / 0.5);
     --tw-ring-offset-color: var(--background);
   }
   body {
@@ -483,7 +484,7 @@ html {
     -moz-osx-font-smoothing: grayscale;
   }
   html {
-    @apply font-sans;
+    font-family: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
   }
 }
 
@@ -795,7 +796,10 @@ h1, h2, h3, .font-serif {
 
 /* Standard site chrome — navbar, footer, audio bar, and page shells share one width. */
 @utility site-shell {
-  @apply mx-auto w-full max-w-6xl;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 1440px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1114,7 +1118,13 @@ h1, h2, h3, .font-serif {
 @layer utilities {
   /* Premium Glassmorphism */
   .glass-panel {
-    @apply bg-background/70 backdrop-blur-xl border border-white/10 shadow-lg dark:border-white/5;
+    background-color: rgba(var(--background-rgb, 255 251 246) / 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  .dark .glass-panel {
+    border-color: rgba(255, 255, 255, 0.05);
   }
 
   /* Traditional Islamic Touches */

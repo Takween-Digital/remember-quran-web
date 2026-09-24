@@ -27,29 +27,26 @@
       ],
       "kv_namespaces": [
         {
+          "binding": "VINEXT_KV_CACHE",
+          "id": "3c287dd20e604408b91cfbacf8df7a2d"
+        },
+        {
           "binding": "AUDIO_CACHE_KV",
           "id": "7be8fb49d877416eb6a27a2675ff8450"
         }
       ],
-      "secrets": [
-        "FIREBASE_PRIVATE_KEY",
-        "AUTH_SECRET",
-        "BETTER_AUTH_SECRET",
-        "RESEND_API_KEY",
-        "HOSTINGER_API_KEY",
-        "HOSTINGER_EMAIL_PASSWORD",
-        "HOSTINGER_EMAIL_USER",
-        "FIREBASE_CLIENT_EMAIL"
-      ],
       "vars": {
+        "BETTER_AUTH_URL": "https://rememberquran.com",
         "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "remember-quran",
         "NEXT_PUBLIC_FIREBASE_API_KEY": "AIzaSyALNl-0F78hwgAYU9nVwtfHJc1t_kDzvA4",
         "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "remember-quran.firebaseapp.com",
         "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "remember-quran.firebasestorage.app",
         "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "334348031725",
         "NEXT_PUBLIC_FIREBASE_APP_ID": "1:334348031725:web:223461a1df32b4a70c5ee4",
+        "NEXT_PUBLIC_QURAN_CHAPTERS_API_URL": "https://api.quran.com/api/v4",
+        "NEXT_PUBLIC_QURAN_QDC_API_URL": "https://api.qurancdn.com/api/qdc",
+        "NEXT_PUBLIC_QURAN_WORD_AUDIO_URL": "https://audio.qurancdn.com/",
         "FIREBASE_PROJECT_ID": "remember-quran",
-        "FIREBASE_CLIENT_EMAIL": "firebase-adminsdk-fbsvc@remember-quran.iam.gserviceaccount.com",
         "NEXT_PUBLIC_APP_URL": "https://rememberquran.com",
         "NODE_ENV": "production"
       }
