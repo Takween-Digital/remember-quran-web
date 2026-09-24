@@ -1,15 +1,17 @@
-export const dynamic = "force-dynamic"
+import { SurahListPage } from "@/components/surah-list/SurahListPage"
+
+/**
+ * The home page is fully static — the surah list and the ayah of the day are
+ * both pure functions of data already in hand, so nothing here needs a
+ * request-time render.
+ *
+ * It is revalidated hourly for one reason: the ayah of the day is keyed to the
+ * UTC calendar day, and without ISR the page would stay frozen on whatever day
+ * it was built. An hour is well inside the tolerance for a daily rotation and
+ * keeps the route CDN-cacheable.
+ */
+export const revalidate = 3600
 
 export default function HomePage() {
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Remember Quran</h1>
-        <p className="text-xl text-gray-600 mb-8">Quran Learning Platform</p>
-        <a href="/1" className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-          Start Reading
-        </a>
-      </div>
-    </div>
-  )
+  return <SurahListPage />
 }
