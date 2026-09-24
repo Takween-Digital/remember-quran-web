@@ -176,16 +176,17 @@ export function BookmarksView({
           placeholder="New collection — e.g. Memorisation"
           maxLength={80}
           aria-label="New collection name"
-          className="h-9 max-w-xs"
+          className="h-10 max-w-xs"
           disabled={busy}
         />
         <Button
           type="submit"
           variant="outline"
-          className="h-9"
+          size="sm"
+          className="h-10"
           disabled={busy || !newName.trim()}
         >
-          <Plus data-icon="inline-start" className="size-3.5" />
+          <Plus data-icon="inline-start" className="size-4" />
           Create
         </Button>
       </form>
@@ -290,7 +291,7 @@ function CollectionSection({
               maxLength={80}
               autoFocus
               aria-label={`Rename ${collection.name}`}
-              className="h-8 max-w-55"
+              className="h-9 max-w-55"
               disabled={busy}
             />
             <button
