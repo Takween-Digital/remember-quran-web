@@ -14,26 +14,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const decodedToken = await verifyIdToken(idToken);
-    const { getAdminDb } = await import("@/lib/firebase/server")
-    const adminDb = getAdminDb()
 
-    // Ensure the user exists in Firestore
-    const userRef = adminDb.collection("users").doc(decodedToken.uid)
-    const userDoc = await userRef.get()
-
-    if (!userDoc.exists) {
-      const now = new Date().toISOString();
-      await userRef.set({
-        email: decodedToken.email || "",
-        displayName: displayName || decodedToken.email?.split("@")[0] || "",
-        profile: {
-          displayName: displayName || decodedToken.email?.split("@")[0] || ""
-        },
-        createdAt: now,
-        updatedAt: now,
-      });
-    }
-
+    // Create session cookie first (non-blocking user creation)
     const headers = new Headers();
     headers.set("Authorization", `Bearer ${idToken}`);
 
@@ -54,6 +36,29 @@ export async function POST(request: NextRequest) {
       },
       apiKey: env.NEXT_PUBLIC_FIREBASE_API_KEY,
     });
+
+    // Create user document in background (don't await)
+    try {
+      const { getAdminDb } = await import("@/lib/firebase/server")
+      const adminDb = getAdminDb()
+      const userRef = adminDb.collection("users").doc(decodedToken.uid)
+      const userDoc = await userRef.get()
+
+      if (!userDoc.exists) {
+        const now = new Date().toISOString();
+        userRef.set({
+          email: decodedToken.email || "",
+          displayName: displayName || decodedToken.email?.split("@")[0] || "",
+          profile: {
+            displayName: displayName || decodedToken.email?.split("@")[0] || ""
+          },
+          createdAt: now,
+          updatedAt: now,
+        }).catch(err => console.error("Failed to create user document", err));
+      }
+    } catch (err) {
+      console.error("User document creation error", err);
+    }
 
     return response;
   } catch (error) {
