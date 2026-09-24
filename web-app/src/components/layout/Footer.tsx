@@ -51,14 +51,14 @@ const COLUMNS: { heading: string; links: readonly FooterLink[] }[] = [
 ]
 
 const FOOTER_LINK_CLASS = cn(
-  "link-reveal inline-flex items-center gap-1.5 rounded-sm py-1 text-sm text-muted-foreground",
+  "link-reveal inline-flex items-center gap-1.5 rounded-sm py-1 text-sm text-foreground/75",
   "transition-colors duration-(--dur-base) ease-(--ease-out) hover:text-foreground",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 )
 
 function FooterHeading({ children }: { children: ReactNode }) {
   return (
-    <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.12em] text-foreground">
+    <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/90">
       {children}
     </h3>
   )
@@ -120,7 +120,7 @@ export function Footer() {
                 <LogoWordmark size="md" />
               </Link>
 
-              <p className="mt-4 max-w-[34ch] text-sm leading-relaxed text-subtle">
+              <p className="mt-4 max-w-[34ch] text-sm leading-relaxed text-foreground/70">
                 A quiet place to read, listen to, and memorise the Quran. Built with care, kept free, no advertising.
               </p>
 
@@ -163,9 +163,9 @@ export function Footer() {
       {/* ── Bottom bar ── */}
       <div className="border-t border-gold-leaf/20">
         <div className="site-shell flex flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:px-6 lg:px-8">
-          <p className="text-xs text-subtle">
+          <p className="text-xs text-foreground/60">
             © {YEAR}{" "}
-            <span className="text-muted-foreground">RememberQuran</span> ·
+            <span className="text-foreground/70">RememberQuran</span> ·
             Public-benefit, ad-free
           </p>
           <div className="flex items-center gap-2 sm:ml-auto">
