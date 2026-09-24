@@ -124,15 +124,17 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
   )
 }
 
+import { Input as InputPrimitive } from "@base-ui/react/input"
+
 function InputGroupInput({
   className,
   ...props
 }: React.ComponentProps<"input">) {
   return (
-    <Input
+    <InputPrimitive
       data-slot="input-group-control"
       className={cn(
-        "flex-1 rounded-none border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 disabled:bg-transparent aria-invalid:ring-0 dark:bg-transparent dark:disabled:bg-transparent",
+        "flex-1 bg-transparent px-3 py-1 text-sm text-foreground outline-none min-w-0 placeholder:text-muted-foreground rounded-none border-0 shadow-none ring-0 focus-visible:ring-0 disabled:bg-transparent aria-invalid:ring-0 dark:bg-transparent dark:disabled:bg-transparent",
         className
       )}
       {...props}

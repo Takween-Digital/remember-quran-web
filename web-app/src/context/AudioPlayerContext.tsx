@@ -718,18 +718,44 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   const nextAyah = useCallback(() => {
     if (timingsRef.current.length === 0) return
     const currentIdx = Math.max(lastVerseIdxRef.current, 0)
+    
+    if (currentIdx === timingsRef.current.length - 1) {
+      if (chapterIdRef.current && chapterIdRef.current < 114) {
+        void loadChapter({
+          reciterId: reciterIdRef.current,
+          chapterId: chapterIdRef.current + 1,
+          seekToVerse: 1,
+          autoplay: statusRef.current === "playing" || statusRef.current === "loading"
+        })
+      }
+      return
+    }
+
     const nextIdx = Math.min(currentIdx + 1, timingsRef.current.length - 1)
     const nextTiming = timingsRef.current[nextIdx]
     if (nextTiming) seekToVerseInternal(nextTiming.verseNumber)
-  }, [seekToVerseInternal])
+  }, [loadChapter, seekToVerseInternal])
 
   const prevAyah = useCallback(() => {
     if (timingsRef.current.length === 0) return
     const currentIdx = Math.max(lastVerseIdxRef.current, 0)
+    
+    if (currentIdx === 0) {
+      if (chapterIdRef.current && chapterIdRef.current > 1) {
+        void loadChapter({
+          reciterId: reciterIdRef.current,
+          chapterId: chapterIdRef.current - 1,
+          seekToVerse: 999, // clampVerse will handle pushing this to the last verse
+          autoplay: statusRef.current === "playing" || statusRef.current === "loading"
+        })
+      }
+      return
+    }
+
     const prevIdx = Math.max(currentIdx - 1, 0)
     const prevTiming = timingsRef.current[prevIdx]
     if (prevTiming) seekToVerseInternal(prevTiming.verseNumber)
-  }, [seekToVerseInternal])
+  }, [loadChapter, seekToVerseInternal])
 
   const seekToVerse = useCallback(
     (verseNumber: number) => seekToVerseInternal(verseNumber),

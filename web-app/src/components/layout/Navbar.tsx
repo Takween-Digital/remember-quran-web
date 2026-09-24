@@ -248,7 +248,11 @@ export function Navbar() {
             : cn(
                 "border-b",
                 scrolled
-                  ? "border-border shadow-[0_1px_0_0_color-mix(in_srgb,var(--brand-gold)_28%,transparent)]"
+                  ? cn(
+                      "border-border",
+                      // RQ-35: Hide gold accent line on mobile, show only on desktop (sm+)
+                      "sm:shadow-[0_1px_0_0_color-mix(in_srgb,var(--brand-gold)_28%,transparent)]",
+                    )
                   : "border-border/40",
               ),
         )}
