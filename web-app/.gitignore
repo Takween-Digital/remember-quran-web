@@ -73,3 +73,7 @@ CLAUDE.md
 # OpenNext/Wrangler build output — regenerated per deploy, not part of the repo
 /.open-next/
 /.wrangler/
+
+# vinext build output
+/dist/
+.vinext/

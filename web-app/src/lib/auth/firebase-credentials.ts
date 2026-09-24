@@ -1,3 +1,5 @@
+"use server"
+
 import { compare, hash } from "bcryptjs"
 import { getAdminAuth } from "@/lib/firestore/admin"
 import {
@@ -19,7 +21,7 @@ const BCRYPT_ROUNDS = 12
  * the hood, and (unlike the Admin SDK) it does trigger Firebase's built-in
  * reset-email delivery.
  */
-function identityToolkitBaseUrl(): string {
+async function identityToolkitBaseUrl(): Promise<string> {
   const emulatorHost = process.env.FIREBASE_AUTH_EMULATOR_HOST?.trim()
   if (emulatorHost) {
     return `http://${emulatorHost}/identitytoolkit.googleapis.com/v1`
@@ -27,7 +29,7 @@ function identityToolkitBaseUrl(): string {
   return "https://identitytoolkit.googleapis.com/v1"
 }
 
-function apiKey(): string {
+async function apiKey(): Promise<string> {
   const key = process.env.FIREBASE_WEB_API_KEY?.trim()
   if (!key) {
     throw new Error(
@@ -42,9 +44,10 @@ async function identityToolkitFetch(
   body: Record<string, unknown>,
 ): Promise<{ ok: true; data: Record<string, unknown> } | { ok: false }> {
   // Against the emulator the key is unvalidated — any non-empty placeholder works.
-  const key = process.env.FIREBASE_AUTH_EMULATOR_HOST ? "emulator" : apiKey()
+  const key = process.env.FIREBASE_AUTH_EMULATOR_HOST ? "emulator" : await apiKey()
+  const baseUrl = await identityToolkitBaseUrl()
   const res = await fetch(
-    `${identityToolkitBaseUrl()}/${path}?key=${encodeURIComponent(key)}`,
+    `${baseUrl}/${path}?key=${encodeURIComponent(key)}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -69,7 +72,7 @@ async function identityToolkitFetch(
  * that case `user.id` — the Firestore doc ID — already *is* the Firebase
  * UID, since that's what the mobile app used as the doc path.
  */
-export function resolveFirebaseUid(user: UserRecord): string | null {
+function resolveFirebaseUid(user: UserRecord): string | null {
   if (user.firebaseUid) return user.firebaseUid
   if (!user.passwordHash) return user.id
   return null

@@ -1,7 +1,10 @@
 name = "rememberquran"
-type = "javascript"
-main = ".open-next/server"
 compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "rememberquran-db"
+database_id = "2a4a38a9-de4e-432c-bb90-5a419bb6c82a"
 
 [[env.production.kv_namespaces]]
 binding = "AUDIO_CACHE_KV"

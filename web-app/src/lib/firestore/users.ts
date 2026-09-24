@@ -1,3 +1,5 @@
+"use server"
+
 import { FieldValue, Timestamp } from "firebase-admin/firestore"
 import { getDb } from "./admin"
 
@@ -319,4 +321,3 @@ export async function updateLastPosition(
       updatedAt: FieldValue.serverTimestamp(),
     })
 }
-

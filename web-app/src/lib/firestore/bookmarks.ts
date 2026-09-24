@@ -1,3 +1,5 @@
+"use server"
+
 import { FieldPath, FieldValue, Timestamp } from "firebase-admin/firestore"
 import { getDb } from "./admin"
 import {

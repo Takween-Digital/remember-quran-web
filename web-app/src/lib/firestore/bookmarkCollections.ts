@@ -1,3 +1,5 @@
+"use server"
+
 import { FieldValue } from "firebase-admin/firestore"
 import { getDb } from "./admin"
 import type { Bookmark } from "./bookmarks"
