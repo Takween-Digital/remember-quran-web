@@ -70,11 +70,6 @@ CLAUDE.md
 # local dev-only SQLite DB (real D1 substitute for plain `next dev`)
 /.data/
 
-# OpenNext/Wrangler build output — regenerated per deploy, not part of the repo
-/.open-next/
-/.wrangler/
-
-# vinext build output
+# Next.js production build
 /dist/
-.vinext/
 .env.local

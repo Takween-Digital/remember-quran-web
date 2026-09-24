@@ -1,19 +1,6 @@
 /**
- * Sends transactional email via the real Hostinger Mail REST API
- * (api.mail.hostinger.com — confirmed against Hostinger's own `hostinger-mail`
- * CLI, both its embedded API base URL and a live test send). Not SMTP:
- * Cloudflare Workers blocks outbound SMTP connections entirely (ports
- * 25/465/587) as an anti-spam platform restriction — confirmed in
- * production with both implicit-TLS and STARTTLS, both rejected at the
- * socket level before any SMTP handshake. A plain HTTPS fetch has no such
- * restriction.
- *
- * (Two earlier, wrong bases were tried before this one:
- * `api.hostinger.com/v1/mail/messages` doesn't exist at all — every email
- * this app ever tried to send, including password resets, silently failed
- * with a WAF/404 page. `HOSTINGER_API_KEY` is a real Agentic Mail API token
- * scoped to info@rememberquran.com, not an SMTP password — confirmed via
- * `hostinger-mail account current`.)
+ * Sends transactional email via the Hostinger Mail REST API.
+ * Uses HTTPS fetch instead of SMTP for better compatibility across deployment environments.
  */
 
 const API_BASE = "https://api.mail.hostinger.com/api/v1"

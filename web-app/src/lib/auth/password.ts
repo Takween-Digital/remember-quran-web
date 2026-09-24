@@ -1,6 +1,6 @@
 /**
- * Edge-compatible and Web Crypto-compatible password hashing using PBKDF2.
- * Native to browser and Cloudflare Workers runtime (zero Node.js dependencies).
+ * Password hashing using PBKDF2 via Web Crypto API.
+ * Compatible with Node.js and browsers.
  */
 
 const ITERATIONS = 100_000
@@ -83,6 +83,6 @@ export async function verifyPassword(
   }
 
   // Fallback for migrated bcrypt hashes ($2a$, $2b$, $2y$)
-  // For Cloudflare Workers, Better Auth or dynamic verification handles or prompts upgrade
+  // For non-PBKDF2 hashes, password verification should be handled by the auth system
   return false
 }

@@ -1,38 +1,9 @@
-// Centralized server & client environment variable helpers
-// Works consistently across Node.js, Next.js, and Cloudflare Workers (vinext / edge)
-
-// Store Cloudflare env context for access by getEnvVar
-let cloudflareEnv: any = null;
-
-export function setCloudflareEnv(env: any) {
-  cloudflareEnv = env;
-}
-
-export function getCloudflareEnv() {
-  return cloudflareEnv;
-}
+// Centralized environment variable helpers for Next.js
 
 function getEnvVar(key: string, defaultValue: string = ''): string {
-  // Try Cloudflare env first (for secrets set with wrangler secret put)
-  if (cloudflareEnv && cloudflareEnv[key] !== undefined) {
-    return cloudflareEnv[key] || defaultValue;
-  }
-
   if (typeof process !== 'undefined' && process.env && process.env[key] !== undefined) {
     return process.env[key] || defaultValue;
   }
-
-  if (typeof globalThis !== 'undefined') {
-    // Check if value is directly on globalThis
-    if ((globalThis as any)[key] !== undefined) {
-      return (globalThis as any)[key] || defaultValue;
-    }
-    // Also check in __CF_ENV__ if available
-    if ((globalThis as any).__CF_ENV__ && (globalThis as any).__CF_ENV__[key] !== undefined) {
-      return (globalThis as any).__CF_ENV__[key] || defaultValue;
-    }
-  }
-
   return defaultValue;
 }
 
