@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { getTokens } from "next-firebase-auth-edge";
 import { serverConfig } from "@/lib/firebase/server";
 import { getAdminDb } from "@/lib/firebase/server";
+import { env } from "@/lib/env";
 
 export async function auth() {
   const cookieStore = await cookies();
@@ -13,9 +14,9 @@ export async function auth() {
 
   try {
     const tokens = await getTokens(cookieStore, {
-      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+      apiKey: env.NEXT_PUBLIC_FIREBASE_API_KEY,
       cookieName: "AuthToken",
-      cookieSignatureKeys: [process.env.COOKIE_SECRET_CURRENT || "secret"],
+      cookieSignatureKeys: [env.COOKIE_SECRET_CURRENT],
       serviceAccount: {
         projectId: serverConfig.projectId,
         clientEmail: serverConfig.clientEmail,

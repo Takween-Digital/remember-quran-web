@@ -1,10 +1,10 @@
 import { getFirebaseAuth } from 'next-firebase-auth-edge/lib/auth';
+import { env } from "@/lib/env";
 
 export const serverConfig = {
-  projectId: process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL || '',
-  // Handle newlines in the private key when loaded from environment variables
-  privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : '',
+  projectId: env.FIREBASE_PROJECT_ID,
+  clientEmail: env.FIREBASE_CLIENT_EMAIL,
+  privateKey: env.FIREBASE_PRIVATE_KEY,
 };
 
 export const { 
@@ -17,7 +17,7 @@ export const {
     clientEmail: serverConfig.clientEmail,
     privateKey: serverConfig.privateKey,
   },
-  process.env.NEXT_PUBLIC_FIREBASE_API_KEY || ''
+  env.NEXT_PUBLIC_FIREBASE_API_KEY
 );
 
 import { importPKCS8, SignJWT } from "jose";

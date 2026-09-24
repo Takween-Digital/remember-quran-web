@@ -15,10 +15,14 @@
  */
 export async function runInBackground(promise: Promise<unknown>): Promise<void> {
   try {
-    const { getCloudflareContext } = await import("@opennextjs/cloudflare")
-    const { ctx } = await getCloudflareContext({ async: true })
-    ctx.waitUntil(promise.catch((err) => console.error("Background task failed", err)))
+    const modName = "cloudflare:workers";
+    const cf = await (import(modName) as Promise<any>).catch(() => null);
+    if (cf && typeof cf.waitUntil === "function") {
+      cf.waitUntil(promise.catch((err: unknown) => console.error("Background task failed", err)));
+      return;
+    }
   } catch {
-    void promise.catch((err) => console.error("Background task failed", err))
+    // fall through
   }
+  void promise.catch((err) => console.error("Background task failed", err));
 }
