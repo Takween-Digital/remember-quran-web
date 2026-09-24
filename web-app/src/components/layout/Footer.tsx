@@ -4,7 +4,6 @@ import type { ReactNode } from "react"
 import Link from "next/link"
 import { ArrowRight, Heart } from "lucide-react"
 import { LogoWordmark } from "@/components/layout/Logo"
-import { ArabesquePattern } from "@/components/layout/ArabesquePattern"
 import { FooterAccountLinks } from "@/components/layout/FooterAccountLinks"
 import { FooterReveal } from "@/components/layout/FooterReveal"
 import { ThemeSegmented } from "@/components/layout/ThemeSegmented"
@@ -105,10 +104,6 @@ export function Footer() {
 
       {/* ── Columns ── */}
       <div className="relative overflow-hidden">
-        <ArabesquePattern
-          id="footer"
-          className="text-gold-leaf/[0.05] [animation-duration:150s]"
-        />
         <div className="site-shell px-4 py-10 sm:px-6 lg:px-8">
           <FooterReveal className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
             <div className="sm:col-span-2">
