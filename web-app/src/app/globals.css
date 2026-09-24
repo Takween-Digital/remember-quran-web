@@ -1,3 +1,16 @@
+/* ── Quranic Fonts ────────────────────────────────────────────────────────────
+   UthmanicHafs   → Quranic revelation text (self-hosted)
+   KFGQPC Uthmanic → Alternative Quranic rendering
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: "UthmanicHafs";
+  src: url("/fonts/UthmanicHafs1Ver18.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ── Google Fonts ─────────────────────────────────────────────────────────────
    Newsreader  → display, long-form prose, headings (regular weight — not bold)
    Public Sans → all UI chrome: nav, labels, buttons, metadata
