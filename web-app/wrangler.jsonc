@@ -55,5 +55,24 @@
       }
     }
   },
-  "assets": { "directory": "dist/client", "not_found_handling": "none", "binding": "ASSETS" }
+  "assets": { "directory": "dist/client", "not_found_handling": "none", "binding": "ASSETS" },
+  "routes": [
+    {
+      "pattern": "https://rememberquran.takweencentreuk.workers.dev/",
+      "custom_domain": false
+    }
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "env": {
+    "production": {
+      "routes": [
+        {
+          "pattern": "https://rememberquran.com/*",
+          "custom_domain": true
+        }
+      ]
+    }
+  }
 }
