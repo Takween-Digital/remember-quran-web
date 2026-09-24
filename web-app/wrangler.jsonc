@@ -1,0 +1,51 @@
+{
+  "name": "rememberquran",
+  "compatibility_date": "2025-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "rememberquran-db",
+      "database_id": "2a4a38a9-de4e-432c-bb90-5a419bb6c82a"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "VINEXT_KV_CACHE",
+      "id": "b695c2142494404a9aafcc95d034fe15"
+    }
+  ],
+  "env": {
+    "production": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "rememberquran-db",
+          "database_id": "2a4a38a9-de4e-432c-bb90-5a419bb6c82a"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "AUDIO_CACHE_KV",
+          "id": "7be8fb49d877416eb6a27a2675ff8450"
+        }
+      ],
+      "vars": {
+        "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "remember-quran",
+        "NEXT_PUBLIC_FIREBASE_API_KEY": "AIzaSyALNl-0F78hwgAYU9nVwtfHJc1t_kDzvA4",
+        "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "remember-quran.firebaseapp.com",
+        "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "remember-quran.firebasestorage.app",
+        "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "334348031725",
+        "NEXT_PUBLIC_FIREBASE_APP_ID": "1:334348031725:web:223461a1df32b4a70c5ee4",
+        "FIREBASE_PROJECT_ID": "remember-quran",
+        "FIREBASE_CLIENT_EMAIL": "firebase-adminsdk-fbsvc@remember-quran.iam.gserviceaccount.com",
+        "NEXT_PUBLIC_APP_URL": "https://rememberquran.com",
+        "NODE_ENV": "production"
+      }
+    }
+  }
+,
+  "main": "vinext/server/fetch-handler"
+,
+  "assets": { "directory": "dist/client", "not_found_handling": "none", "binding": "ASSETS" }
+}
