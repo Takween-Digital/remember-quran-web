@@ -7,9 +7,12 @@ import { SurahExplorer } from "./SurahExplorer"
 
 export async function SurahListPage() {
   let chapters
+  let error: Error | null = null
+
   try {
     chapters = await getChapters()
-  } catch (error) {
+  } catch (err) {
+    error = err instanceof Error ? err : new Error(String(err))
     console.error("Failed to fetch chapters:", error)
     chapters = null
   }
@@ -38,7 +41,24 @@ export async function SurahListPage() {
           </div>
         </div>
 
-        {chapters && <SurahExplorer chapters={chapters} />}
+        {chapters ? (
+          <SurahExplorer chapters={chapters} />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <p className="text-lg text-muted-foreground mb-2">Unable to load Surah list</p>
+            {error && (
+              <p className="text-sm text-destructive max-w-md">
+                {error.message || "Failed to fetch data from API"}
+              </p>
+            )}
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

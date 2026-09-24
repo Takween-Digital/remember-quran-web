@@ -128,11 +128,21 @@ function mergeKhattab(verse: Verse, khattab: Map<number, string>): Verse {
 
 /** All 114 chapters — cached indefinitely (Quran never changes) */
 export const getChapters = cache(async (): Promise<Chapter[]> => {
-  const data = await apiFetch<ChaptersResponse>(
-    `${CHAPTERS_BASE_URL}/chapters`,
-    { revalidate: 86400 },
-  )
-  return data.chapters
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 30000) // 30s timeout
+
+  try {
+    const data = await apiFetch<ChaptersResponse>(
+      `${CHAPTERS_BASE_URL}/chapters`,
+      { revalidate: 86400 },
+    )
+    clearTimeout(timeoutId)
+    return data.chapters
+  } catch (error) {
+    clearTimeout(timeoutId)
+    console.error("getChapters failed:", error)
+    throw new Error(`Failed to load Quran chapters: ${error instanceof Error ? error.message : String(error)}`)
+  }
 })
 
 /** Single chapter metadata — cached indefinitely */
