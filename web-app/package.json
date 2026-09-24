@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vinext dev -p 3000 -H 0.0.0.0",
-    "build": "next build",
-    "start": "next start -p 3000",
+    "build": "vinext build",
+    "start": "vinext start -p 3000 -H 0.0.0.0",
     "lint": "eslint",
     "deploy": "wrangler deploy",
     "db:generate": "drizzle-kit generate",
