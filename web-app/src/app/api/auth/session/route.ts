@@ -22,14 +22,15 @@ export async function POST(request: NextRequest) {
     const userDoc = await userRef.get()
 
     if (!userDoc.exists) {
+      const now = new Date().toISOString();
       await userRef.set({
         email: decodedToken.email || "",
         displayName: displayName || decodedToken.email?.split("@")[0] || "",
         profile: {
           displayName: displayName || decodedToken.email?.split("@")[0] || ""
         },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: now,
+        updatedAt: now,
       });
     }
 
