@@ -39,7 +39,7 @@ export function TafsirBookSelector({ className }: TafsirBookSelectorProps) {
       <ComboboxInput
         aria-label="Tafsir book"
         placeholder="Search tafsir…"
-        className={cn("w-full", className)}
+        className={cn("w-full min-w-48", className)}
         showClear={false}
       />
       <ComboboxContent className="min-w-[min(100vw-2rem,18rem)]">
