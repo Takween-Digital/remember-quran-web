@@ -1,8 +1,14 @@
 {
   "name": "rememberquran",
-  "main": "cloudflare-handler.ts",
+  "main": "dist/server/index.js",
   "compatibility_date": "2025-01-15",
   "compatibility_flags": ["nodejs_compat"],
+  "build": {
+    "command": "npm run build"
+  },
+  "site": {
+    "bucket": "dist/client"
+  },
   "d1_databases": [
     {
       "binding": "DB",
@@ -52,7 +58,6 @@
       }
     }
   },
-  "assets": { "directory": "dist/client", "not_found_handling": "none", "binding": "ASSETS" },
   "workers_dev": true,
   "observability": {
     "enabled": true
