@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { newsreader, publicSans, notoNaskhArabic, jetbrainsMono, amiri, amiriQuran } from "@/lib/app-fonts"
 import { getChapters } from "@/lib/quranApi"
+import type { Chapter } from "@/types/quran"
 import Providers from "@/components/providers"
 import dynamic from "next/dynamic"
 import { Navbar } from "@/components/layout/Navbar"
@@ -57,7 +58,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  let chapters = []
+  let chapters: Chapter[] = []
   try {
     chapters = await getChapters()
   } catch (error) {

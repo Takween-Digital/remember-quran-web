@@ -725,7 +725,8 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
           reciterId: reciterIdRef.current,
           chapterId: chapterIdRef.current + 1,
           seekToVerse: 1,
-          autoplay: statusRef.current === "playing" || statusRef.current === "loading"
+          autoplay: statusRef.current === "playing" || statusRef.current === "loading",
+          mode: "surah"
         })
       }
       return
@@ -746,7 +747,8 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
           reciterId: reciterIdRef.current,
           chapterId: chapterIdRef.current - 1,
           seekToVerse: 999, // clampVerse will handle pushing this to the last verse
-          autoplay: statusRef.current === "playing" || statusRef.current === "loading"
+          autoplay: statusRef.current === "playing" || statusRef.current === "loading",
+          mode: "surah"
         })
       }
       return

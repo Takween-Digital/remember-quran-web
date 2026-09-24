@@ -1,3 +1,8 @@
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ── Quranic Fonts ────────────────────────────────────────────────────────────
    UthmanicHafs   → Quranic revelation text (self-hosted)
    KFGQPC Uthmanic → Alternative Quranic rendering
@@ -37,22 +42,13 @@
   font-display: block;
 }
 
-/* Tailwind imports */
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Basic HTML resets */
+/* HTML & Root */
 html {
   overflow-anchor: none;
 }
 
-/* Design system CSS variables */
 :root {
-  /* Typography */
+  /* Typography scale */
   --text-xs: 0.6875rem;
   --text-sm: 0.8125rem;
   --text-base: 1rem;
@@ -85,8 +81,6 @@ html {
   --container-md: 820px;
   --container-lg: 1024px;
   --container-xl: 1240px;
-  --measure-prose: 66ch;
-  --measure-quran: 44rem;
 
   /* Chrome heights */
   --header-h: 56px;
@@ -104,8 +98,6 @@ html {
   --jade-500: #2aa583;
   --jade-600: #1e8a6d;
   --jade-700: #0e6b57;
-  --jade-800: #0c5f4d;
-  --jade-900: #094c3d;
 
   --gold-100: #faf5e4;
   --gold-200: #f5ecc8;
@@ -113,14 +105,11 @@ html {
   --gold-400: #d4a843;
   --gold-500: #c49530;
   --gold-600: #b58a45;
-  
-  --playing-indicator: var(--jade-400);
 
   /* Shadows */
   --shadow-paper-sm: 0 1px 2px rgba(43,41,37,0.06);
   --shadow-paper-md: 0 2px 4px rgba(43,41,37,0.05), 0 8px 24px -8px rgba(43,41,37,0.14);
   --shadow-paper-lg: 0 4px 8px rgba(43,41,37,0.06), 0 24px 56px -16px rgba(43,41,37,0.22);
-  --shadow-player: 0 -2px 12px rgba(43,41,37,0.1), 0 -1px 3px rgba(43,41,37,0.06);
 
   /* Motion */
   --dur-fast: 120ms;
@@ -130,9 +119,25 @@ html {
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
-  --ease-overshoot: cubic-bezier(0.3, 1.5, 0.5, 1);
+}
 
-  /* Interaction */
-  --press-scale: 0.985;
-  --hover-lift: -1px;
+/* Body text sizing */
+body {
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
+h1 {
+  font-size: var(--text-4xl);
+  font-weight: 600;
+}
+
+h2 {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+}
+
+h3 {
+  font-size: var(--text-2xl);
+  font-weight: 600;
 }
