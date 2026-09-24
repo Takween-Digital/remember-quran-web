@@ -42,11 +42,11 @@ export function HifzButton({
   return (
     <button
       type="button"
-      title={saved ? "Unmark memorised" : "Mark memorised"}
+      title={saved ? "Remove from Hifz" : "Add to Hifz"}
       aria-label={
         saved
-          ? `Unmark ${verseKey} as memorised`
-          : `Mark ${verseKey} as memorised`
+          ? `Remove ${verseKey} from Hifz`
+          : `Add ${verseKey} to Hifz`
       }
       aria-pressed={saved}
       disabled={pending || waitingForKeys}

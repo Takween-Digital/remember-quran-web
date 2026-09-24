@@ -522,7 +522,7 @@ function ReadingPage({
     <div
       title={
         isFullyMemorised
-          ? "You've read and memorized every ayah on this page"
+          ? "You've added every ayah on this page to Hifz"
           : `You've read ${readPercent}% of this page's ayahs`
       }
       className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-reader-paper/50 border border-reader-paper-gilt/30 text-[10px] text-reader-paper-ink-soft"

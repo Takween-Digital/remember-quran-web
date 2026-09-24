@@ -716,13 +716,19 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   }, [safePlay, clearRepeatPause])
 
   const nextAyah = useCallback(() => {
-    const idx = Math.max(lastVerseIdxRef.current, 0)
-    seekToVerseInternal((timingsRef.current[idx]?.verseNumber ?? 0) + 1)
+    if (timingsRef.current.length === 0) return
+    const currentIdx = Math.max(lastVerseIdxRef.current, 0)
+    const nextIdx = Math.min(currentIdx + 1, timingsRef.current.length - 1)
+    const nextTiming = timingsRef.current[nextIdx]
+    if (nextTiming) seekToVerseInternal(nextTiming.verseNumber)
   }, [seekToVerseInternal])
 
   const prevAyah = useCallback(() => {
-    const idx = Math.max(lastVerseIdxRef.current, 0)
-    seekToVerseInternal((timingsRef.current[idx]?.verseNumber ?? 2) - 1)
+    if (timingsRef.current.length === 0) return
+    const currentIdx = Math.max(lastVerseIdxRef.current, 0)
+    const prevIdx = Math.max(currentIdx - 1, 0)
+    const prevTiming = timingsRef.current[prevIdx]
+    if (prevTiming) seekToVerseInternal(prevTiming.verseNumber)
   }, [seekToVerseInternal])
 
   const seekToVerse = useCallback(

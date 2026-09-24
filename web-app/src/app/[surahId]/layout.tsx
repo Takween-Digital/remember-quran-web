@@ -6,6 +6,7 @@ import { KeyboardSurahNav } from "@/components/reader/KeyboardSurahNav"
 import { SurahReaderViewport } from "@/components/reader/SurahReaderViewport"
 import { AudioDockSpacer } from "@/components/audio/AudioDockSpacer"
 import { StudyPanel } from "@/components/study/StudyPanel"
+import { BackToTop } from "@/components/layout/BackToTop"
 
 interface Props {
   children: React.ReactNode
@@ -26,6 +27,9 @@ export default function SurahLayout({ children }: Props) {
         </div>
       </div>
       <StudyPanel />
+      
+      {/* Floating Back to Top Button for Reading Page */}
+      <BackToTop className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50 bg-background/90 shadow-md backdrop-blur-sm" />
     </SurahLayoutShell>
   )
 }

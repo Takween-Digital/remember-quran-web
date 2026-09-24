@@ -587,10 +587,13 @@ export function AyahCardDesigner({
     <div className="flex flex-col gap-8">
       {/* Passage Selector */}
       <div className="flex flex-col gap-4">
-        <AyahPicker value={appliedVerse} onChange={selectVerse} />
+        <div className="flex flex-col gap-2">
+          <label className="text-xs text-muted-foreground">Ayah</label>
+          <AyahPicker value={appliedVerse} onChange={selectVerse} />
+        </div>
         <div className="flex flex-col gap-2">
           <span className="text-xs text-muted-foreground">Passage span</span>
-          <div className="flex w-full rounded-md border border-border bg-card p-1 text-sm">
+          <div className="flex w-full rounded-md border border-input bg-card p-1 text-sm">
             {[0, 1, 2].map((offset) => (
               <button
                 key={offset}

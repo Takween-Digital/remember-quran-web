@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Search } from "lucide-react"
+import { Search, BookOpen, Zap } from "lucide-react"
 import {
   CommandDialog,
   Command,
@@ -68,16 +68,15 @@ export function SurahCommandDialog() {
           </CommandEmpty>
 
           {showSearch ? (
-            <CommandGroup heading="Search Quran">
+            <CommandGroup heading="Search">
               <CommandItem
                 value={`search:${trimmedInput}`}
                 onSelect={() =>
                   handleSelect(`/search?q=${encodeURIComponent(trimmedInput)}`)
                 }
-                className="flex items-center gap-2"
               >
-                <Search className="size-3.5 shrink-0 text-muted-foreground" />
-                <span>Search Quran for</span>
+                <Search className="size-4 text-primary/60" strokeWidth={1.5} />
+                <span>Search for</span>
                 <span className="font-medium text-foreground">
                   &ldquo;{trimmedInput}&rdquo;
                 </span>
@@ -86,13 +85,14 @@ export function SurahCommandDialog() {
           ) : null}
 
           {ayahMatch ? (
-            <CommandGroup heading="Go to ayah">
+            <CommandGroup heading="Navigate">
               <CommandItem
                 value={input}
                 onSelect={() => handleSelect(`/${ayahMatch[1]}/${ayahMatch[2]}`)}
               >
+                <Zap className="size-4 text-primary/60" strokeWidth={1.5} />
                 <span className="text-primary font-medium">{input.trim()}</span>
-                <span className="ml-1 text-muted-foreground">— jump to ayah</span>
+                <span className="ml-auto text-xs text-muted-foreground">jump to ayah</span>
               </CommandItem>
             </CommandGroup>
           ) : null}
@@ -104,14 +104,16 @@ export function SurahCommandDialog() {
                   key={chapter.id}
                   value={`${chapter.id} ${chapter.name_simple} ${chapter.name_arabic}`}
                   onSelect={() => handleSelect(`/${chapter.id}`)}
-                  className="flex items-center gap-3"
                 >
-                  <span className="tabular-nums text-xs text-muted-foreground w-6 text-right shrink-0">
-                    {chapter.id}
-                  </span>
-                  <span className="flex-1">{chapter.name_simple}</span>
+                  <BookOpen className="size-4 text-primary/60" strokeWidth={1.5} />
+                  <div className="flex flex-1 items-center gap-3 min-w-0">
+                    <span className="tabular-nums text-xs text-muted-foreground/70 w-5 text-right shrink-0 font-mono">
+                      {chapter.id}
+                    </span>
+                    <span className="truncate flex-1">{chapter.name_simple}</span>
+                  </div>
                   <span
-                    className="font-arabic text-base leading-none text-muted-foreground shrink-0"
+                    className="font-arabic text-sm leading-none text-muted-foreground/70 shrink-0"
                     dir="rtl"
                     lang="ar"
                   >

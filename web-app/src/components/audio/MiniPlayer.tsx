@@ -118,7 +118,7 @@ export function MiniPlayer() {
               />
             </div>
           )}
-        <div className="site-shell flex min-h-[5rem] flex-col justify-center gap-2 px-3 py-2.5 sm:h-20 sm:flex-row sm:items-center sm:gap-2 sm:px-4 sm:py-0">
+        <div className="site-shell flex min-h-[6rem] flex-col justify-center gap-3 px-3 py-3 sm:h-24 sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-0">
           <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:flex-1">
             <div className="min-w-0 flex-1">
               <NowPlayingLabel
@@ -129,20 +129,20 @@ export function MiniPlayer() {
               />
             </div>
             {/* Main playback controls for mobile, normally inline on desktop */}
-            <div className="flex shrink-0 items-center gap-1 sm:hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex shrink-0 items-center gap-2 sm:hidden" onClick={(e) => e.stopPropagation()}>
               <button
                 type="button"
                 title={isPlaying ? "Pause" : "Play"}
                 aria-label={isPlaying ? "Pause" : "Play"}
                 onClick={player.togglePlayPause}
-                className={cn(barBtn, "size-14 bg-primary/10 text-primary hover:bg-primary/20")}
+                className={cn(barBtn, "size-16 bg-primary/10 text-primary hover:bg-primary/20")}
               >
                 {isBusy ? (
-                  <Loader2 className="size-7 animate-spin" strokeWidth={1.5} />
+                  <Loader2 className="size-8 animate-spin" strokeWidth={1.5} />
                 ) : isPlaying ? (
-                  <Pause className="size-7" strokeWidth={1.5} fill="currentColor" />
+                  <Pause className="size-8" strokeWidth={1.5} fill="currentColor" />
                 ) : (
-                  <Play className="size-7" strokeWidth={1.5} fill="currentColor" />
+                  <Play className="size-8" strokeWidth={1.5} fill="currentColor" />
                 )}
               </button>
             </div>
@@ -150,10 +150,10 @@ export function MiniPlayer() {
 
           {player.status === "error" ? (
             <div
-              className="hidden shrink-0 items-center gap-2 sm:flex"
+              className="hidden shrink-0 items-center gap-3 sm:flex"
               onClick={(e) => e.stopPropagation()}
             >
-              <span className="text-xs text-destructive">
+              <span className="text-sm text-destructive">
                 {player.errorMessage ?? "Couldn't load audio"}
               </span>
               <button
@@ -161,14 +161,14 @@ export function MiniPlayer() {
                 title="Retry"
                 aria-label="Retry"
                 onClick={player.retry}
-                className={cn(barBtn, "text-foreground")}
+                className={cn(barBtn, "size-12 text-foreground")}
               >
-                <RotateCcw className="size-5" strokeWidth={1.5} />
+                <RotateCcw className="size-6" strokeWidth={1.5} />
               </button>
             </div>
           ) : (
             <div
-              className="hidden shrink-0 items-center gap-0.5 sm:flex"
+              className="hidden shrink-0 items-center gap-2 sm:flex"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -176,23 +176,23 @@ export function MiniPlayer() {
                 title="Previous ayah"
                 aria-label="Previous ayah"
                 onClick={player.prevAyah}
-                className={barBtn}
+                className={cn(barBtn, "size-12")}
               >
-                <SkipBack className="size-5" strokeWidth={1.5} />
+                <SkipBack className="size-6" strokeWidth={1.5} />
               </button>
               <button
                 type="button"
                 title={isPlaying ? "Pause" : "Play"}
                 aria-label={isPlaying ? "Pause" : "Play"}
                 onClick={player.togglePlayPause}
-                className={cn(barBtn, "size-12 text-foreground")}
+                className={cn(barBtn, "size-14 text-foreground")}
               >
                 {isBusy ? (
-                  <Loader2 className="size-6 animate-spin" strokeWidth={1.5} />
+                  <Loader2 className="size-7 animate-spin" strokeWidth={1.5} />
                 ) : isPlaying ? (
-                  <Pause className="size-6" strokeWidth={1.5} />
+                  <Pause className="size-7" strokeWidth={1.5} />
                 ) : (
-                  <Play className="size-6" strokeWidth={1.5} />
+                  <Play className="size-7" strokeWidth={1.5} />
                 )}
               </button>
               <button
@@ -200,9 +200,9 @@ export function MiniPlayer() {
                 title="Next ayah"
                 aria-label="Next ayah"
                 onClick={player.nextAyah}
-                className={barBtn}
+                className={cn(barBtn, "size-12")}
               >
-                <SkipForward className="size-5" strokeWidth={1.5} />
+                <SkipForward className="size-6" strokeWidth={1.5} />
               </button>
             </div>
           )}

@@ -58,7 +58,7 @@ const FOOTER_LINK_CLASS = cn(
 
 function FooterHeading({ children }: { children: ReactNode }) {
   return (
-    <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.12em] text-faint">
+    <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.12em] text-foreground">
       {children}
     </h3>
   )

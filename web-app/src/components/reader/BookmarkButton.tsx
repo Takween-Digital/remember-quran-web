@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { useBookmarks } from "@/context/BookmarksContext"
 import { useSoftGate } from "@/context/SoftGateContext"
 import { cn } from "@/lib/utils"
@@ -218,19 +219,17 @@ export function BookmarkButton({
                 maxLength={80}
                 autoFocus
                 disabled={busy}
-                className="h-7 text-xs"
+                className="text-sm"
+                wrapperClassName="min-h-9 h-9 rounded-md"
               />
-              <button
+              <Button
                 type="submit"
+                size="sm"
                 disabled={busy || !newName.trim()}
-                className={cn(
-                  "flex shrink-0 items-center justify-center rounded-md px-2 text-xs font-medium",
-                  "bg-primary text-primary-foreground transition-colors hover:bg-primary/90",
-                  "disabled:pointer-events-none disabled:opacity-50",
-                )}
+                className="h-9 px-4 text-sm"
               >
                 Add
-              </button>
+              </Button>
             </form>
           ) : (
             <button

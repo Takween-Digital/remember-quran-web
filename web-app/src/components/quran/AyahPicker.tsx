@@ -75,24 +75,13 @@ export function AyahPicker({ value, onChange, className }: AyahPickerProps) {
         type="button"
         variant="outline"
         aria-label="Choose an ayah"
-        className={cn(
-          "h-auto w-full justify-between gap-3 px-3 py-2.5 text-left font-normal",
-          className,
-        )}
+        className={cn("w-full justify-between font-normal", className)}
         onClick={() => setOpen(true)}
       >
-        <span className="min-w-0">
-          <span className="block text-xs text-muted-foreground">Ayah</span>
-          <span className="mt-0.5 block truncate text-sm text-foreground">
-            {selectedChapter && parsed
-              ? `${selectedChapter.name_simple} · Ayah ${parsed.ayahId}`
-              : "Choose a Surah and ayah"}
-          </span>
-          {parsed ? (
-            <span className="mt-0.5 block text-xs tabular-nums text-muted-foreground">
-              {value}
-            </span>
-          ) : null}
+        <span className="truncate">
+          {selectedChapter && parsed
+            ? `${selectedChapter.name_simple} · Ayah ${parsed.ayahId}`
+            : "Choose a Surah and ayah"}
         </span>
         <ChevronDown className="size-4 shrink-0 opacity-50" />
       </Button>

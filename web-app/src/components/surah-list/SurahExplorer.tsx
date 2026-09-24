@@ -31,10 +31,10 @@ function SurahSearchInput({
   onChange: (value: string) => void
 }) {
   return (
-    <div className="relative w-full sm:w-72 md:w-80">
+    <div className="relative w-full sm:w-80 md:w-96">
       <Search
-        className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-        strokeWidth={1.8}
+        className="pointer-events-none absolute left-4 top-1/2 size-4.5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
+        strokeWidth={2}
         aria-hidden
       />
       <input
@@ -44,9 +44,9 @@ function SurahSearchInput({
         placeholder="Search surahs by name or number…"
         aria-label="Search surahs by name or number"
         className={cn(
-          "h-10 w-full rounded-full border border-border bg-card py-2 pl-10 pr-9 text-sm shadow-2xs",
+          "h-11 w-full rounded-full border border-border bg-card py-2.5 pl-11 pr-10 text-sm shadow-xs",
           "transition-all duration-(--dur-base) ease-(--ease-out)",
-          "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary",
+          "placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary",
           "[&::-webkit-search-cancel-button]:hidden",
         )}
       />
@@ -55,9 +55,9 @@ function SurahSearchInput({
           type="button"
           aria-label="Clear search"
           onClick={() => onChange("")}
-          className="absolute right-2.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute right-3 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <X className="size-3.5" strokeWidth={2} />
+          <X className="size-4" strokeWidth={2} />
         </button>
       )}
     </div>
@@ -91,15 +91,15 @@ export function SurahExplorer({ chapters }: { chapters: Chapter[] }) {
   return (
     <section aria-labelledby="all-surahs-heading" className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        {/* Left side: Heading & Filter tabs */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+        {/* Left side: Directory title & Revelation filter */}
+        <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:gap-6">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gold">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
               Directory
             </p>
             <h2
               id="all-surahs-heading"
-              className="mt-1 text-xl font-medium tracking-tight text-foreground"
+              className="mt-0.5 text-xl font-semibold tracking-tight text-foreground"
             >
               {filtered.length} {filtered.length === 1 ? "surah" : "surahs"}
             </h2>
@@ -110,7 +110,7 @@ export function SurahExplorer({ chapters }: { chapters: Chapter[] }) {
           </div>
         </div>
 
-        {/* Right side: Enlarged Search Bar */}
+        {/* Right side: Large Search Bar */}
         <div className="w-full sm:w-auto">
           <SurahSearchInput value={query} onChange={setQuery} />
         </div>

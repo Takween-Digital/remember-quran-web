@@ -257,7 +257,7 @@ export function ReadingAyahToolbar({ verse, onClose }: ReadingAyahToolbarProps) 
           )}
         >
           <Sparkles className="size-3.5" />
-          <span>{memorised ? "Memorised" : "Hifz"}</span>
+          <span>Hifz</span>
         </button>
 
         {/* Highlight & Note (E-12) — one sheet covers both */}

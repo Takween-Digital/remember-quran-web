@@ -28,7 +28,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         <div
           className={cn(
-            "flex min-h-[44px] items-center gap-2 rounded-[10px] border bg-card px-3 text-muted-foreground transition-colors",
+            "flex min-h-[44px] items-center gap-2 rounded-[10px] overflow-hidden border bg-card px-3 text-muted-foreground transition-colors",
             error ? "border-destructive" : focus ? "border-ring shadow-[0_0_0_2px_var(--ring)]" : "border-border",
             // Callers reach for `className` to style this visible field box
             // (height, background, padding) — not the outer label+hint

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpenText, Headphones, ImagePlus, LayoutGrid } from "lucide-react"
+import { BookOpenText, Headphones, ImagePlus, LayoutGrid, Mail, Menu } from "lucide-react"
 import { ArabesquePattern } from "@/components/layout/ArabesquePattern"
 import { useAuth } from "@/components/auth/AuthProvider"
 import { AuthNav } from "@/components/auth/AuthNav"
@@ -11,6 +11,7 @@ import { LogoWordmark } from "@/components/layout/Logo"
 import { NavbarResumeButton } from "@/components/layout/NavbarResumeButton"
 import { ThemeSwitcher } from "@/components/layout/ThemeSwitcher"
 import { useUI } from "@/context/UIContext"
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
 const FOCUS =
@@ -34,6 +35,12 @@ const TABS = [
     label: "Create",
     icon: ImagePlus,
     match: (p: string) => p === "/media-maker",
+  },
+  {
+    href: "/contact",
+    label: "Contact",
+    icon: Mail,
+    match: (p: string) => p === "/contact",
   },
 ]
 
@@ -84,21 +91,69 @@ function NavTabs({ pathname }: { pathname: string }) {
   )
 }
 
-function NavActions() {
+function MobileNav({ pathname }: { pathname: string }) {
+  const dashboardTab = useDashboardTab()
+  const tabs = [...TABS, ...dashboardTab]
+  const [open, setOpen] = useState(false)
+
+  // Close sheet on route change
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
+
   return (
-    <div className="flex items-center gap-1.5 sm:gap-2">
-      <Link
-        href="/media-maker"
-        title="Create media"
-        aria-label="Create media"
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger
+        aria-label="Open menu"
         className={cn(
           "flex md:hidden size-9 items-center justify-center rounded-md text-muted-foreground",
           "transition-colors hover:bg-accent hover:text-foreground",
           FOCUS,
         )}
       >
-        <ImagePlus className="size-[1.125rem]" strokeWidth={1.75} />
-      </Link>
+        <Menu className="size-5" strokeWidth={1.75} />
+      </SheetTrigger>
+      <SheetContent side="right" className="w-[85%] max-w-[320px] p-0 flex flex-col">
+        <SheetHeader className="p-4 border-b">
+          <SheetTitle className="text-left">
+            <LogoWordmark size="md" />
+          </SheetTitle>
+        </SheetHeader>
+        <div className="flex-1 overflow-y-auto py-2">
+          <nav className="flex flex-col px-2 gap-1">
+            {tabs.map(({ href, label, icon: Icon, match }) => {
+              const active = match(pathname)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-base font-medium",
+                    "transition-colors",
+                    active
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                    FOCUS,
+                  )}
+                >
+                  <Icon className="size-5" strokeWidth={1.75} />
+                  {label}
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+function NavActions({ pathname }: { pathname: string }) {
+  return (
+    <div className="flex items-center gap-1.5 sm:gap-2">
+      <MobileNav pathname={pathname} />
       <NavbarResumeButton />
       <ThemeSwitcher />
       <AuthNav />
@@ -221,7 +276,7 @@ export function Navbar() {
             </div>
             <div className="flex min-w-0 flex-1 h-full items-center justify-between px-3 sm:px-4">
               <NavTabs pathname={pathname} />
-              <NavActions />
+              <NavActions pathname={pathname} />
             </div>
           </div>
         ) : (
@@ -230,7 +285,7 @@ export function Navbar() {
               <LogoLink />
               <NavTabs pathname={pathname} />
             </div>
-            <NavActions />
+            <NavActions pathname={pathname} />
           </div>
         )}
       </div>
