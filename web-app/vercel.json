@@ -2,6 +2,5 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/server",
   "framework": "nextjs",
-  "nodeVersion": "22.x",
   "installCommand": "npm install"
 }
