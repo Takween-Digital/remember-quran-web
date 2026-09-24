@@ -7,7 +7,7 @@ import {
   updatePasswordHash,
   type UserRecord,
 } from "@/lib/firestore/users"
-import { sendPasswordResetEmailAction } from "@/lib/email/resend"
+import { sendPasswordResetEmailAction } from "@/lib/email/hostinger"
 import { validatePassword } from "./credentials"
 
 const BCRYPT_ROUNDS = 12
