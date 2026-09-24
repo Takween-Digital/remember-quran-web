@@ -43,7 +43,29 @@ async function getAccessToken() {
     exp: iat + 3600,
   };
 
-  const key = await importPKCS8(serverConfig.privateKey, "RS256");
+  // Ensure the key has proper newlines
+  let keyToUse = serverConfig.privateKey;
+
+  // Debug: log key details
+  if (typeof keyToUse !== 'string' || !keyToUse) {
+    console.error('Key is not a valid string:', {
+      type: typeof keyToUse,
+      length: keyToUse ? keyToUse.length : 0,
+      value: keyToUse ? keyToUse.substring(0, 100) : 'null/undefined'
+    });
+    throw new Error(`FIREBASE_PRIVATE_KEY is not valid: ${typeof keyToUse}`);
+  }
+
+  if (!keyToUse.includes('\n')) {
+    // If no newlines, try replacing escaped newlines
+    keyToUse = keyToUse.replace(/\\n/g, '\n');
+  }
+
+  if (!keyToUse.includes('PRIVATE KEY')) {
+    throw new Error('FIREBASE_PRIVATE_KEY does not contain "PRIVATE KEY" marker');
+  }
+
+  const key = await importPKCS8(keyToUse, "RS256");
   const token = await new SignJWT(payload)
     .setProtectedHeader({ alg: "RS256", typ: "JWT" })
     .sign(key);

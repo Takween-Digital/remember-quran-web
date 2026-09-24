@@ -31,6 +31,16 @@
           "id": "7be8fb49d877416eb6a27a2675ff8450"
         }
       ],
+      "secrets": [
+        "FIREBASE_PRIVATE_KEY",
+        "AUTH_SECRET",
+        "BETTER_AUTH_SECRET",
+        "RESEND_API_KEY",
+        "HOSTINGER_API_KEY",
+        "HOSTINGER_EMAIL_PASSWORD",
+        "HOSTINGER_EMAIL_USER",
+        "FIREBASE_CLIENT_EMAIL"
+      ],
       "vars": {
         "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "remember-quran",
         "NEXT_PUBLIC_FIREBASE_API_KEY": "AIzaSyALNl-0F78hwgAYU9nVwtfHJc1t_kDzvA4",
