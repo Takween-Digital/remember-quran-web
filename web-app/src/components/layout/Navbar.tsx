@@ -74,8 +74,8 @@ function NavTabs({ pathname }: { pathname: string }) {
             aria-label={label}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "relative flex h-full items-center gap-1.5 px-3 text-[13px] sm:text-sm font-medium",
-              "transition-colors duration-(--dur-base) ease-(--ease-out)",
+              "relative flex h-full items-center gap-1.5 px-3 text-[13px] sm:text-sm font-medium no-underline",
+              "transition-colors duration-[--dur-base] ease-[--ease-out]",
               active
                 ? "text-primary border-b-2 border-primary"
                 : "text-muted-foreground hover:text-foreground",
@@ -130,7 +130,7 @@ function MobileNav({ pathname }: { pathname: string }) {
                   onClick={() => setOpen(false)}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-base font-medium",
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-base font-medium no-underline",
                     "transition-colors",
                     active
                       ? "bg-primary/10 text-primary"
@@ -168,7 +168,7 @@ function LogoLink({ className }: { className?: string }) {
       aria-label="RememberQuran — home"
       className={cn("rounded-sm shrink-0", FOCUS, className)}
     >
-      <span className="inline-flex transition-opacity duration-(--dur-base) hover:opacity-80">
+      <span className="inline-flex transition-opacity duration-[--dur-base] hover:opacity-80">
         <LogoWordmark size="sm" className="sm:hidden" />
         <LogoWordmark size="md" className="hidden sm:inline-flex" />
       </span>

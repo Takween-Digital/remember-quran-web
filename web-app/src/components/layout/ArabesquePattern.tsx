@@ -22,7 +22,9 @@ export function ArabesquePattern({
   return (
     <svg
       aria-hidden
-      className={`animate-slow-spin pointer-events-none absolute -inset-[20%] -z-10 ${className ?? ""}`}
+      width="100%"
+      height="100%"
+      className={`animate-slow-spin pointer-events-none absolute -inset-[20%] -z-10 w-[140%] h-[140%] max-w-none ${className ?? ""}`}
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>

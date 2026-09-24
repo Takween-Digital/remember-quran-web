@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Input as InputPrimitive } from "@base-ui/react/input"
 import { Textarea } from "@/components/ui/textarea"
 
 function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
@@ -123,8 +123,6 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
     />
   )
 }
-
-import { Input as InputPrimitive } from "@base-ui/react/input"
 
 function InputGroupInput({
   className,
