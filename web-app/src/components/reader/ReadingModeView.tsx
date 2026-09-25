@@ -29,6 +29,7 @@ import { HIGHLIGHT_BG_CLASS } from "@/lib/notes/highlights"
 import { TOTAL_QURAN_PAGES } from "@/lib/goals/constants"
 import { useQcfPageFont } from "@/hooks/useQcfPageFont"
 import { useBalancedPageLayout } from "@/hooks/useBalancedPageLayout"
+import { IslamicPageLoader } from "./IslamicPageLoader"
 import { ArabicWord } from "./ArabicWord"
 import { AyahEndMarker } from "./AyahEndMarker"
 import { HideableArabic } from "./HideableArabic"
@@ -647,9 +648,9 @@ function ReadingPage({
           }}
         >
           {fontLoading ? (
-            <MushafPageSkeleton
-              centered={isCenteredOpeningPage}
-              lineCount={isCenteredOpeningPage ? Math.max(page.verses.length, 3) : 15}
+            <IslamicPageLoader
+              pageNumber={page.pageNumber}
+              showLabel={true}
             />
           ) : isCenteredOpeningPage ? (
             // Opening pages (Fatihah / Baqarah 1-5): Continuous centered calligraphic flow
@@ -667,8 +668,8 @@ function ReadingPage({
           ) : (() => {
             // Standard 15-Line Madani Page: Exact line-by-line justified rendering
             const missingLines = 15 - page.lines.length
-            const surahStartsOnPage = page.lines.filter(({ words }) => 
-              words.find((w) => w.verse.verse_number === 1 && w.position === 1)
+            const surahStartsOnPage = page.lines.filter(({ words }) =>
+              words.find((w) => w.verse.verse_number === 1 && w.word.position === 1)
             ).length
             const flexPerHeader = surahStartsOnPage > 0 ? missingLines / surahStartsOnPage : 0
 
