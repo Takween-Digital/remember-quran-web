@@ -57,3 +57,5 @@ app.*.map.json
 *.mode2v3
 *.perspectivev3
 **/ios/Runner/GeneratedPluginRegistrant.*
+.vercel
+.env*
