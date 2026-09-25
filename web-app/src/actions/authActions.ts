@@ -1,6 +1,6 @@
 "use server"
 
-import { adminAuth, adminDb } from "@/lib/firebase/admin"
+import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin"
 import * as nodemailer from "nodemailer"
 import { validateEmail, validatePassword } from "@/lib/auth/credentials"
 
@@ -113,11 +113,11 @@ export async function requestPasswordResetOTP(email: string) {
     }
 
     console.log("[PASSWORD_RESET] Checking if user exists...")
-    await adminAuth.getUserByEmail(emailValidation.email)
+    await getAdminAuth().getUserByEmail(emailValidation.email)
     console.log("[PASSWORD_RESET] User found")
 
     console.log("[PASSWORD_RESET] Checking resend cooldown...")
-    const resetDoc = await adminDb
+    const resetDoc = await getAdminDb()
       .collection("password_reset_otps")
       .doc(emailValidation.email)
       .get()
@@ -144,7 +144,7 @@ export async function requestPasswordResetOTP(email: string) {
     console.log(`[PASSWORD_RESET] OTP generated: ${otp}`)
 
     console.log("[PASSWORD_RESET] Saving OTP to Firestore...")
-    await adminDb.collection("password_reset_otps").doc(emailValidation.email).set(
+    await getAdminDb().collection("password_reset_otps").doc(emailValidation.email).set(
       {
         otp,
         expiresAt,
@@ -185,7 +185,7 @@ export async function verifyAndResetPassword(
       return { success: false, error: passwordValidation.error }
     }
 
-    const docRef = adminDb.collection("password_reset_otps").doc(emailValidation.email)
+    const docRef = getAdminDb().collection("password_reset_otps").doc(emailValidation.email)
     const doc = await docRef.get()
 
     if (!doc.exists) {
@@ -204,8 +204,8 @@ export async function verifyAndResetPassword(
       return { success: false, error: "Incorrect code. Please try again." }
     }
 
-    const user = await adminAuth.getUserByEmail(emailValidation.email)
-    await adminAuth.updateUser(user.uid, {
+    const user = await getAdminAuth().getUserByEmail(emailValidation.email)
+    await getAdminAuth().updateUser(user.uid, {
       password: passwordValidation.password,
     })
 
