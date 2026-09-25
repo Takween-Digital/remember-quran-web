@@ -1,12 +1,17 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
+import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import { getAuth, type Auth } from 'firebase-admin/auth';
 import { env } from '@/lib/env';
 
-let adminDb: ReturnType<typeof getFirestore> | null = null;
-let adminAuth: ReturnType<typeof getAuth> | null = null;
+let adminDb: Firestore | null = null;
+let adminAuth: Auth | null = null;
+let initialized = false;
 
 function initializeAdmin() {
+  if (initialized) {
+    return;
+  }
+
   if (!getApps().length) {
     const privateKey = env.FIREBASE_PRIVATE_KEY;
     if (!privateKey) {
@@ -22,24 +27,21 @@ function initializeAdmin() {
     });
   }
 
-  if (!adminDb) {
-    adminDb = getFirestore();
-  }
-  if (!adminAuth) {
-    adminAuth = getAuth();
-  }
+  adminDb = getFirestore();
+  adminAuth = getAuth();
+  initialized = true;
 }
 
-export function getAdminDb() {
+export function getAdminDb(): Firestore {
   if (!adminDb) {
     initializeAdmin();
   }
-  return adminDb;
+  return adminDb!;
 }
 
-export function getAdminAuth() {
+export function getAdminAuth(): Auth {
   if (!adminAuth) {
     initializeAdmin();
   }
-  return adminAuth;
+  return adminAuth!;
 }
