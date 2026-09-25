@@ -55,27 +55,15 @@ export function ForgotPasswordForm() {
     setError(null)
     setMessage(null)
 
-    if (!otp.trim()) {
+    if (!otp.trim() || otp.length < 6) {
       setError("Enter the 6-digit code")
       return
     }
 
     setPending(true)
     try {
-      if (!password.trim()) {
-        setMessage("Code verified! Now enter your new password")
-        setStep("password")
-      } else {
-        const result = await verifyAndResetPassword(email, otp, password)
-        if (result.success) {
-          setMessage("Password reset successful! Redirecting to sign in...")
-          setTimeout(() => {
-            window.location.href = "/login"
-          }, 2000)
-        } else {
-          setError(result.error || "Failed to reset password")
-        }
-      }
+      setMessage("Code verified! Now enter your new password")
+      setStep("password")
     } catch (err: any) {
       setError(err.message || "Something went wrong")
     } finally {
