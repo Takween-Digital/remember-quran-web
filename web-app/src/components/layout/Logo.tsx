@@ -46,10 +46,10 @@ export function LogoWordmark({ className, size = "md" }: LogoWordmarkProps) {
 
   return (
     <span className={cn("inline-flex items-center", className)}>
-      {/* Light mode: dark wordmark */}
+      {/* Light mode: Use the logo designed for light backgrounds */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/rq-logo-horizontal-dark.svg"
+        src="/rq-logo-horizontal-light.svg"
         alt="Remember Quran"
         width={width}
         height={height}
@@ -57,10 +57,10 @@ export function LogoWordmark({ className, size = "md" }: LogoWordmarkProps) {
         decoding="async"
         fetchPriority="high"
       />
-      {/* Dark mode: light wordmark — slight lift on near-black chrome */}
+      {/* Dark mode: Use the logo designed for dark backgrounds */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/rq-logo-horizontal-light.svg"
+        src="/rq-logo-horizontal-dark.svg"
         alt=""
         width={width}
         height={height}

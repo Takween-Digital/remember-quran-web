@@ -29,7 +29,6 @@ import { HIGHLIGHT_BG_CLASS } from "@/lib/notes/highlights"
 import { TOTAL_QURAN_PAGES } from "@/lib/goals/constants"
 import { useQcfPageFont } from "@/hooks/useQcfPageFont"
 import { useBalancedPageLayout } from "@/hooks/useBalancedPageLayout"
-import { IslamicPageLoader } from "./IslamicPageLoader"
 import { ArabicWord } from "./ArabicWord"
 import { AyahEndMarker } from "./AyahEndMarker"
 import { HideableArabic } from "./HideableArabic"
@@ -648,9 +647,9 @@ function ReadingPage({
           }}
         >
           {fontLoading ? (
-            <IslamicPageLoader
-              pageNumber={page.pageNumber}
-              showLabel={true}
+            <MushafPageSkeleton
+              centered={isCenteredOpeningPage}
+              lineCount={isCenteredOpeningPage ? Math.max(page.verses.length, 3) : 15}
             />
           ) : isCenteredOpeningPage ? (
             // Opening pages (Fatihah / Baqarah 1-5): Continuous centered calligraphic flow
