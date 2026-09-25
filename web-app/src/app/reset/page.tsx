@@ -11,7 +11,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell
       title="Reset your password"
-      subtitle="Enter your account email and we’ll send a secure link. The link expires after one hour."
+      subtitle="Enter your email and we’ll send you a 6-digit code to reset your password."
       footer={
         <Link
           href="/login?next=/account"
