@@ -40,7 +40,7 @@ export function IslamicHistoryCard() {
     <div
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-[#0e6b57] p-6 text-white shadow-sm transition-shadow hover:shadow-md sm:p-8"
+      className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-[#0e6b57] p-6 text-emerald-50 ring-1 ring-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:p-8"
     >
       {/* Decorative pattern */}
       <div className="absolute -right-16 -top-16 opacity-10 blur-xl pointer-events-none">

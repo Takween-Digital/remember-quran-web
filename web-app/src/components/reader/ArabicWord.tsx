@@ -8,6 +8,7 @@ import { getWordAudioUrl } from "@/lib/audioSources"
 import { buildTajweedSpans, TAJWEED_RULES } from "@/lib/tajweed"
 import type { Word } from "@/types/quran"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { motion } from "framer-motion"
 import { WordMeaningContent } from "./WordMeaningContent"
 import { TajweedRuleTooltip } from "./TajweedRuleTooltip"
 import { cn } from "@/lib/utils"
@@ -57,7 +58,7 @@ export function ArabicWord({
         />
       )
     }
-    if (tajweedEnabled && word.text_uthmani_tajweed) {
+    if (!useQcfGlyph && word.text_uthmani_tajweed) {
       return buildTajweedSpans(plainText, word.text_uthmani_tajweed).map(
         ({ text, rule }, i) =>
           rule ? (
@@ -75,12 +76,12 @@ export function ArabicWord({
   }
 
   const triggerClass = cn(
-    "inline cursor-pointer rounded-xs px-0 py-0.5",
+    "relative inline cursor-pointer rounded-xs px-0 py-0.5",
     "touch-manipulation select-text",
     "transition-colors duration-(--dur-fast) ease-(--ease-out)",
     "hover:bg-gold/20 hover:text-gold",
     "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold",
-    isHighlighted && "bg-primary/20 text-primary font-medium rounded-xs",
+    isHighlighted && "text-primary font-medium",
   )
 
   function handleClick() {
@@ -90,25 +91,6 @@ export function ArabicWord({
   }
 
   const [popoverOpen, setPopoverOpen] = useState(false)
-
-  if (disableTooltip) {
-    return (
-      <span
-        role="button"
-        tabIndex={0}
-        onClick={handleClick}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault()
-            handleClick()
-          }
-        }}
-        className={triggerClass}
-      >
-        {wordContent()}
-      </span>
-    )
-  }
 
   // E-10: which tajweed rule (if any) the most recent activation landed on —
   // null shows the normal word-meaning popup instead. Mouse/touch can tell
@@ -137,6 +119,15 @@ export function ArabicWord({
         }}
         className={triggerClass}
       >
+        {isHighlighted && (
+          <motion.span
+            layoutId="playback-highlight"
+            className="absolute inset-0 z-[-1] rounded-xs bg-primary/20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, boxShadow: "0 0 15px rgba(42, 165, 131, 0.3)" }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          />
+        )}
         {wordContent()}
       </span>
     )
@@ -176,6 +167,15 @@ export function ArabicWord({
               }
             }}
           >
+            {isHighlighted && (
+              <motion.span
+                layoutId="playback-highlight"
+                className="absolute inset-0 z-[-1] rounded-xs bg-primary/20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, boxShadow: "0 0 15px rgba(42, 165, 131, 0.3)" }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+            )}
             {wordContent()}
           </span>
         )}

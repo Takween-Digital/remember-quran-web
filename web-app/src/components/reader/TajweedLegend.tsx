@@ -13,9 +13,14 @@ export function TajweedLegend() {
         <div key={rule} className="flex items-center gap-1.5">
           <span
             className="size-2 flex-none rounded-full"
-            style={{ background: `var(--tj-${rule})` }}
+            style={{ backgroundColor: `var(--tj-${rule})` }}
           />
-          <span className="truncate text-[11px] text-muted-foreground">{label}</span>
+          <span
+            className="truncate text-[11px] font-medium"
+            style={{ color: `var(--tj-${rule})` }}
+          >
+            {label}
+          </span>
         </div>
       ))}
     </div>

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { AyahMarker } from "@/components/ui/AyahMarker"
 
 interface AyahNumberProps {
   number: number
@@ -10,16 +11,15 @@ export function AyahNumber({ number, className, isTarget }: AyahNumberProps) {
   return (
     <div
       data-numeric
-      aria-label={`Ayah ${number}`}
       className={cn(
-        "flex items-center justify-center rounded-full border border-gold/40 size-8 shrink-0 font-mono text-xs tabular-nums text-muted-foreground",
+        "flex items-center justify-center shrink-0 text-muted-foreground/50",
         "transition-colors duration-(--dur-slow) ease-(--ease-out)",
-        "group-hover:border-gold group-hover:text-gold group-hover:bg-gold-soft group-focus-within:border-gold group-focus-within:text-gold",
-        isTarget && "border-gold text-gold bg-gold-soft",
+        "group-hover:text-gold group-focus-within:text-gold",
+        isTarget && "text-gold",
         className,
       )}
     >
-      {number}
+      <AyahMarker number={number} className="text-current scale-125 mx-2" />
     </div>
   )
 }

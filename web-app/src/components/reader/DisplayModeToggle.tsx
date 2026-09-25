@@ -3,6 +3,7 @@
 import { LayoutList, AlignLeft } from "lucide-react"
 import { useReaderSettings, type DisplayMode } from "@/context/ReaderSettingsContext"
 import { cn } from "@/lib/utils"
+import { hapticFeedback } from "@/lib/haptics"
 
 const OPTIONS: {
   value: DisplayMode
@@ -41,32 +42,35 @@ export function DisplayModeToggle() {
             type="button"
             role="radio"
             aria-checked={active}
-            onClick={() => setDisplayMode(value)}
+            onClick={() => {
+              if (!active) {
+                hapticFeedback("light");
+                setDisplayMode(value);
+              }
+            }}
             className={cn(
-              "flex w-full items-start gap-3 rounded-md px-2.5 py-2.5 text-start",
-              "transition-colors duration-[120ms]",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
-              active
-                ? "bg-primary/10 text-primary"
-                : "text-foreground hover:bg-accent",
+              "flex w-full items-start gap-4 rounded-xl px-2 py-3 text-start",
+              "transition-all duration-300",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+              active ? "bg-muted/30" : "hover:bg-muted/50"
             )}
           >
             <span
               className={cn(
-                "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md border",
+                "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border",
                 active
-                  ? "border-primary/25 bg-primary/10"
-                  : "border-border bg-muted/60 text-muted-foreground",
+                  ? "bg-background border-primary/30 text-primary shadow-sm"
+                  : "bg-muted/30 border-border/50 text-muted-foreground/70",
               )}
             >
-              <Icon className="size-3.5" strokeWidth={1.75} />
+              <Icon className="size-4" strokeWidth={active ? 2 : 1.75} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-sm font-medium">{label}</span>
+              <span className={cn("block text-[15px] font-medium transition-colors", active ? "text-foreground" : "text-muted-foreground")}>{label}</span>
               <span
                 className={cn(
-                  "mt-0.5 block text-[11px] leading-snug",
-                  active ? "text-primary/75" : "text-muted-foreground",
+                  "mt-1 block text-[11px] leading-snug font-medium transition-colors",
+                  active ? "text-foreground/70" : "text-muted-foreground/60",
                 )}
               >
                 {description}
@@ -74,11 +78,13 @@ export function DisplayModeToggle() {
             </span>
             <span
               className={cn(
-                "mt-1 size-1.5 shrink-0 rounded-full",
-                active ? "bg-primary" : "border border-muted-foreground/40",
+                "mt-2 size-4 shrink-0 rounded-full transition-all duration-300 flex items-center justify-center",
+                active ? "bg-primary" : "border-2 border-muted-foreground/40 bg-background shadow-sm",
               )}
               aria-hidden="true"
-            />
+            >
+              {active && <span className="size-1.5 rounded-full bg-background" />}
+            </span>
           </button>
         )
       })}

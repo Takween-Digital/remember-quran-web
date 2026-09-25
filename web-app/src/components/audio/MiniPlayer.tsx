@@ -22,6 +22,7 @@ import { SleepTimerControl } from "./SleepTimerControl"
 import { VolumeControl } from "./VolumeControl"
 import { FullScreenPlayer } from "./FullScreenPlayer"
 import { cn } from "@/lib/utils"
+import { hapticFeedback } from "@/lib/haptics"
 
 const barBtn = cn(
   "flex size-12 sm:size-11 items-center justify-center rounded-md",
@@ -102,7 +103,7 @@ export function MiniPlayer() {
         onClick={() => setExpanded(true)}
         className={cn(
           "fixed inset-x-3 bottom-24 z-40 cursor-pointer rounded-2xl md:inset-x-0 md:bottom-0 md:cursor-default md:rounded-none",
-          "border border-border/60 bg-background/80 shadow-[0_-4px_24px_rgba(0,0,0,0.05)] backdrop-blur-md",
+          "border border-border/40 bg-background/70 shadow-[0_-8px_30px_rgb(0,0,0,0.12)] backdrop-blur-xl saturate-[1.8]",
           "md:border-x-0 md:border-b-0 md:pb-[env(safe-area-inset-bottom)]",
           "animate-in slide-in-from-bottom-8 fade-in duration-[360ms] ease-out",
         )}
@@ -134,7 +135,10 @@ export function MiniPlayer() {
                 type="button"
                 title={isPlaying ? "Pause" : "Play"}
                 aria-label={isPlaying ? "Pause" : "Play"}
-                onClick={player.togglePlayPause}
+                onClick={() => {
+                  hapticFeedback("light")
+                  player.togglePlayPause()
+                }}
                 className={cn(barBtn, "size-18 bg-primary/10 text-primary hover:bg-primary/20")}
               >
                 {isBusy ? (
@@ -175,7 +179,10 @@ export function MiniPlayer() {
                 type="button"
                 title="Previous ayah"
                 aria-label="Previous ayah"
-                onClick={player.prevAyah}
+                onClick={() => {
+                  hapticFeedback("light")
+                  player.prevAyah()
+                }}
                 className={cn(barBtn, "size-14")}
               >
                 <SkipBack className="size-7" strokeWidth={1.5} />
@@ -184,7 +191,10 @@ export function MiniPlayer() {
                 type="button"
                 title={isPlaying ? "Pause" : "Play"}
                 aria-label={isPlaying ? "Pause" : "Play"}
-                onClick={player.togglePlayPause}
+                onClick={() => {
+                  hapticFeedback("light")
+                  player.togglePlayPause()
+                }}
                 className={cn(barBtn, "size-16 text-foreground")}
               >
                 {isBusy ? (
@@ -199,7 +209,10 @@ export function MiniPlayer() {
                 type="button"
                 title="Next ayah"
                 aria-label="Next ayah"
-                onClick={player.nextAyah}
+                onClick={() => {
+                  hapticFeedback("light")
+                  player.nextAyah()
+                }}
                 className={cn(barBtn, "size-12")}
               >
                 <SkipForward className="size-6" strokeWidth={1.5} />
@@ -222,7 +235,10 @@ export function MiniPlayer() {
               type="button"
               title="Close player"
               aria-label="Close player"
-              onClick={player.stop}
+              onClick={() => {
+                hapticFeedback("medium")
+                player.stop()
+              }}
               className={barBtn}
             >
               <X className="size-5" strokeWidth={1.5} />

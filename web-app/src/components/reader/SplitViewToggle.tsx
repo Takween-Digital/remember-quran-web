@@ -8,14 +8,14 @@ export function SplitViewToggle() {
   const { splitViewTranslation, setSplitViewTranslation } = useReaderSettings()
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-md px-2.5 py-2">
+    <div className="flex items-center justify-between gap-3 px-1 py-1">
       <div className="min-w-0 flex-1">
-        <span className="block text-sm">Split view: translation</span>
-        <span className="mt-0.5 block text-[11px] leading-snug text-muted-foreground">
+        <span className="block text-sm font-semibold text-foreground">Split view: translation</span>
+        <span className="mt-0.5 block text-[11px] font-medium leading-snug text-muted-foreground">
           Show a synced translation column beside the Mushaf page (md+ screens)
         </span>
       </div>
-      <Switch checked={splitViewTranslation} onCheckedChange={setSplitViewTranslation} />
+      <Switch checked={splitViewTranslation} onCheckedChange={setSplitViewTranslation} className="data-[state=checked]:bg-primary" />
     </div>
   )
 }

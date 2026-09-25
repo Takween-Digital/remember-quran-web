@@ -42,10 +42,7 @@ export type DisplayMode = "verse" | "reading"
 /** Reading mode layout: scroll = continuous vertical flow (default); paged = one Mushaf page at a time, turned via swipe/arrow keys */
 export type ReadingLayout = "scroll" | "paged"
 
-/** Reading-surface palette (E-07) — overrides --reader-paper/--reader-ink/etc.
- * regardless of the site's own light/dark/modern theme. "default" defers to
- * whatever the active site theme already sets (Nur light, dark, or modern). */
-export type ReaderTheme = "default" | "sepia" | "parchment" | "amoled"
+
 
 
 /** @deprecated Use FontScale — kept for migration from older localStorage */
@@ -68,8 +65,7 @@ export interface ReaderSettings {
   autoFollowRecitation: boolean
   /** Reading mode layout — default "scroll" */
   readingLayout: ReadingLayout
-  /** Reading-surface palette — default "default" */
-  readerTheme: ReaderTheme
+
   /** Reading mode (Scroll layout only): side-by-side translation column — default false */
   splitViewTranslation: boolean
 }
@@ -91,7 +87,7 @@ interface ReaderSettingsContextValue extends ReaderSettings {
   setHideArabic: (enabled: boolean) => void
   setAutoFollowRecitation: (enabled: boolean) => void
   setReadingLayout: (layout: ReadingLayout) => void
-  setReaderTheme: (theme: ReaderTheme) => void
+
   setSplitViewTranslation: (enabled: boolean) => void
   /**
    * Session-only: when hide Arabic is on, limit blur to this inclusive range.
@@ -137,7 +133,7 @@ const DEFAULT_SETTINGS: ReaderSettings = {
   hideArabic: false,
   autoFollowRecitation: true,
   readingLayout: "paged",
-  readerTheme: "default",
+
   splitViewTranslation: false,
 }
 
@@ -218,13 +214,7 @@ function migrateSettings(raw: unknown): ReaderSettings {
       s.readingLayout === "scroll" || s.readingLayout === "paged"
         ? s.readingLayout
         : DEFAULT_SETTINGS.readingLayout,
-    readerTheme:
-      s.readerTheme === "default" ||
-      s.readerTheme === "sepia" ||
-      s.readerTheme === "parchment" ||
-      s.readerTheme === "amoled"
-        ? s.readerTheme
-        : DEFAULT_SETTINGS.readerTheme,
+
     splitViewTranslation:
       typeof s.splitViewTranslation === "boolean"
         ? s.splitViewTranslation
@@ -261,6 +251,15 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
     }
     prevSurahIdRef.current = surahId
   }, [surahId])
+
+  // Sync Tajweed state to HTML root for CSS-driven toggling across all Surahs instantly
+  useEffect(() => {
+    if (settings.tajweedEnabled) {
+      document.documentElement.setAttribute("data-tajweed", "true")
+    } else {
+      document.documentElement.removeAttribute("data-tajweed")
+    }
+  }, [settings.tajweedEnabled])
 
   // E-01: Sync focus mode with persisted display mode on mount
   const didSyncFocusRef = useRef(false)
@@ -411,10 +410,7 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
     [setSettings],
   )
 
-  const setReaderTheme = useCallback(
-    (readerTheme: ReaderTheme) => setSettings((p) => ({ ...p, readerTheme })),
-    [setSettings],
-  )
+
 
   const setSplitViewTranslation = useCallback(
     (splitViewTranslation: boolean) => setSettings((p) => ({ ...p, splitViewTranslation })),
@@ -533,7 +529,7 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
         setHideArabic,
         setAutoFollowRecitation,
         setReadingLayout,
-        setReaderTheme,
+
         setSplitViewTranslation,
         hideArabicRange,
         setHideArabicRange,

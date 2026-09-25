@@ -33,13 +33,13 @@ function ScaleTrack({
         disabled={value <= MIN_FONT_SCALE}
         onClick={() => onChange(Math.max(MIN_FONT_SCALE, value - 1) as FontScale)}
         className={cn(
-          "flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background pointer-fine:size-8 pointer-fine:min-h-0 pointer-fine:min-w-0",
-          "text-muted-foreground hover:bg-accent hover:text-foreground transition-colors",
+          "flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full border border-border/40 bg-muted/50 pointer-fine:size-9 pointer-fine:min-h-0 pointer-fine:min-w-0 shadow-sm",
+          "text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-all duration-300",
           "disabled:pointer-events-none disabled:opacity-30",
           FOCUS,
         )}
       >
-        <Minus className="size-3" strokeWidth={2} />
+        <Minus className="size-3.5" strokeWidth={2.5} />
       </button>
 
       <div className="relative flex-1 h-8 flex items-center">
@@ -83,13 +83,13 @@ function ScaleTrack({
         disabled={value >= MAX_FONT_SCALE}
         onClick={() => onChange(Math.min(MAX_FONT_SCALE, value + 1) as FontScale)}
         className={cn(
-          "flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background pointer-fine:size-8 pointer-fine:min-h-0 pointer-fine:min-w-0",
-          "text-muted-foreground hover:bg-accent hover:text-foreground transition-colors",
+          "flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full border border-border/40 bg-muted/50 pointer-fine:size-9 pointer-fine:min-h-0 pointer-fine:min-w-0 shadow-sm",
+          "text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-all duration-300",
           "disabled:pointer-events-none disabled:opacity-30",
           FOCUS,
         )}
       >
-        <Plus className="size-3" strokeWidth={2} />
+        <Plus className="size-3.5" strokeWidth={2.5} />
       </button>
     </div>
   )
@@ -113,19 +113,19 @@ function ScaleControl({
   onIncrease: () => void
 }) {
   return (
-    <div className="rounded-xl border border-border/50 bg-card px-4 py-3.5 shadow-sm">
-      <div className="flex items-start justify-between gap-3 mb-1">
+    <div className="rounded-xl border border-border/50 bg-card px-4 py-4 shadow-sm transition-colors hover:border-border/80">
+      <div className="flex items-start justify-between gap-3 mb-2">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-foreground">{label}</p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p>
+          <p className="text-sm font-semibold text-foreground">{label}</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground font-medium">{hint}</p>
         </div>
-        <span className="shrink-0 rounded-lg bg-primary/10 px-2.5 py-1 text-[11px] font-medium tabular-nums text-primary">
+        <span className="shrink-0 font-semibold text-primary text-xs">
           {FONT_SCALE_LABELS[value]}
         </span>
       </div>
 
       {/* Live preview */}
-      <div className="my-3 flex items-center justify-center overflow-hidden rounded-lg border border-border/40 bg-muted/30 px-4 py-3 min-h-[3rem]">
+      <div className="my-4 flex items-center justify-center overflow-hidden rounded-xl border border-border/40 bg-muted/40 px-4 py-3 min-h-[3.5rem] shadow-inner transition-all duration-300">
         {preview}
       </div>
 

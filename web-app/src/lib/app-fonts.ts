@@ -13,6 +13,8 @@ export const newsreader = Newsreader({
   variable: "--font-newsreader",
   display: "swap",
   axes: ["opsz"],
+  adjustFontFallback: true,
+  fallback: ["Georgia", "serif"],
 })
 
 /** All UI chrome: nav, labels, buttons, metadata. */
@@ -20,6 +22,8 @@ export const publicSans = Public_Sans({
   subsets: ["latin"],
   variable: "--font-public-sans",
   display: "swap",
+  adjustFontFallback: true,
+  fallback: ["system-ui", "sans-serif"],
 })
 
 /** Arabic UI text — surah names in lists, NOT revelation text. */
@@ -27,12 +31,16 @@ export const notoNaskhArabic = Noto_Naskh_Arabic({
   subsets: ["arabic"],
   variable: "--font-noto-naskh",
   display: "swap",
+  adjustFontFallback: true,
+  fallback: ["Arial", "sans-serif"],
 })
 
 export const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
   display: "swap",
+  adjustFontFallback: true,
+  fallback: ["ui-monospace", "monospace"],
 })
 
 /**
@@ -44,6 +52,8 @@ export const amiri = Amiri({
   subsets: ["arabic", "latin"],
   variable: "--font-amiri",
   display: "swap",
+  adjustFontFallback: true,
+  fallback: ["Arial", "sans-serif"],
 })
 
 export const amiriQuran = Amiri_Quran({
@@ -51,4 +61,6 @@ export const amiriQuran = Amiri_Quran({
   subsets: ["arabic", "latin"],
   variable: "--font-amiri-quran",
   display: "swap",
+  adjustFontFallback: true,
+  fallback: ["Arial", "sans-serif"],
 })

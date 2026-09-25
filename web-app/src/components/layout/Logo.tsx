@@ -17,7 +17,7 @@ export function LogoMark({ size = 24, className }: LogoMarkProps) {
   return (
     // eslint-disable-next-line @next/next/no-img-element -- SVG brand mark; next/image adds little value here
     <img
-      src="/favicon-icon.png"
+      src="/rq-mark.svg"
       alt="Remember Quran"
       width={size}
       height={size}
@@ -49,7 +49,7 @@ export function LogoWordmark({ className, size = "md" }: LogoWordmarkProps) {
       {/* Light mode: dark wordmark */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/light-logo.png"
+        src="/rq-logo-horizontal-dark.svg"
         alt="Remember Quran"
         width={width}
         height={height}
@@ -60,7 +60,7 @@ export function LogoWordmark({ className, size = "md" }: LogoWordmarkProps) {
       {/* Dark mode: light wordmark — slight lift on near-black chrome */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/dark-logo.png"
+        src="/rq-logo-horizontal-light.svg"
         alt=""
         width={width}
         height={height}

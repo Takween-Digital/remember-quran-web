@@ -12,7 +12,6 @@ import { TajweedLegend } from "./TajweedLegend"
 import { HideArabicToggle } from "./HideArabicToggle"
 import { AutoFollowToggle } from "./AutoFollowToggle"
 import { ReadingLayoutToggle } from "./ReadingLayoutToggle"
-import { ReaderThemeSelector } from "./ReaderThemeSelector"
 import { SplitViewToggle } from "./SplitViewToggle"
 import { TafsirBookSelector } from "@/components/study/TafsirBookSelector"
 
@@ -55,16 +54,6 @@ export function ReaderSettingsPanel({
         {isReadingMode && isScrollLayout && <SplitViewToggle />}
         <HideArabicToggle onRequestClose={onRequestClose} />
       </Section>
-
-      {isReadingMode && (
-        <>
-          <div className="h-px bg-border/60" />
-
-          <Section title="Reading surface">
-            <ReaderThemeSelector />
-          </Section>
-        </>
-      )}
 
       <div className="h-px bg-border/60" />
 

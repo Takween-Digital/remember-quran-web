@@ -4,6 +4,7 @@ import { Play, Pause, Loader2 } from "lucide-react"
 import { useAudioPlayer } from "@/context/AudioPlayerContext"
 import { useIsVerseActive } from "@/lib/playbackStore"
 import { cn } from "@/lib/utils"
+import { hapticFeedback } from "@/lib/haptics"
 
 interface PlayAyahButtonProps {
   chapterId: number
@@ -27,6 +28,7 @@ export function PlayAyahButton({
   const isPausedThis = isActive && player.status === "paused"
 
   function handleClick() {
+    hapticFeedback("light")
     if (isPlayingThis || isPausedThis) {
       player.togglePlayPause()
     } else {

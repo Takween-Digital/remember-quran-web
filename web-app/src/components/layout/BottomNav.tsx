@@ -127,7 +127,7 @@ export function BottomNav() {
       }
       transition={{ type: "spring", stiffness: 380, damping: 32 }}
       className={cn(
-        "glass-panel fixed inset-x-0 bottom-4 z-40 mx-auto flex h-[60px] w-fit items-center gap-1 rounded-full !border-gold-leaf/15 px-2 shadow-lg md:hidden",
+        "fixed inset-x-0 bottom-4 z-40 mx-auto flex h-[60px] w-fit items-center gap-1 rounded-full border border-border/40 bg-background/70 backdrop-blur-xl saturate-[1.8] px-2 shadow-[0_8px_30px_rgb(0,0,0,0.12)] md:hidden",
         forceHidden && "pointer-events-none",
       )}
       style={{ marginBottom: "env(safe-area-inset-bottom)" }}

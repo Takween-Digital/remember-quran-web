@@ -234,14 +234,14 @@ export function Navbar() {
     >
       <div
         className={cn(
-          "relative overflow-hidden backdrop-blur-xl",
+          "relative overflow-hidden",
           "transition-[background-color,box-shadow,border-color,backdrop-filter] duration-300 ease-out",
-          scrolled ? "backdrop-blur-2xl bg-background/90" : "bg-background/60",
+          scrolled ? "backdrop-blur-2xl bg-background/70" : "backdrop-blur-md bg-background/40",
           floating
             ? cn(
                 "mx-auto max-w-6xl rounded-2xl border",
                 scrolled
-                  ? "border-border shadow-lg"
+                  ? "border-white/10 dark:border-white/5 shadow-2xl"
                   : "border-border/40 shadow-sm",
               )
             : cn(

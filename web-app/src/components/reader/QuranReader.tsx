@@ -123,7 +123,6 @@ export function QuranReader({ chapter, verses, targetAyahId, targetAyahNonce }: 
     translationFontSize,
     arabicFontFamily,
     readingLayout,
-    readerTheme,
   } = useReaderSettings()
   const {
     activeSurahId,
@@ -594,7 +593,6 @@ export function QuranReader({ chapter, verses, targetAyahId, targetAyahNonce }: 
         ref={articleRef}
         aria-label={`Surah ${chapter.name_simple}`}
         aria-busy={false}
-        data-reader-theme={isReading && readerTheme !== "default" ? readerTheme : undefined}
         className={cn(
           "mx-auto",
           isReading

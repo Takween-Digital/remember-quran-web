@@ -31,25 +31,24 @@ function SurahSearchInput({
   onChange: (value: string) => void
 }) {
   return (
-    <div className="relative w-full sm:w-80 md:w-96">
-      <Search
-        className="pointer-events-none absolute left-4 top-1/2 size-4.5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
-        strokeWidth={2}
-        aria-hidden
-      />
-      <input
-        type="search"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Search surahs by name or number…"
-        aria-label="Search surahs by name or number"
-        className={cn(
-          "h-11 w-full rounded-full border border-border bg-card py-2.5 ps- pe- text-sm shadow-xs",
-          "transition duration-(--dur-base) ease-(--ease-out)",
-          "placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary",
-          "[&::-webkit-search-cancel-button]:hidden",
-        )}
-      />
+      <div className="relative w-full rounded-full border border-border bg-card transition duration-300 ease-out has-[:focus-visible]:border-primary/50 has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-primary/20">
+        <Search
+          className="pointer-events-none absolute left-4 top-1/2 size-4.5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
+          strokeWidth={2}
+          aria-hidden
+        />
+        <input
+          type="search"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Search surahs by name or number…"
+          aria-label="Search surahs by name or number"
+          className={cn(
+            "h-11 w-full rounded-full bg-transparent py-2.5 ps-11 pe-10 text-sm",
+            "placeholder:text-muted-foreground/80 focus:outline-none focus:ring-0",
+            "[&::-webkit-search-cancel-button]:hidden",
+          )}
+        />
       {value && (
         <button
           type="button"

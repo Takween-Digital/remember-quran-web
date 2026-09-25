@@ -123,7 +123,7 @@ function StudyPanelTabs({
 /** Tafsir/asbab/word content — shared by both layouts. */
 function StudyPanelBody({ target }: { target: StudyTarget }) {
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
+    <div className="min-h-0 flex-1 overflow-y-auto touch-scroll-y overscroll-contain px-4 py-4">
       {target.view === "tafsir" ? (
         <TafsirView verseKey={target.verseKey} />
       ) : null}

@@ -470,7 +470,6 @@ function MoveMenu({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        nativeButton={false}
         title="Move to collection"
         aria-label="Move to collection"
         disabled={busy}

@@ -55,7 +55,7 @@ function CommandDialog({
       </DialogHeader>
       <DialogContent
         className={cn(
-          "top-[35%] translate-y-0 overflow-hidden rounded-2xl! p-0 max-w-md sm:max-w-lg gap-0 ring-0",
+          "top-[35%] translate-y-0 overflow-hidden rounded-2xl! p-0 max-w-md sm:max-w-lg gap-0 ring-1 ring-border/50 shadow-2xl backdrop-blur-2xl bg-popover/80",
           className
         )}
         showCloseButton={showCloseButton}
@@ -76,7 +76,7 @@ function CommandInput({
         <CommandPrimitive.Input
           data-slot="command-input"
           className={cn(
-            "w-full text-base font-light outline-hidden placeholder:text-muted-foreground/60 disabled:cursor-not-allowed disabled:opacity-50",
+            "w-full text-base font-light focus:outline-none focus:ring-0 placeholder:text-muted-foreground/60 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent",
             className
           )}
           {...props}

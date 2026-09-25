@@ -576,6 +576,14 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
         clearRepeatPauseRef.current()
         repeatRef.current = REPEAT_OFF
       }
+      const audio = audioRef.current
+      // iOS Safari requires audio.play() to be called synchronously with a user gesture.
+      // Doing a dummy play() here before the async `getChapterAudio` fetch unlocks the
+      // element so the later `safePlay()` isn't blocked by autoplay policies.
+      if (audio && intent.autoplay && audio.paused) {
+        audio.play().catch(() => {})
+      }
+
       dispatch({
         type: "LOAD_START",
         chapterId: intent.chapterId,
@@ -1175,6 +1183,8 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
         ref={audioRef}
         preload="auto"
         hidden
+        playsInline
+        crossOrigin="anonymous"
         onPlay={handlePlay}
         onPause={handlePause}
         onEnded={handleEnded}

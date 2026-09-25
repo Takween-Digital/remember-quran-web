@@ -49,22 +49,22 @@ html {
 }
 
 :root {
-  /* Typography scale */
-  --text-xs: 0.6875rem;
-  --text-sm: 0.8125rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
+  /* Typography scale - Fluid */
+  --text-xs: clamp(0.6875rem, 0.65rem + 0.1875vw, 0.75rem);
+  --text-sm: clamp(0.8125rem, 0.7813rem + 0.1563vw, 0.875rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1.05rem + 0.375vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.125rem + 0.625vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.3rem + 1vw, 1.875rem);
+  --text-3xl: clamp(1.875rem, 1.625rem + 1.25vw, 2.25rem);
+  --text-4xl: clamp(2.25rem, 1.85rem + 2vw, 3rem);
 
-  /* Quranic typography */
-  --quran-sm: 1.5rem;
-  --quran-md: 2rem;
-  --quran-lg: 2.5rem;
-  --quran-xl: 3rem;
-  --quran-display: 4.5rem;
+  /* Quranic typography - Fluid */
+  --quran-sm: clamp(1.5rem, 1.3rem + 1vw, 1.875rem);
+  --quran-md: clamp(2rem, 1.7rem + 1.5vw, 2.5rem);
+  --quran-lg: clamp(2.5rem, 2.1rem + 2vw, 3.25rem);
+  --quran-xl: clamp(3rem, 2.4rem + 3vw, 4rem);
+  --quran-display: clamp(4.5rem, 3.5rem + 5vw, 6rem);
   --quran-leading: 2.15;
 
   /* Spacing */
@@ -120,6 +120,88 @@ html {
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+
+  /* Light Theme Colors (Derived from Logo) */
+  --background: #F3EFE6;
+  --foreground: #0c5f4d;
+  --card: #F9F7F1;
+  --card-foreground: #0c5f4d;
+  --popover: #F9F7F1;
+  --popover-foreground: #0c5f4d;
+  --primary: #0e6b57;
+  --primary-foreground: #F3EFE6;
+  --secondary: #e6c982;
+  --secondary-foreground: #0c5f4d;
+  --muted: #EBE5D6;
+  --muted-foreground: #5a8a7c;
+  --accent: #EBE5D6;
+  --accent-foreground: #0c5f4d;
+  --destructive: #dc2626;
+  --destructive-foreground: #f8fafc;
+  --border: #dfd8c4;
+  --input: #dfd8c4;
+  --ring: #2aa583;
+
+  /* Tajweed Colors (Light Mode) */
+  --tj-ham_wasl:              oklch(0.55 0.15 200);
+  --tj-laam_shamsiyah:        oklch(0.55 0.15 200);
+  --tj-madda_normal:          oklch(0.52 0.19 260);
+  --tj-madda_permissible:     oklch(0.52 0.19 260);
+  --tj-madda_necessary:       oklch(0.48 0.22 260);
+  --tj-madda_obligatory:      oklch(0.48 0.22 260);
+  --tj-ghunnah:               oklch(0.52 0.18 145);
+  --tj-qalaqah:               oklch(0.52 0.20 30);
+  --tj-ikhafa:                oklch(0.52 0.18 0);
+  --tj-ikhafa_shafawi:        oklch(0.52 0.18 0);
+  --tj-idgham_ghunnah:        oklch(0.50 0.19 290);
+  --tj-idgham_wo_ghunnah:     oklch(0.50 0.14 290);
+  --tj-idgham_mutajanisayn:   oklch(0.50 0.16 290);
+  --tj-idgham_mutaqaribayn:   oklch(0.50 0.14 290);
+  --tj-iqlab:                 oklch(0.52 0.19 330);
+  --tj-slnt:                  oklch(0.55 0.00 0);
+  --tj-custom-alef-maksora:   oklch(0.52 0.18 60);
+}
+
+.dark {
+  /* Dark Theme Colors (Derived from Logo) */
+  --background: #071914;
+  --foreground: #f4eede;
+  --card: #0A221C;
+  --card-foreground: #f4eede;
+  --popover: #0A221C;
+  --popover-foreground: #f4eede;
+  --primary: #2aa583;
+  --primary-foreground: #071914;
+  --secondary: #b58a45;
+  --secondary-foreground: #f4eede;
+  --muted: #13342B;
+  --muted-foreground: #9ca3af;
+  --accent: #13342B;
+  --accent-foreground: #f4eede;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #f8fafc;
+  --border: #1a4438;
+  --input: #1a4438;
+  --ring: #2aa583;
+
+  /* Tajweed Colors (Dark Mode) */
+  --tj-ham_wasl:              oklch(0.72 0.15 200);
+  --tj-laam_shamsiyah:        oklch(0.72 0.15 200);
+  --tj-madda_normal:          oklch(0.70 0.19 260);
+  --tj-madda_permissible:     oklch(0.70 0.19 260);
+  --tj-madda_necessary:       oklch(0.68 0.22 260);
+  --tj-madda_obligatory:      oklch(0.68 0.22 260);
+  --tj-ghunnah:               oklch(0.70 0.18 145);
+  --tj-qalaqah:               oklch(0.70 0.20 30);
+  --tj-ikhafa:                oklch(0.70 0.18 0);
+  --tj-ikhafa_shafawi:        oklch(0.70 0.18 0);
+  --tj-idgham_ghunnah:        oklch(0.68 0.19 290);
+  --tj-idgham_wo_ghunnah:     oklch(0.68 0.14 290);
+  --tj-idgham_mutajanisayn:   oklch(0.68 0.16 290);
+  --tj-idgham_mutaqaribayn:   oklch(0.68 0.14 290);
+  --tj-iqlab:                 oklch(0.70 0.19 330);
+  --tj-slnt:                  oklch(0.65 0.00 0);
+  --tj-custom-alef-maksora:   oklch(0.70 0.18 60);
 }
 
 /* Body text sizing */
@@ -145,4 +227,37 @@ h2 {
 h3 {
   font-size: var(--text-2xl);
   font-weight: 600;
+}
+
+@layer utilities {
+  .text-arabic-optimized {
+    font-feature-settings: "liga" 1, "dlig" 1, "ss01" 1;
+    /* Optimize Arabic typography legibility on smaller screens */
+    text-rendering: optimizeLegibility;
+  }
+
+  .touch-scroll-y {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+  
+  .touch-pan-x {
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tajweed CSS Classes */
+  [data-tajweed="true"] .tj-ham_wasl, [data-tajweed="true"] .tj-laam_shamsiyah       { color: var(--tj-ham_wasl); }
+  [data-tajweed="true"] .tj-madda_normal, [data-tajweed="true"] .tj-madda_permissible { color: var(--tj-madda_normal); }
+  [data-tajweed="true"] .tj-madda_necessary, [data-tajweed="true"] .tj-madda_obligatory { color: var(--tj-madda_necessary); }
+  [data-tajweed="true"] .tj-ghunnah                             { color: var(--tj-ghunnah); }
+  [data-tajweed="true"] .tj-qalaqah                             { color: var(--tj-qalaqah); }
+  [data-tajweed="true"] .tj-ikhafa, [data-tajweed="true"] .tj-ikhafa_shafawi          { color: var(--tj-ikhafa); }
+  [data-tajweed="true"] .tj-idgham_ghunnah                      { color: var(--tj-idgham_ghunnah); }
+  [data-tajweed="true"] .tj-idgham_mutaqaribayn                 { color: var(--tj-idgham_wo_ghunnah); }
+  [data-tajweed="true"] .tj-idgham_wo_ghunnah                   { color: var(--tj-idgham_wo_ghunnah); }
+  [data-tajweed="true"] .tj-idgham_mutajanisayn                 { color: var(--tj-idgham_wo_ghunnah); }
+  [data-tajweed="true"] .tj-iqlab                               { color: var(--tj-iqlab); }
+  [data-tajweed="true"] .tj-slnt                                { color: var(--tj-slnt); }
+  [data-tajweed="true"] .tj-custom-alef-maksora                 { color: var(--tj-custom-alef-maksora); }
 }

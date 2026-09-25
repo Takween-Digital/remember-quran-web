@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { useBookmarks } from "@/context/BookmarksContext"
 import { useSoftGate } from "@/context/SoftGateContext"
 import { cn } from "@/lib/utils"
+import { hapticFeedback } from "@/lib/haptics"
 
 interface BookmarkButtonProps {
   verseKey: string
@@ -112,6 +113,7 @@ export function BookmarkButton({
   const waitingForKeys = signedIn && !loaded
 
   function fireSpark() {
+    hapticFeedback("success")
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     setSparkId((id) => id + 1)
     setSparking(true)
@@ -124,6 +126,7 @@ export function BookmarkButton({
       requireAuth("bookmark")
       return
     }
+    hapticFeedback("light")
     void toggle(verseKey)
   }
 
@@ -174,7 +177,6 @@ export function BookmarkButton({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        nativeButton={false}
         title="Bookmark"
         aria-label={`Bookmark ${verseKey}`}
         aria-pressed={false}

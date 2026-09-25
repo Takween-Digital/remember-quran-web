@@ -591,8 +591,16 @@ function ReadingPage({
   const pageLeadSurahId = Number(page.verses[0]?.verse_key.split(":")[0])
   const pageHeaderChapter = chaptersById.get(pageLeadSurahId) ?? chapter
 
+  const { arabicFontFamily } = useReaderSettings()
+
   return (
-    <div ref={containerRef} className={enableScrollTurn ? "mushaf-page-turn" : undefined}>
+    <div
+      ref={containerRef}
+      className={enableScrollTurn ? "mushaf-page-turn" : undefined}
+      style={{
+        "--arabic-font-family": arabicFontFamily,
+      } as React.CSSProperties}
+    >
       <MushafPageFrame
         pageNumber={page.pageNumber}
         juzNumber={page.juzNumber}
@@ -620,7 +628,7 @@ function ReadingPage({
           dir="rtl"
           lang="ar"
           className={cn(
-            "quran-arabic font-uthmani select-text w-full reading-mode-text h-full flex-1",
+            "quran-arabic select-text w-full reading-mode-text h-full flex-1",
             "text-reader-ink",
             isCenteredOpeningPage
               ? "flex flex-col items-center justify-center space-y-2 py-1 text-center leading-[2.0]"
@@ -632,7 +640,11 @@ function ReadingPage({
             // When forcedFontSize is provided (paged spread mode), use fixed size for balanced layout.
             !forcedFontSize && "text-[clamp(16px,6.2cqw,40px)]",
           )}
-          style={forcedFontSize ? { fontSize: `${forcedFontSize}px` } : undefined}
+          style={{
+            ...(forcedFontSize ? { fontSize: `${forcedFontSize}px` } : {}),
+            // Apply selected Quran font with fallbacks
+            fontFamily: "var(--arabic-font-family, 'UthmanicHafs', 'KFGQPC Uthmanic Hafs', serif)",
+          }}
         >
           {fontLoading ? (
             <MushafPageSkeleton

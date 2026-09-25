@@ -120,15 +120,15 @@ export function HideArabicToggle({
     )
 
   return (
-    <div className="space-y-2 rounded-md px-2.5 py-2">
+    <div className="space-y-3 px-1 py-1">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <span className="block text-sm">Hide Arabic</span>
-          <span className="mt-0.5 block text-[11px] leading-snug text-muted-foreground">
+          <span className="block text-sm font-semibold text-foreground">Hide Arabic</span>
+          <span className="mt-0.5 block text-[11px] font-medium leading-snug text-muted-foreground">
             Blur ayahs for memorisation — tap to reveal or hide again
           </span>
         </div>
-        <Switch checked={hideArabic} onCheckedChange={setHideArabic} />
+        <Switch checked={hideArabic} onCheckedChange={setHideArabic} className="data-[state=checked]:bg-primary" />
       </div>
 
       {hideArabic && (
@@ -220,14 +220,14 @@ export function HideArabicToggle({
           )}
 
           {rangeReady && surahId != null && (
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => revealAllInHideScope(surahId, maxAyah, latestSurahId)}
                 className={cn(
-                  "flex-1 rounded-md border border-border px-2 py-1.5 text-[11px] font-medium",
-                  "text-muted-foreground transition-colors duration-[120ms] hover:bg-accent hover:text-foreground",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
+                  "flex-1 rounded-xl border border-primary/20 bg-background/50 px-2 py-2 text-xs font-medium",
+                  "text-primary transition-colors duration-300 hover:bg-primary/10",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                 )}
               >
                 Reveal all
@@ -236,9 +236,9 @@ export function HideArabicToggle({
                 type="button"
                 onClick={() => hideAllInHideScope(surahId)}
                 className={cn(
-                  "flex-1 rounded-md border border-border px-2 py-1.5 text-[11px] font-medium",
-                  "text-muted-foreground transition-colors duration-[120ms] hover:bg-accent hover:text-foreground",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
+                  "flex-1 rounded-xl border border-primary/20 bg-background/50 px-2 py-2 text-xs font-medium",
+                  "text-primary transition-colors duration-300 hover:bg-primary/10",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                 )}
               >
                 Hide all
