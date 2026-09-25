@@ -13,13 +13,13 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: process.env.HOSTINGER_SMTP_EMAIL,
-    pass: process.env.HOSTINGER_SMTP_PASSWORD,
+    user: process.env.HOSTINGER_EMAIL_USER,
+    pass: process.env.HOSTINGER_EMAIL_PASSWORD,
   },
 })
 
 async function sendOTPEmail(email: string, otp: string) {
-  if (!process.env.HOSTINGER_SMTP_EMAIL || !process.env.HOSTINGER_SMTP_PASSWORD) {
+  if (!process.env.HOSTINGER_EMAIL_USER || !process.env.HOSTINGER_EMAIL_PASSWORD) {
     console.warn("[PASSWORD_RESET] SMTP credentials not configured. OTP:", otp)
     return
   }
@@ -32,7 +32,7 @@ async function sendOTPEmail(email: string, otp: string) {
 
   try {
     const result = await transporter.sendMail({
-      from: `"Remember Quran" <${process.env.HOSTINGER_SMTP_EMAIL}>`,
+      from: `"Remember Quran" <${process.env.HOSTINGER_EMAIL_USER}>`,
       to: email,
       subject: "Your Password Reset Code",
       html: `<!DOCTYPE html>
@@ -103,8 +103,8 @@ const RESEND_COOLDOWN_SECONDS = 60
 export async function requestPasswordResetOTP(email: string) {
   try {
     console.log("[PASSWORD_RESET] OTP request started for:", email)
-    console.log("[PASSWORD_RESET] SMTP Email:", process.env.HOSTINGER_SMTP_EMAIL)
-    console.log("[PASSWORD_RESET] SMTP Password configured:", !!process.env.HOSTINGER_SMTP_PASSWORD)
+    console.log("[PASSWORD_RESET] SMTP Email:", process.env.HOSTINGER_EMAIL_USER)
+    console.log("[PASSWORD_RESET] SMTP Password configured:", !!process.env.HOSTINGER_EMAIL_PASSWORD)
 
     const emailValidation = validateEmail(email)
     if (!emailValidation.success) {
