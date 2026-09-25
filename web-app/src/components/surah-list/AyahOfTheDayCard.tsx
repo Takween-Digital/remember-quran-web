@@ -2,10 +2,13 @@ import Link from "next/link"
 import { BookOpenText, ImagePlus } from "lucide-react"
 import { getAyahOfTheDay } from "@/lib/quran/ayah-of-the-day"
 import { renderUthmaniText } from "@/lib/quran/uthmani-text"
+import { getOptimalTextVariant } from "@/lib/quran/text-utils"
 import { cn } from "@/lib/utils"
 
 export function AyahOfTheDayCard() {
   const ayah = getAyahOfTheDay()
+  // Use optimized text without diacritics for cleaner rendering
+  const cleanArabic = getOptimalTextVariant(ayah.arabic, false)
 
   return (
     <section
@@ -18,11 +21,11 @@ export function AyahOfTheDayCard() {
         </p>
 
         <p
-          className="mx-auto mt-6 text-center font-uthmani text-2xl leading-[1.9] text-reader-ink sm:text-[1.75rem]"
+          className="mx-auto mt-6 text-center font-uthmani text-2xl leading-[1.9] text-reader-ink sm:text-[1.75rem] arabic-text-render"
           dir="rtl"
           lang="ar"
         >
-          {renderUthmaniText(ayah.arabic)}
+          {renderUthmaniText(cleanArabic)}
         </p>
 
         <p className="mt-8 font-serif text-lg font-light leading-relaxed text-muted-foreground">

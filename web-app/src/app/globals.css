@@ -230,10 +230,46 @@ h3 {
 }
 
 @layer utilities {
+  /* Optimized Arabic text rendering */
+  [lang="ar"],
+  [dir="rtl"] {
+    /* Enable font smoothing for crisp rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Optimize for text rendering */
+    text-rendering: optimizeLegibility;
+    /* Ensure ligatures are properly formed */
+    font-feature-settings: "liga" 1, "dlig" 1;
+  }
+
+  /* Enhanced Arabic text class with all optimizations */
   .text-arabic-optimized {
     font-feature-settings: "liga" 1, "dlig" 1, "ss01" 1;
-    /* Optimize Arabic typography legibility on smaller screens */
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: normal;
+  }
+
+  /* Specific optimization for Arabic text rendering */
+  .arabic-text-render {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "liga" 1, "dlig" 1, "ss01" 1;
+    letter-spacing: normal;
+    /* Ensure consistent font display */
+    line-height: 1.8;
+  }
+
+  /* Quranic text - highest priority rendering */
+  .quran-arabic {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "liga" 1, "dlig" 1, "ss01" 1;
+    letter-spacing: 0;
+    word-spacing: normal;
   }
 
   .touch-scroll-y {
