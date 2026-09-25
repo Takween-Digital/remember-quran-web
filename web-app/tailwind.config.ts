@@ -34,6 +34,8 @@ export default {
         uthmani: ['var(--font-uthmani, "UthmanicHafs")', { fontFeatureSettings: '"ss01" on' }],
         'kfgqpc-v2': ['var(--font-kfgqpc-v2, "KFGQPC Uthmanic Script")', { fontFeatureSettings: '"ss01" on' }],
         // Arabic fonts
+        arabic: ['var(--font-arabic, "UthmanicHafs")', 'Arial', 'Segoe UI', 'sans-serif'],
+        'arabic-ui': ['var(--font-arabic-ui, "UthmanicHafs")', 'Arial', 'Segoe UI', 'sans-serif'],
         amiri: ['var(--font-amiri)', 'sans-serif'],
         'amiri-quran': ['var(--font-amiri-quran)', 'serif'],
         'noto-naskh': ['var(--font-noto-naskh)', 'sans-serif'],
