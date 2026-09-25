@@ -28,6 +28,7 @@ import { useReadingPosition } from "@/hooks/useReadingPosition"
 import { HIGHLIGHT_BG_CLASS } from "@/lib/notes/highlights"
 import { TOTAL_QURAN_PAGES } from "@/lib/goals/constants"
 import { useQcfPageFont } from "@/hooks/useQcfPageFont"
+import { useBalancedPageLayout } from "@/hooks/useBalancedPageLayout"
 import { ArabicWord } from "./ArabicWord"
 import { AyahEndMarker } from "./AyahEndMarker"
 import { HideableArabic } from "./HideableArabic"
@@ -142,7 +143,7 @@ function LineWord({
   // when both apply to the same word, rather than fighting over background-color.
   const { getHighlightColor } = useNotes()
   const highlightColor = getHighlightColor(verse.verse_key)
-  
+
   // E-15: Spatial Heatmap
   const { isMemorised } = useHifz()
   const { isRead } = useSurahProgressContext()
@@ -376,19 +377,22 @@ function MushafPageSkeleton({ centered, lineCount }: { centered: boolean; lineCo
     <div
       role="status"
       aria-label="Loading page"
-      className="flex flex-col flex-1 items-center justify-center h-full w-full gap-4"
+      className="flex flex-col flex-1 items-center justify-between h-full w-full py-4 opacity-50"
     >
-      <svg 
-        className="w-12 h-12 text-reader-paper-gilt animate-[spin_4s_linear_infinite]" 
-        viewBox="0 0 24 24" 
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path d="M12 2L14.8 7.2L20.5 6L19 11.5L23.5 15.5L18 17.5L16.5 23L12 19L7.5 23L6 17.5L0.5 15.5L5 11.5L3.5 6L9.2 7.2L12 2ZM12 5.5L10 8.5L6.5 7.5L7.5 11L4.5 14L8 15L9 18.5L12 16L15 18.5L16 15L19.5 14L16.5 11L17.5 7.5L14 8.5L12 5.5Z" />
-      </svg>
-      <span className="font-uthmani text-reader-paper-gilt/80 animate-pulse text-lg tracking-wide">
-        جاري التحميل...
-      </span>
+      {Array.from({ length: lineCount }).map((_, i) => (
+        <div
+          key={i}
+          className="flex w-full justify-center px-4"
+        >
+          <div
+            className="h-5 md:h-8 lg:h-10 bg-primary/10 rounded-full animate-pulse"
+            style={{
+              width: centered ? `${Math.max(40, 90 - (i * 10))}%` : (i === lineCount - 1 ? '60%' : '100%'),
+              animationDelay: `${i * 100}ms`
+            }}
+          />
+        </div>
+      ))}
       <span className="sr-only">Loading…</span>
     </div>
   )
@@ -447,6 +451,7 @@ function ReadingPage({
   onWordClick,
   onAyahClick,
   enableScrollTurn = true,
+  forcedFontSize,
 }: {
   page: MushafPage
   prevPage: MushafPage | null
@@ -464,6 +469,8 @@ function ReadingPage({
    * partial opacity/scale/translateY — a "ghost" second card outline
    * behind the real one. */
   enableScrollTurn?: boolean
+  /** Force a specific font size for balanced page layouts */
+  forcedFontSize?: number
 }) {
   // A surah can span dozens of Mushaf pages — only fetch this page's font
   // once it's actually near the viewport, not the moment it mounts, so
@@ -617,13 +624,15 @@ function ReadingPage({
             "text-reader-ink",
             isCenteredOpeningPage
               ? "flex flex-col items-center justify-center space-y-2 py-1 text-center leading-[2.0]"
-              // Standard 15-line pages: justify-between evenly spaces the exactly 15 lines
+              // Standard 15-line pages: flex-grow evenly spaces the 15 units (lines + headers)
               // to perfectly fill the top-to-bottom height of the Madani frame.
-              : "flex flex-col justify-between pt-0.5 pb-2 sm:pb-2.5",
+              : "flex flex-col pt-0.5 pb-2 sm:pb-2.5",
             // The font size MUST be mathematically identical on every page to preserve the grid.
             // Using cqw (inline/width) instead of cqh to avoid cyclic height dependency in Chrome/WebKit.
-            "text-[clamp(16px,6.2cqw,40px)]",
+            // When forcedFontSize is provided (paged spread mode), use fixed size for balanced layout.
+            !forcedFontSize && "text-[clamp(16px,6.2cqw,40px)]",
           )}
+          style={forcedFontSize ? { fontSize: `${forcedFontSize}px` } : undefined}
         >
           {fontLoading ? (
             <MushafPageSkeleton
@@ -643,9 +652,15 @@ function ReadingPage({
                 />
               </div>
             ))
-          ) : (
+          ) : (() => {
             // Standard 15-Line Madani Page: Exact line-by-line justified rendering
-            page.lines.map(({ lineNumber, words }, index) => {
+            const missingLines = 15 - page.lines.length
+            const surahStartsOnPage = page.lines.filter(({ words }) => 
+              words.find((w) => w.verse.verse_number === 1 && w.position === 1)
+            ).length
+            const flexPerHeader = surahStartsOnPage > 0 ? missingLines / surahStartsOnPage : 0
+
+            return page.lines.map(({ lineNumber, words }, index) => {
               const isLastLine = index === page.lines.length - 1
               const isShortLastLine = isLastLine && words.length <= 5
 
@@ -684,80 +699,40 @@ function ReadingPage({
               return (
                 <Fragment key={lineNumber}>
                   {surahStart && startingChapter && (
-                    <>
+                    <div
+                      className="flex flex-col justify-center"
+                      style={{ flex: `${flexPerHeader} ${flexPerHeader} 0%` }}
+                    >
                       <SurahHeaderCartouche chapter={startingChapter} />
                       {startingChapter.bismillah_pre && <BismillahHeader />}
-                    </>
+                    </div>
                   )}
-                  <MushafLine
-                    pageNumber={page.pageNumber}
-                    lineNumber={lineNumber}
-                    lineItems={lineItems}
-                    qcfFontFamily={qcfFontFamily}
-                    isShortLastLine={isShortLastLine}
-                    isDenseLine={isDenseLine}
-                    isVeryDense={isVeryDense}
-                    targetAyahId={targetAyahId}
-                    onWordClick={onWordClick}
-                    onAyahClick={onAyahClick}
-                    pageScale={pageScale}
-                    onScaleMeasured={handleScaleMeasured}
-                  />
+                  <div className="flex flex-col justify-center" style={{ flex: '1 1 0%' }}>
+                    <MushafLine
+                      pageNumber={page.pageNumber}
+                      lineNumber={lineNumber}
+                      lineItems={lineItems}
+                      qcfFontFamily={qcfFontFamily}
+                      isShortLastLine={isShortLastLine}
+                      isDenseLine={isDenseLine}
+                      isVeryDense={isVeryDense}
+                      targetAyahId={targetAyahId}
+                      onWordClick={onWordClick}
+                      onAyahClick={onAyahClick}
+                      pageScale={pageScale}
+                      onScaleMeasured={handleScaleMeasured}
+                    />
+                  </div>
                 </Fragment>
               )
             })
-          )}
+          })()}
         </div>
       </MushafPageFrame>
     </div>
   )
 }
 
-/** Floating "where am I" pill — page/Juz/Hizb context that would otherwise
- * only live in MushafPageFrame's own header/footer, which scrolls away.
- * Sits above BottomNav and MiniPlayer (both mobile and desktop) rather than
- * fighting them for the same fixed-bottom real estate. */
-function PageProgressPill({
-  pageNumber,
-  juzNumber,
-  hizbNumber,
-}: {
-  pageNumber: number
-  juzNumber?: number
-  hizbNumber?: number
-}) {
-  const player = useAudioPlayerOptional()
-  const playerVisible = !!player && player.status !== "idle"
-
-  return (
-    <div
-      aria-hidden="true"
-      className={cn(
-        "pointer-events-none fixed inset-x-0 z-30 flex justify-center transition-[bottom] duration-[var(--dur-base)]",
-        playerVisible ? "bottom-48 md:bottom-24" : "bottom-24 md:bottom-4",
-      )}
-    >
-      <div
-        dir="ltr"
-        className="flex items-center gap-1.5 rounded-full border border-border/50 bg-background/70 px-3.5 py-1.5 text-xs font-medium tabular-nums text-muted-foreground shadow-md backdrop-blur-md"
-      >
-        <span>Page {toArabicDigits(pageNumber)}</span>
-        {juzNumber != null && (
-          <>
-            <span className="opacity-50">·</span>
-            <span>Juz {toArabicDigits(juzNumber)}</span>
-          </>
-        )}
-        {hizbNumber != null && (
-          <>
-            <span className="opacity-50">·</span>
-            <span>Hizb {toArabicDigits(hizbNumber)}</span>
-          </>
-        )}
-      </div>
-    </div>
-  )
-}
 
 /** E-08: thin right-edge strip of one block per Mushaf page in this surah —
  * spatial "where am I in this long surah" awareness that a scrollbar alone
@@ -923,6 +898,10 @@ function PagedMushafDeck({
   onNext: () => void
 }) {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+
+  // Calculate balanced layout for equal page sizing and content distribution
+  const pageLayout = useBalancedPageLayout(spread.left, spread.right)
+
   // Deliberately not ANDed with `!isFlipping` — that's a sub-second guard
   // against a genuine double-input (handled centrally in goToPage), not a
   // real "can't turn the page" state, so it shouldn't flicker the arrows'
@@ -983,21 +962,24 @@ function PagedMushafDeck({
               backfaceVisibility: "hidden",
             }}
           >
-            {/* items-start, not items-center: a mid-page surah transition (a
-             * surah-end + a new surah's header/Bismillah + its opening ayahs
-             * all on one Mushaf page) makes that page's rendered content
-             * taller than its spread-mate. Centering each page independently
-             * then left the taller one hanging lower than the other, like a
-             * torn-out page — top-aligning keeps both pages sitting on the
-             * same "shelf", as they would in a real bound Mushaf. */}
-            <div className={cn("grid gap-8 items-stretch", spread.left ? "grid-cols-2" : "grid-cols-1 mx-auto max-w-[min(100%,48rem)]")}>
+            {/* Balanced Two-Page Spread Layout:
+             * - Fixed height ensures equal page sizing
+             * - Dynamic font sizing fits ~15 ayahs per page
+             * - Both pages render with uniform styling
+             * - Surah headers and Bismillah adjust within fixed height */}
+            <div
+              className={cn("grid gap-8 items-stretch", spread.left ? "grid-cols-2" : "grid-cols-1 mx-auto max-w-[min(100%,48rem)]")}
+              style={{
+                '--page-height': `${pageLayout.pageHeightPx}px`,
+              } as React.CSSProperties}
+            >
               {spread.left && (
                 // @container: MushafPageFrame sizes itself off `100cqw`, which
                 // otherwise resolves against the far [surahId]/layout.tsx
                 // ancestor's full width instead of this ~half-width column,
                 // letting the page render at its 36.25rem max and overflow the
                 // grid cell.
-                <div className="relative @container">
+                <div className="relative @container" style={{ height: `${pageLayout.pageHeightPx}px` }}>
                   {/* Center binding shadow on the right edge of the left page */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-black/10 to-transparent z-10" />
                   <ReadingPage
@@ -1009,10 +991,11 @@ function PagedMushafDeck({
                     onWordClick={onWordClick}
                     onAyahClick={onAyahClick}
                     enableScrollTurn={false}
+                    forcedFontSize={pageLayout.fontSize}
                   />
                 </div>
               )}
-              <div className="relative @container">
+              <div className="relative @container" style={{ height: `${pageLayout.pageHeightPx}px` }}>
                 {spread.left && (
                   /* Center binding shadow on the left edge of the right page */
                   <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-black/10 to-transparent z-10" />
@@ -1026,6 +1009,7 @@ function PagedMushafDeck({
                   onWordClick={onWordClick}
                   onAyahClick={onAyahClick}
                   enableScrollTurn={false}
+                  forcedFontSize={pageLayout.fontSize}
                 />
               </div>
             </div>
@@ -1083,7 +1067,7 @@ export function ReadingModeView({
   // scrolling column).
   const splitView = readingLayout === "scroll" && splitViewTranslation && showTranslation
   const player = useAudioPlayerOptional()
-  
+
   // E-04: "Continue Reading" Resume Marker Tracking
   const { lastReadPosition, clearLastReadPosition, reobserve } = useReadingPosition(chapter?.id)
 
@@ -1103,7 +1087,7 @@ export function ReadingModeView({
         el.scrollIntoView({ behavior: "smooth", block: "center" })
         setHasRestoredPosition(true)
         setShowResumeToast(true)
-        
+
         // Hide the toast after a few seconds
         const t = setTimeout(() => setShowResumeToast(false), 5000)
         return () => clearTimeout(t)
@@ -1310,7 +1294,7 @@ export function ReadingModeView({
 
         const lowest = visible.reduce((a, b) =>
           Number(a.target.getAttribute("data-page-number")) >
-          Number(b.target.getAttribute("data-page-number"))
+            Number(b.target.getAttribute("data-page-number"))
             ? a
             : b,
         )
@@ -1497,10 +1481,10 @@ export function ReadingModeView({
     readingLayout === "paged"
       ? currentSpread
         ? {
-            pageNumber: currentSpread.right.pageNumber,
-            juzNumber: currentSpread.right.juzNumber,
-            hizbNumber: currentSpread.right.hizbNumber,
-          }
+          pageNumber: currentSpread.right.pageNumber,
+          juzNumber: currentSpread.right.juzNumber,
+          hizbNumber: currentSpread.right.hizbNumber,
+        }
         : null
       : scrollActivePage
 
@@ -1564,7 +1548,7 @@ export function ReadingModeView({
               <span className="text-sm font-medium text-foreground">
                 Resumed from Ayah {lastReadPosition.verseKey.split(':')[1]}
               </span>
-              <button 
+              <button
                 onClick={() => {
                   clearLastReadPosition()
                   setShowResumeToast(false)
@@ -1621,14 +1605,6 @@ export function ReadingModeView({
           verse={selectedAyah}
           onClose={() => setSelectedAyah(null)}
         />
-
-        {activePage && (
-          <PageProgressPill
-            pageNumber={activePage.pageNumber}
-            juzNumber={activePage.juzNumber}
-            hizbNumber={activePage.hizbNumber}
-          />
-        )}
 
         {readingLayout === "scroll" && (
           <MushafMinimap
