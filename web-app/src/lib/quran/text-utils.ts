@@ -3,37 +3,38 @@
  */
 
 /**
- * Comprehensive regex to remove ALL Arabic diacritical marks and special notation marks
- * Includes:
- * - Standard harakat (vowel marks): U+064B-U+065F
- * - Quranic special marks: Silent Alif (U+06DF), Maddah variants (U+0653-0+0655)
- * - Presentation forms and other combining marks
+ * Regex to remove ONLY problematic Quranic marks
+ * KEEPS standard harakat (vowel marks) for authentic Quranic appearance
+ * Removes only: Silent Alif (۟), Superscript Alif (ٓ), and similar noise marks
+ * Preserves: Fatha (َ), Damma (ُ), Kasra (ِ), Sukun (ْ), Shadda (ّ), etc.
  */
-const DIACRITICAL_MARKS = /[ً-ٰٟۖ-۪ۜ۟ۤۧۨ۫]/g
+const DIACRITICAL_MARKS = /[۟ٓ]/g
 
 /**
- * Removes all diacritical marks (harakat) and Quranic special marks from Arabic text
- * Includes standard diacritics, Quranic notation marks, and combining characters
- * Useful for cleaner rendering when diacritics are not needed
+ * Removes ONLY problematic marks while preserving standard Arabic harakat
+ * Keeps vowel marks (fatha, damma, kasra, sukun, shadda) for authentic appearance
+ * Perfect for displaying Quranic Arabic with proper vowel marks but without noise marks
  *
- * @param text Arabic text with diacriticals
- * @returns Text without diacriticals or special marks
- *
- * @example
- * removeDiacritics("بِسْمِ الله الرَّحْمٰن الرَّحِيم")
- * // Returns: "بسم الله الرحمن الرحيم"
+ * @param text Arabic text with Quranic marks
+ * @returns Text with only problematic marks removed, standard harakat preserved
  *
  * @example
  * removeDiacritics("فٱذكرونىٓ أذكركم وٱشكروا۟ لى ولا تكفرون")
  * // Returns: "فاذكروني اذكركم واشكروا لي ولا تكفرون"
+ * // Keeps all vowel marks (َ ُ ِ ْ ّ), removes only ۟ and ٓ
+ *
+ * @example
+ * removeDiacritics("بِسْمِ الله الرَّحْمٰن الرَّحِيم")
+ * // Returns: "بِسْمِ الله الرَّحْمَن الرَّحِيم"
+ * // All harakat preserved, only special marks removed
  */
 export function removeDiacritics(text: string): string {
   if (!text) return text
 
-  // Remove all diacritical marks and special notation marks
+  // Remove ONLY problematic marks (silent alif, superscript alif, etc)
   let cleaned = text.replace(DIACRITICAL_MARKS, "")
 
-  // Also normalize ALIF WASLA to regular ALIF for consistency
+  // Normalize ALIF WASLA to regular ALIF for consistency
   cleaned = cleaned.replace(/ٱ/g, "ا") // ٱ → ا
 
   return cleaned
@@ -65,10 +66,10 @@ export function normalizeArabicText(text: string): string {
 
 /**
  * Gets optimal text variant for rendering
- * - Uses text without diacritics for cleaner display
- * - Falls back to original if no diacritics found
+ * - Uses text without only problematic marks for display
+ * - Preserves standard harakat for authentic appearance
  *
- * @param text Arabic text (potentially with diacritics)
+ * @param text Arabic text (potentially with marks)
  * @param keepDiacritics Whether to keep diacriticals (default: false for cleaner rendering)
  * @returns Optimized text
  */
@@ -79,6 +80,7 @@ export function getOptimalTextVariant(
   if (!text) return text
 
   if (!keepDiacritics) {
+    // Remove only problematic marks, keep standard harakat
     return normalizeArabicText(removeDiacritics(text))
   }
 
@@ -86,15 +88,15 @@ export function getOptimalTextVariant(
 }
 
 /**
- * Detects if text contains diacritical marks or special Quranic notation
+ * Detects if text contains problematic marks
  *
  * @param text Text to check
- * @returns true if text contains diacritics or special marks
+ * @returns true if text contains problematic marks
  */
 export function hasDiacritics(text: string): boolean {
   if (!text) return false
-  // Test for both diacriticals and special marks
-  return /[ً-ٰٟۖ-۪ۜ۟ۤۧۨ۫ٱ]/.test(text)
+  // Check for problematic marks only
+  return /[۟ٓٱ]/.test(text)
 }
 
 /**
@@ -103,9 +105,9 @@ export function hasDiacritics(text: string): boolean {
 export function getTextStats(text: string) {
   return {
     length: text.length,
-    hasDiacritics: hasDiacritics(text),
+    hasProblematicMarks: hasDiacritics(text),
     wordCount: text.split(/\s+/).length,
     cleanLength: removeDiacritics(text).length,
-    diacriticsCount: (text.match(DIACRITICAL_MARKS) || []).length,
+    problematicMarkCount: (text.match(DIACRITICAL_MARKS) || []).length,
   }
 }
