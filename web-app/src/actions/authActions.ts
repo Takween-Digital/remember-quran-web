@@ -113,8 +113,19 @@ export async function requestPasswordResetOTP(email: string) {
     }
 
     console.log("[PASSWORD_RESET] Checking if user exists...")
-    await getAdminAuth().getUserByEmail(emailValidation.email)
-    console.log("[PASSWORD_RESET] User found")
+    try {
+      await getAdminAuth().getUserByEmail(emailValidation.email)
+      console.log("[PASSWORD_RESET] User found")
+    } catch (authError: any) {
+      if (authError.code === "auth/user-not-found") {
+        console.warn("[PASSWORD_RESET] User not found:", emailValidation.email)
+        return {
+          success: false,
+          error: "No account found with this email address.",
+        }
+      }
+      throw authError
+    }
 
     console.log("[PASSWORD_RESET] Checking resend cooldown...")
     const resetDoc = await getAdminDb()

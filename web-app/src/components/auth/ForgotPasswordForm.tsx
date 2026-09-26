@@ -9,6 +9,22 @@ import { requestPasswordResetOTP, verifyAndResetPassword } from "@/actions/authA
 
 type Step = "email" | "otp" | "password"
 
+function extractErrorMessage(err: unknown, fallback: string = "Something went wrong"): string {
+  if (!err) return fallback
+  if (typeof err === "string") return err
+  if (err instanceof Error && err.message) return err.message
+  if (typeof err === "object") {
+    const maybeObj = err as Record<string, unknown>
+    if (typeof maybeObj.message === "string" && maybeObj.message) {
+      return maybeObj.message
+    }
+    if (typeof maybeObj.error === "string" && maybeObj.error) {
+      return maybeObj.error
+    }
+  }
+  return fallback
+}
+
 export function ForgotPasswordForm() {
   const [step, setStep] = useState<Step>("email")
   const [email, setEmail] = useState("")
@@ -38,13 +54,13 @@ export function ForgotPasswordForm() {
         setStep("otp")
         setOtp("")
       } else {
-        setError(result.error || "Failed to send code")
+        setError(extractErrorMessage(result.error, "Failed to send code"))
         if (result.cooldownSeconds) {
           setCooldownSeconds(result.cooldownSeconds)
         }
       }
-    } catch (err: any) {
-      setError(err.message || "Something went wrong")
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err, "Something went wrong"))
     } finally {
       setPending(false)
     }
@@ -64,8 +80,8 @@ export function ForgotPasswordForm() {
     try {
       setMessage("Code verified! Now enter your new password")
       setStep("password")
-    } catch (err: any) {
-      setError(err.message || "Something went wrong")
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err, "Something went wrong"))
     } finally {
       setPending(false)
     }
@@ -91,10 +107,10 @@ export function ForgotPasswordForm() {
           window.location.href = "/login"
         }, 2000)
       } else {
-        setError(result.error || "Failed to reset password")
+        setError(extractErrorMessage(result.error, "Failed to reset password"))
       }
-    } catch (err: any) {
-      setError(err.message || "Something went wrong")
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err, "Something went wrong"))
     } finally {
       setPending(false)
     }
@@ -131,7 +147,7 @@ export function ForgotPasswordForm() {
               role="alert"
               className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive"
             >
-              {error}
+              {typeof error === "string" ? error : String(error)}
             </p>
           )}
 
@@ -182,7 +198,7 @@ export function ForgotPasswordForm() {
               role="alert"
               className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive"
             >
-              {error}
+              {typeof error === "string" ? error : String(error)}
             </p>
           )}
 
@@ -240,7 +256,7 @@ export function ForgotPasswordForm() {
               role="alert"
               className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive"
             >
-              {error}
+              {typeof error === "string" ? error : String(error)}
             </p>
           )}
 
